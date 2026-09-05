@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
   const [state, formAction] = useActionState(loginAdmin, null);
 
   return (
-    <div className="min-h-screen bg-[#FEFADC] dark:bg-[#1C1A19] flex flex-col justify-center items-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#FEFADC] dark:bg-[#1C1A19] flex flex-col justify-center items-center p-6 relative overflow-hidden" suppressHydrationWarning>
       <div className="absolute top-6 right-6">
         <ThemeToggle />
       </div>

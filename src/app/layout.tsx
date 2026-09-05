@@ -53,7 +53,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-quicksand antialiased min-h-screen transition-colors duration-200">
+      <body className="font-quicksand antialiased min-h-screen transition-colors duration-200" suppressHydrationWarning>
         {children}
       </body>
     </html>

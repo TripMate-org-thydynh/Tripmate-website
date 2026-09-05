@@ -394,3 +394,82 @@ export async function updateConfigAction(key: string, value: string, description
     return { success: false, error: err.message };
   }
 }
+
+// --- SUBSCRIPTION ACTIONS ---
+export async function getSubscriptionsAction(params: {
+  search?: string;
+  plan?: string;
+  status?: string;
+  expiringSoon?: boolean;
+  page?: number;
+  limit?: number;
+} = {}) {
+  try {
+    const page = params.page || 1;
+    const limit = params.limit || 10;
+    let query = `?page=${page}&limit=${limit}`;
+    if (params.search) query += `&search=${encodeURIComponent(params.search)}`;
+    if (params.plan) query += `&plan=${params.plan}`;
+    if (params.status) query += `&status=${params.status}`;
+    if (params.expiringSoon) query += `&expiringSoon=true`;
+
+    const res = await fetchWithAuth(`/admin/subscriptions${query}`);
+    if (!res.ok) throw new Error('Failed to fetch subscriptions');
+    const json = await res.json();
+    return { success: true, data: json.data ?? json };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi tải danh sách gói đăng ký' };
+  }
+}
+
+export async function getSubscriptionDetailAction(id: string) {
+  try {
+    const res = await fetchWithAuth(`/admin/subscriptions/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch subscription detail');
+    const json = await res.json();
+    return { success: true, data: json.data ?? json };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi tải chi tiết gói đăng ký' };
+  }
+}
+
+export async function extendSubscriptionAction(id: string, months: number, reason: string) {
+  try {
+    if (!reason || reason.trim() === '') {
+      return { success: false, error: 'Vui lòng nhập lý do gia hạn' };
+    }
+    const res = await fetchWithAuth(`/admin/subscriptions/${id}/extend`, {
+      method: 'POST',
+      body: JSON.stringify({ months: Number(months), reason: reason.trim() }),
+    });
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || 'Gia hạn gói thất bại');
+    }
+    const json = await res.json();
+    return { success: true, data: json.data ?? json };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi gia hạn gói' };
+  }
+}
+
+export async function revokeSubscriptionAction(id: string, reason: string) {
+  try {
+    if (!reason || reason.trim() === '') {
+      return { success: false, error: 'Vui lòng nhập lý do thu hồi gói' };
+    }
+    const res = await fetchWithAuth(`/admin/subscriptions/${id}/revoke`, {
+      method: 'POST',
+      body: JSON.stringify({ reason: reason.trim() }),
+    });
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || 'Thu hồi gói thất bại');
+    }
+    const json = await res.json();
+    return { success: true, data: json.data ?? json };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi thu hồi gói' };
+  }
+}
+

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -19,6 +19,7 @@ import {
   Shield,
   TrendingUp,
   DollarSign,
+  CreditCard,
   Sparkles,
 } from 'lucide-react';
 
@@ -26,6 +27,7 @@ const navItems = [
   { name: 'Tổng quan KPI', href: '/admin', icon: LayoutDashboard },
   { name: 'Tăng trưởng', href: '/admin/growth', icon: TrendingUp },
   { name: 'Doanh thu & Ví', href: '/admin/revenue', icon: DollarSign },
+  { name: 'Gói đăng ký', href: '/admin/subscriptions', icon: CreditCard },
   { name: 'AI Analytics', href: '/admin/ai', icon: Sparkles },
   { name: 'Quản lý Users', href: '/admin/users', icon: Users },
   { name: 'Chuyến đi', href: '/admin/trips', icon: Compass },
