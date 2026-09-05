@@ -1,0 +1,123 @@
+/* GENERATED FROM design/tokens.json — DO NOT EDIT */
+/* Sua tokens.json roi chay: node design/build-tokens.mjs */
+
+:root {
+  /* Base */
+  --ds-ink: #141210;
+  --ds-ink-soft: #4A453E;
+  --ds-cream: #FDF6D3;
+  --ds-paper: #FFFDF5;
+
+  /* Palette */
+  --ds-yellow: #FFD84D;
+  --ds-orange: #F5822B;
+  --ds-green: #1FA85C;
+  --ds-magenta: #D6248C;
+  --ds-purple: #8B4DE8;
+  --ds-red: #D8422B;
+  --ds-lilac: #C9B8FF;
+  --ds-blue: #3D8BFF;
+  --ds-pink: #FFA8D2;
+
+  /* Semantic */
+  --ds-success: #1FA85C;
+  --ds-warning: #FFD84D;
+  --ds-danger: #D8422B;
+  --ds-info: #8B4DE8;
+
+  /* Accent mac dinh: mint */
+  --ds-primary: #FFD84D;
+  --ds-on-primary: #141210;
+  --ds-pair: #8B4DE8;
+  --ds-accent-bg: #FDF6D3;
+  --ds-accent-soft: #FFEFAE;
+
+  /* Radius */
+  --ds-radius-input: 12px;
+  --ds-radius-button: 14px;
+  --ds-radius-card: 20px;
+  --ds-radius-pill: 999px;
+
+  /* Border */
+  --ds-border-thin: 2px;
+  --ds-border-base: 2.5px;
+  --ds-border-focus: 3px;
+
+  /* Shadow */
+  --ds-shadow-x: 0px;
+  --ds-shadow-y: 4px;
+  --ds-shadow-blur: 0px;
+
+  /* Duration */
+  --ds-duration-fast: 150ms;
+  --ds-duration-base: 250ms;
+  --ds-duration-slow: 400ms;
+
+  /* Font */
+  --ds-font-heading: 'Baloo 2', cursive;
+  --ds-font-body: 'Nunito', sans-serif;
+  --ds-font-mono: 'Space Mono', monospace;
+}
+
+.dark {
+  --ds-ink: #FDF6D3;
+  --ds-ink-soft: #B8AE9C;
+  --ds-cream: #1A1712;
+  --ds-paper: #262019;
+}
+
+[data-accent="mint"] {
+  --ds-primary: #FFD84D;
+  --ds-on-primary: #141210;
+  --ds-pair: #8B4DE8;
+  --ds-accent-bg: #FDF6D3;
+  --ds-accent-soft: #FFEFAE;
+}
+
+[data-accent="sun"] {
+  --ds-primary: #1FA85C;
+  --ds-on-primary: #141210;
+  --ds-pair: #FFD84D;
+  --ds-accent-bg: #EBF7DE;
+  --ds-accent-soft: #C9EDBA;
+}
+
+[data-accent="pastel"] {
+  --ds-primary: #3D8BFF;
+  --ds-on-primary: #141210;
+  --ds-pair: #FFA8D2;
+  --ds-accent-bg: #E7F1FD;
+  --ds-accent-soft: #C5DEFF;
+}
+
+[data-accent="grape"] {
+  --ds-primary: #F5822B;
+  --ds-on-primary: #141210;
+  --ds-pair: #141210;
+  --ds-accent-bg: #FDEEDC;
+  --ds-accent-soft: #FFD9B3;
+}
+
+[data-accent="neon"] {
+  --ds-primary: #FF2E93;
+  --ds-on-primary: #141210;
+  --ds-pair: #3D8BFF;
+  --ds-accent-bg: #FDE7F1;
+  --ds-accent-soft: #FFC2DE;
+}
+
+[data-accent="pine"] {
+  --ds-primary: #0F766E;
+  --ds-on-primary: #FFFFFF;
+  --ds-pair: #FFD84D;
+  --ds-accent-bg: #E4F2F0;
+  --ds-accent-soft: #B9DDD9;
+}
+
+[data-accent="cyber"] {
+  --ds-primary: #3D8BFF;
+  --ds-on-primary: #141210;
+  --ds-pair: #FF2E93;
+  --ds-accent-bg: #E4EEFD;
+  --ds-accent-soft: #BBD5FF;
+}

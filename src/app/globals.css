@@ -1,0 +1,198 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #FDF6D3;       /* ds-cream */
+    --foreground: #141210;        /* ds-ink */
+    --card: #FFFDF5;              /* ds-paper */
+    --card-foreground: #141210;
+    --popover: #FFFDF5;
+    --popover-foreground: #141210;
+    --primary: #FFD84D;           /* ds-primary (mint default) */
+    --primary-foreground: #141210; /* ds-on-primary */
+    --secondary: #8B4DE8;         /* ds-pair (mint) */
+    --secondary-foreground: #141210;
+    --muted: #F3EDCA;
+    --muted-foreground: #4A453E;  /* ds-ink-soft */
+    --accent: #C9B8FF;            /* ds-lilac */
+    --accent-foreground: #141210;
+    --destructive: #D8422B;       /* ds-danger */
+    --destructive-foreground: #FFFDF5;
+    --border: #141210;            /* ds-ink */
+    --input: #FFFDF5;             /* ds-paper */
+    --ring: #FFD84D;              /* ds-primary */
+    --radius: 1.25rem;            /* 20px — ds-radius-card */
+  }
+
+  .dark {
+    --background: #1A1712;        /* ds-cream dark */
+    --foreground: #FDF6D3;        /* ds-ink dark */
+    --card: #262019;              /* ds-paper dark */
+    --card-foreground: #FDF6D3;
+    --popover: #262019;
+    --popover-foreground: #FDF6D3;
+    --primary: #FFD84D;
+    --primary-foreground: #FDF6D3;
+    --secondary: #8B4DE8;
+    --secondary-foreground: #1A1712;
+    --muted: #322E26;
+    --muted-foreground: #B8AE9C;  /* ds-ink-soft dark */
+    --accent: #C9B8FF;
+    --accent-foreground: #1A1712;
+    --destructive: #D8422B;
+    --destructive-foreground: #FFFDF5;
+    --border: #FDF6D3;            /* ds-ink dark */
+    --input: #262019;
+    --ring: #FFD84D;
+  }
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 16px);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  min-height: 100vh;
+}
+
+/* Neo-brutalist Box */
+.neo-box {
+  border: var(--ds-border-base) solid var(--ds-ink);
+  box-shadow: var(--ds-shadow-x) var(--ds-shadow-y) var(--ds-shadow-blur) 0px var(--ds-ink);
+  border-radius: var(--ds-radius-card);
+  background-color: var(--ds-paper);
+  transition: all var(--ds-duration-fast) ease-in-out;
+}
+
+.neo-box:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: calc(var(--ds-shadow-x) + 1px) calc(var(--ds-shadow-y) + 1px) var(--ds-shadow-blur) 0px var(--ds-ink);
+}
+
+.neo-box:active {
+  transform: translate(1px, 1px);
+  box-shadow: calc(var(--ds-shadow-x) + 2px) calc(var(--ds-shadow-y) - 2px) var(--ds-shadow-blur) 0px var(--ds-ink);
+}
+
+/* Dark mode overrides for neo-box */
+.dark .neo-box {
+  border: var(--ds-border-base) solid var(--foreground);
+  box-shadow: var(--ds-shadow-x) var(--ds-shadow-y) var(--ds-shadow-blur) 0px var(--foreground);
+  background-color: var(--card);
+}
+.dark .neo-box:hover {
+  box-shadow: calc(var(--ds-shadow-x) + 1px) calc(var(--ds-shadow-y) + 1px) var(--ds-shadow-blur) 0px var(--foreground);
+}
+.dark .neo-box:active {
+  box-shadow: calc(var(--ds-shadow-x) + 2px) calc(var(--ds-shadow-y) - 2px) var(--ds-shadow-blur) 0px var(--foreground);
+}
+
+/* Neo-brutalist Button */
+.neo-btn {
+  border: var(--ds-border-base) solid var(--ds-ink);
+  box-shadow: calc(var(--ds-shadow-y) - 1px) calc(var(--ds-shadow-y) - 1px) var(--ds-shadow-blur) 0px var(--ds-ink);
+  border-radius: var(--ds-radius-button);
+  font-weight: 800;
+  transition: all var(--ds-duration-fast) ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: var(--ds-paper);
+  color: var(--ds-ink);
+}
+
+.neo-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--ds-shadow-y) var(--ds-shadow-y) var(--ds-shadow-blur) 0px var(--ds-ink);
+}
+
+.neo-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: calc(var(--ds-shadow-y) - 2px) calc(var(--ds-shadow-y) - 2px) var(--ds-shadow-blur) 0px var(--ds-ink);
+}
+
+.dark .neo-btn {
+  border: var(--ds-border-base) solid var(--foreground);
+  box-shadow: calc(var(--ds-shadow-y) - 1px) calc(var(--ds-shadow-y) - 1px) var(--ds-shadow-blur) 0px var(--foreground);
+  background-color: var(--card);
+  color: var(--foreground);
+}
+.dark .neo-btn:hover {
+  box-shadow: var(--ds-shadow-y) var(--ds-shadow-y) var(--ds-shadow-blur) 0px var(--foreground);
+}
+.dark .neo-btn:active {
+  box-shadow: calc(var(--ds-shadow-y) - 2px) calc(var(--ds-shadow-y) - 2px) var(--ds-shadow-blur) 0px var(--foreground);
+}
+
+/* Neo Input */
+.neo-input {
+  border: var(--ds-border-base) solid var(--ds-ink);
+  border-radius: var(--ds-radius-input);
+  background-color: var(--ds-paper);
+  padding: 10px 16px;
+  outline: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+.neo-input:focus {
+  background-color: #fdfdfd;
+  box-shadow: calc(var(--ds-shadow-y) - 2px) calc(var(--ds-shadow-y) - 2px) var(--ds-shadow-blur) 0px var(--ds-ink);
+}
+.dark .neo-input {
+  border-color: var(--foreground);
+  background-color: var(--input);
+  color: var(--foreground);
+}
+.dark .neo-input:focus {
+  box-shadow: calc(var(--ds-shadow-y) - 2px) calc(var(--ds-shadow-y) - 2px) var(--ds-shadow-blur) 0px var(--foreground);
+}
+
+/* Neo Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.neo-marquee {
+  display: flex;
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: var(--ds-border-base) solid var(--ds-ink);
+  border-bottom: var(--ds-border-base) solid var(--ds-ink);
+  background-color: var(--ds-yellow);
+  padding: 8px 0;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.neo-marquee-content {
+  display: flex;
+  animation: marquee 20s linear infinite;
+}
+
+.dark .neo-marquee {
+  border-color: var(--foreground);
+}
