@@ -16,8 +16,6 @@ import {
   Zap,
   TrendingUp,
   AlertTriangle,
-  Users,
-  ShieldCheck
 } from 'lucide-react';
 
 const problems = [
@@ -40,7 +38,7 @@ const problems = [
     badge: 'PAIN POINT #3',
     title: 'Kỷ niệm trôi mất',
     description: 'Ảnh gửi nhóm bị trôi sau vài ngày. Không có nơi lưu giữ hành trình có cấu trúc kèm tọa độ GPS và câu chuyện nhóm.',
-    color: 'bg-purple-100 text-purple-800 border-purple-900',
+    color: 'bg-sky-100 text-sky-800 border-sky-900',
   },
 ];
 
@@ -55,7 +53,7 @@ const features = [
     icon: DollarSign,
     title: 'Chia tiền sòng phẳng',
     description: 'Nhập hóa đơn, chọn người trả và tự động chia đều hoặc chia theo phần trăm. Thanh toán nhanh qua Momo/ZaloPay.',
-    color: 'bg-[#C5B4FA]', // Pastel Purple
+    color: 'bg-[#FED7AA]', // Soft Peach Orange
   },
   {
     icon: CheckSquare,
@@ -156,12 +154,12 @@ export default async function LandingPage() {
       {/* MODERN GRADIENT + BRUTALIST HERO SECTION */}
       <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28 bg-gradient-to-b from-[#FFFDF0] via-[#FEFADC] to-[#F3ECA7] dark:from-[#252322] dark:via-[#1C1A19] dark:to-[#141210]">
         {/* Soft Glowing Gradient Orbs for Modern Vibe */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-primary/20 via-[#FFD043]/30 to-[#C5B4FA]/20 blur-3xl pointer-events-none rounded-full"></div>
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-primary/20 via-[#FFD043]/30 to-[#F5822B]/20 blur-3xl pointer-events-none rounded-full"></div>
 
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-12 gap-12 items-center relative z-10">
           <div className="md:col-span-7 flex flex-col gap-6 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C5B4FA] text-black text-xs font-black border-2 border-black shadow-[3px_3px_0px_0px_#000000] self-center md:self-start rotate-[-1deg]">
-              <Sparkles className="w-4 h-4 text-primary" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFD84D] text-black text-xs font-black border-2 border-black shadow-[3px_3px_0px_0px_#000000] self-center md:self-start rotate-[-1deg]">
+              <Sparkles className="w-4 h-4 text-amber-700" />
               Nền Tảng Đột Phá Cho Nhóm Phượt & Du Lịch
             </div>
 
@@ -214,7 +212,7 @@ export default async function LandingPage() {
                     <span className="text-[9px] font-black text-black/50">Phú Quốc Escape 🌴</span>
                     <h4 className="text-xs font-black uppercase">Quẩy Hết Nấc</h4>
                   </div>
-                  <div className="w-6 h-6 rounded-full bg-[#C5B4FA] border border-black flex items-center justify-center text-[10px] font-black">PQ</div>
+                  <div className="w-6 h-6 rounded-full bg-[#FED7AA] border border-black flex items-center justify-center text-[10px] font-black">PQ</div>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-[#FFD043] border-2 border-black mb-3 text-xs shadow-[2px_2px_0px_0px_#000000]">
@@ -235,7 +233,7 @@ export default async function LandingPage() {
                       <div className="w-4 h-4 bg-white border border-black rounded flex items-center justify-center text-[8px]">💰</div>
                       Chia tiền
                     </div>
-                    <div className="p-2 rounded-xl bg-[#C5B4FA] border border-black text-[10px] font-bold flex items-center gap-1.5 shadow-[1px_1px_0px_0px_#000000]">
+                    <div className="p-2 rounded-xl bg-[#A2D2FF] border border-black text-[10px] font-bold flex items-center gap-1.5 shadow-[1px_1px_0px_0px_#000000]">
                       <div className="w-4 h-4 bg-white border border-black rounded flex items-center justify-center text-[8px]">📷</div>
                       Moments
                     </div>
@@ -333,9 +331,9 @@ export default async function LandingPage() {
       {/* STARTUP DASHBOARD TEASER */}
       <section className="py-16 bg-white dark:bg-[#252322] border-t-[3px] border-black dark:border-white">
         <div className="max-w-5xl mx-auto px-6 text-center">
-          <div className="p-8 md:p-12 rounded-[40px] border-[3px] border-black bg-[#C5B4FA] text-black shadow-[6px_6px_0px_0px_#000000] flex flex-col gap-6 items-center">
+          <div className="p-8 md:p-12 rounded-[40px] border-[3px] border-black bg-[#FFD84D] text-black shadow-[6px_6px_0px_0px_#000000] flex flex-col gap-6 items-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-black text-xs font-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]">
-              <TrendingUp className="w-4 h-4 text-primary" />
+              <TrendingUp className="w-4 h-4 text-amber-700" />
               Dành Cho Admin & Nhà Đầu Tư
             </div>
             <h2 className="text-3xl md:text-5xl font-black uppercase leading-tight">
@@ -347,7 +345,7 @@ export default async function LandingPage() {
 
             <Link
               href="/admin"
-              className="px-8 py-4 bg-primary text-white border-[3px] border-black font-black text-xs uppercase rounded-2xl hover:bg-primary/90 transition shadow-[4px_4px_0px_0px_#000000] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center gap-2"
+              className="px-8 py-4 bg-black text-white hover:bg-black/80 border-[3px] border-black font-black text-xs uppercase rounded-2xl transition shadow-[4px_4px_0px_0px_#000000] hover:translate-y-[-1px] active:translate-y-[1px] flex items-center gap-2"
             >
               Truy Cập Admin Dashboard
               <ArrowRight className="w-4 h-4" />
@@ -392,7 +390,7 @@ export default async function LandingPage() {
                 <span className="font-black text-lg lowercase text-black">
                   trip<span className="text-primary">.</span>mate
                 </span>
-                <div className="rounded-2xl border-2 border-black bg-[#C5B4FA] p-3 flex flex-col gap-1">
+                <div className="rounded-2xl border-2 border-black bg-[#FFEFAE] p-3 flex flex-col gap-1">
                   <span className="text-[9px] font-black uppercase text-black/60">
                     Chuyến sắp tới
                   </span>

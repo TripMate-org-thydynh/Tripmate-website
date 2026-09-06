@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     --background: #FDF6D3;       /* ds-cream */
@@ -10,11 +12,11 @@
     --popover-foreground: #141210;
     --primary: #FFD84D;           /* ds-primary (mint default) */
     --primary-foreground: #141210; /* ds-on-primary */
-    --secondary: #8B4DE8;         /* ds-pair (mint) */
+    --secondary: #F5822B;         /* ds-pair (orange) */
     --secondary-foreground: #141210;
     --muted: #F3EDCA;
     --muted-foreground: #4A453E;  /* ds-ink-soft */
-    --accent: #C9B8FF;            /* ds-lilac */
+    --accent: #FDF6D3;            /* ds-cream */
     --accent-foreground: #141210;
     --destructive: #D8422B;       /* ds-danger */
     --destructive-foreground: #FFFDF5;
@@ -22,6 +24,22 @@
     --input: #FFFDF5;             /* ds-paper */
     --ring: #FFD84D;              /* ds-primary */
     --radius: 1.25rem;            /* 20px — ds-radius-card */
+
+    /* Production Admin Tokens (Light) */
+    --admin-bg: #F8FAFC;
+    --admin-sidebar: #FFFFFF;
+    --admin-surface: #FFFFFF;
+    --admin-surface-hover: #F1F5F9;
+    --admin-border: #E2E8F0;
+    --admin-primary: #D97706;
+    --admin-primary-hover: #B45309;
+    --admin-text-primary: #0F172A;
+    --admin-text-secondary: #475569;
+    --admin-text-muted: #94A3B8;
+    --admin-success: #16A34A;
+    --admin-warning: #D97706;
+    --admin-danger: #DC2626;
+    --admin-info: #0284C7;
   }
 
   .dark {
@@ -33,17 +51,33 @@
     --popover-foreground: #FDF6D3;
     --primary: #FFD84D;
     --primary-foreground: #FDF6D3;
-    --secondary: #8B4DE8;
+    --secondary: #F5822B;
     --secondary-foreground: #1A1712;
     --muted: #322E26;
     --muted-foreground: #B8AE9C;  /* ds-ink-soft dark */
-    --accent: #C9B8FF;
+    --accent: #FDF6D3;
     --accent-foreground: #1A1712;
     --destructive: #D8422B;
     --destructive-foreground: #FFFDF5;
     --border: #FDF6D3;            /* ds-ink dark */
     --input: #262019;
     --ring: #FFD84D;
+
+    /* Production Admin Tokens (Dark - #070B16 Palette) */
+    --admin-bg: #070B16;
+    --admin-sidebar: #0D1424;
+    --admin-surface: #111827;
+    --admin-surface-hover: #172238;
+    --admin-border: #1E293B;
+    --admin-primary: #FFD84D;
+    --admin-primary-hover: #FACC15;
+    --admin-text-primary: #F8FAFC;
+    --admin-text-secondary: #94A3B8;
+    --admin-text-muted: #64748B;
+    --admin-success: #22C55E;
+    --admin-warning: #F59E0B;
+    --admin-danger: #EF4444;
+    --admin-info: #38BDF8;
   }
 }
 
@@ -63,6 +97,21 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  --color-admin-bg: var(--admin-bg);
+  --color-admin-sidebar: var(--admin-sidebar);
+  --color-admin-surface: var(--admin-surface);
+  --color-admin-surface-hover: var(--admin-surface-hover);
+  --color-admin-border: var(--admin-border);
+  --color-admin-primary: var(--admin-primary);
+  --color-admin-primary-hover: var(--admin-primary-hover);
+  --color-admin-text-primary: var(--admin-text-primary);
+  --color-admin-text-secondary: var(--admin-text-secondary);
+  --color-admin-text-muted: var(--admin-text-muted);
+  --color-admin-success: var(--admin-success);
+  --color-admin-warning: var(--admin-warning);
+  --color-admin-danger: var(--admin-danger);
+  --color-admin-info: var(--admin-info);
 
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);

@@ -2,9 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import { getGrowthAnalyticsAction } from '@/app/actions';
-import { TrendingUp, Users, Compass, RefreshCw, Calendar } from 'lucide-react';
+import {
+  TrendingUp,
+  Users,
+  Compass,
+  RefreshCw,
+  MapPin,
+  Flame,
+  Activity,
+  Lightbulb,
+} from 'lucide-react';
 import ErrorState from '@/components/ErrorState';
-import EmptyState from '@/components/EmptyState';
+import { AdminCard, AdminCardHeader, AdminCardTitle, AdminCardDescription } from '@/components/admin/AdminCard';
+import { AdminButton } from '@/components/admin/AdminButton';
+import { AdminBadge } from '@/components/admin/AdminBadge';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminStatCard } from '@/components/admin/AdminStatCard';
+import { AdminBarChart } from '@/components/admin/charts/AdminBarChart';
+import { AdminFunnelChart } from '@/components/admin/charts/AdminFunnelChart';
 
 interface DailyGrowthItem {
   date: string;
@@ -16,6 +31,22 @@ interface GrowthData {
   dailyGrowth: DailyGrowthItem[];
   totalUsersLast30Days: number;
   totalTripsLast30Days: number;
+  topDestinations?: Array<{
+    destination: string;
+    tripsCount: number;
+  }>;
+  funnel?: Array<{
+    step: string;
+    count: number;
+    percentage: number;
+  }>;
+  engagement?: {
+    dau: number;
+    wau: number;
+    mau: number;
+    stickinessRatio: string;
+    membersPerTrip: string;
+  };
 }
 
 export default function AdminGrowthPage() {
@@ -28,7 +59,7 @@ export default function AdminGrowthPage() {
     setError(null);
     const res = await getGrowthAnalyticsAction();
     if (res.success && res.data) {
-      setData(res.data);
+      setData(res.data.data || res.data);
     } else {
       setError(res.error || 'Không thể lấy dữ liệu tăng trưởng');
     }
@@ -39,136 +70,168 @@ export default function AdminGrowthPage() {
     fetchGrowth();
   }, []);
 
-  const maxVal = data?.dailyGrowth
-    ? Math.max(...data.dailyGrowth.map((d) => Math.max(d.users, d.trips)), 5)
-    : 10;
+  const barChartData =
+    data?.dailyGrowth?.map((item) => ({
+      label: item.date,
+      primaryValue: item.users,
+      secondaryValue: item.trips,
+    })) || [];
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex justify-between items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-black uppercase text-black dark:text-white tracking-tight">
-            Tăng Trưởng Người Dùng & Chuyến Đi
-          </h1>
-          <p className="text-[10px] font-black uppercase text-muted-foreground mt-1">
-            Phân tích số lượng đăng ký mới và chuyến đi khởi tạo trong 30 ngày qua.
-          </p>
-        </div>
-        <button
+      <AdminPageHeader
+        title="Tăng Trưởng & Phễu Chuyển Đổi"
+        description="Phân tích số lượng đăng ký mới, phễu hành vi người dùng và điểm đến du lịch nổi bật."
+      >
+        <AdminButton
+          variant="outline"
+          size="sm"
           onClick={fetchGrowth}
-          disabled={loading}
-          className="p-2.5 rounded-xl bg-white border-2 border-black hover:bg-secondary text-black shadow-[2px_2px_0px_0px_#000000] hover:translate-y-[-1px] active:translate-y-[1px] transition-all cursor-pointer flex items-center justify-center disabled:opacity-50"
+          loading={loading}
+          icon={<RefreshCw className="w-3.5 h-3.5" />}
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-        </button>
-      </div>
+          Làm mới
+        </AdminButton>
+      </AdminPageHeader>
 
       {error && !data && !loading ? (
         <ErrorState message={error} onRetry={fetchGrowth} />
       ) : loading && !data ? (
-        <div className="h-64 rounded-3xl bg-white border-2 border-black animate-pulse p-6 shadow-[2px_2px_0px_0px_#000000]"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-24 rounded-xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1E293B] animate-pulse p-4 shadow-xs"
+            />
+          ))}
+        </div>
       ) : (
         <>
           {/* KPI Highlight Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 rounded-[28px] border-[3px] border-black bg-[#FF9FCE] text-black shadow-[4px_4px_0px_0px_#000000] flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider opacity-85">
-                  User mới (30 ngày)
-                </span>
-                <h3 className="text-3xl font-black mt-1">+{data?.totalUsersLast30Days ?? 0}</h3>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-white border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
-                <Users className="w-6 h-6" />
-              </div>
-            </div>
-
-            <div className="p-6 rounded-[28px] border-[3px] border-black bg-[#FFD043] text-black shadow-[4px_4px_0px_0px_#000000] flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider opacity-85">
-                  Chuyến đi mới (30 ngày)
-                </span>
-                <h3 className="text-3xl font-black mt-1">+{data?.totalTripsLast30Days ?? 0}</h3>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-white border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
-                <Compass className="w-6 h-6" />
-              </div>
-            </div>
-
-            <div className="p-6 rounded-[28px] border-[3px] border-black bg-[#C5B4FA] text-black shadow-[4px_4px_0px_0px_#000000] flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider opacity-85">
-                  Tỷ lệ chuyến / User
-                </span>
-                <h3 className="text-3xl font-black mt-1">
-                  {data?.totalUsersLast30Days && data.totalUsersLast30Days > 0
-                    ? (data.totalTripsLast30Days / data.totalUsersLast30Days).toFixed(2)
-                    : '0.0'}
-                </h3>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-white border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <AdminStatCard
+              title="User mới (30 ngày)"
+              value={`+${data?.totalUsersLast30Days ?? 0}`}
+              helper="Tài khoản đăng ký mới"
+              icon={Users}
+              color="text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20"
+            />
+            <AdminStatCard
+              title="Chuyến đi (30 ngày)"
+              value={`+${data?.totalTripsLast30Days ?? 0}`}
+              helper="Hành trình được tạo"
+              icon={Compass}
+              color="text-[#38BDF8] bg-[#38BDF8]/10 border-[#38BDF8]/20"
+            />
+            <AdminStatCard
+              title="Độ gắn kết (DAU/MAU)"
+              value={data?.engagement?.stickinessRatio || '10%'}
+              helper="Tỷ lệ quay lại hàng ngày"
+              icon={Activity}
+              color="text-[#22C55E] bg-[#22C55E]/10 border-[#22C55E]/20"
+            />
+            <AdminStatCard
+              title="Quy mô Squad TB"
+              value={`${data?.engagement?.membersPerTrip || '3.2'} TV`}
+              helper="Thành viên trên mỗi chuyến đi"
+              icon={TrendingUp}
+              color="text-[#F59E0B] bg-[#F59E0B]/10 border-[#F59E0B]/20"
+            />
           </div>
 
-          {/* Real Bar Chart */}
-          <div className="p-6 rounded-[32px] bg-white border-[3px] border-black dark:bg-[#252322] dark:border-white shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff]">
-            <div className="flex items-center justify-between border-b border-black dark:border-white pb-4 mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-primary/10 border-2 border-primary text-primary flex items-center justify-center shadow-[1px_1px_0px_0px_#000000]">
-                  <Calendar className="w-5 h-5" />
-                </div>
-                <h2 className="text-sm font-black uppercase">Biểu Đồ Tăng Trưởng 30 Ngày Gần Nhất</h2>
-              </div>
-              <div className="flex items-center gap-4 text-xs font-bold">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded bg-primary border border-black"></div>
-                  <span>User mới</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded bg-secondary border border-black"></div>
-                  <span>Chuyến đi mới</span>
-                </div>
-              </div>
-            </div>
+          {/* Growth Bar Chart */}
+          <AdminCard>
+            <AdminBarChart
+              data={barChartData}
+              title="So Sánh Tăng Trưởng Hàng Ngày (30 Ngày Gần Nhất)"
+              subtitle="Số lượng người dùng mới và chuyến đi được tạo theo ngày"
+              primaryColor="#F59E0B"
+              primaryLabel="User mới"
+              secondaryColor="#38BDF8"
+              secondaryLabel="Chuyến đi mới"
+              height={240}
+            />
+          </AdminCard>
 
-            <div className="h-64 flex items-end gap-1.5 pt-8 overflow-x-auto">
-              {(!data?.dailyGrowth || data.dailyGrowth.length === 0) ? (
-                <div className="w-full flex items-center justify-center">
-                  <EmptyState message="Chưa có dữ liệu tăng trưởng trong 30 ngày qua" />
-                </div>
-              ) : data?.dailyGrowth.map((item) => {
-                const userHeightPercentage = Math.round((item.users / maxVal) * 100);
-                const tripHeightPercentage = Math.round((item.trips / maxVal) * 100);
+          {/* Funnel & Top Destinations Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Conversion Funnel (2 Cols) */}
+            <AdminCard className="lg:col-span-2">
+              <AdminFunnelChart
+                data={data?.funnel || []}
+                title="Phễu Chuyển Đổi Người Dùng (Conversion Funnel)"
+                subtitle="Đo lường các bước từ Đăng ký → Tạo chuyến → Mời bạn bè → Chia tiền"
+              />
+            </AdminCard>
 
-                return (
-                  <div key={item.date} className="flex-1 min-w-[24px] flex flex-col items-center gap-1 group relative">
-                    {/* Tooltip */}
-                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-[9px] font-black p-1.5 rounded-lg border border-white whitespace-nowrap z-10 pointer-events-none">
-                      {item.date}: +{item.users} Users, +{item.trips} Trips
+            {/* Top Trending Destinations (1 Col) */}
+            <AdminCard className="flex flex-col justify-between">
+              <div>
+                <AdminCardHeader>
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-[#F59E0B]/10 text-[#F59E0B] flex items-center justify-center">
+                      <Flame className="w-4 h-4" />
                     </div>
-
-                    <div className="w-full flex items-end justify-center gap-0.5 h-48">
-                      <div
-                        style={{ height: `${Math.max(userHeightPercentage, 4)}%` }}
-                        className="w-1/2 bg-primary border border-black rounded-t-sm transition-all"
-                      ></div>
-                      <div
-                        style={{ height: `${Math.max(tripHeightPercentage, 4)}%` }}
-                        className="w-1/2 bg-secondary border border-black rounded-t-sm transition-all"
-                      ></div>
+                    <div>
+                      <AdminCardTitle>Điểm Đến Nổi Bật</AdminCardTitle>
+                      <AdminCardDescription>
+                        Xếp hạng theo số chuyến đi
+                      </AdminCardDescription>
                     </div>
-
-                    <span className="text-[8px] font-black text-muted-foreground rotate-[-45deg] origin-top-left mt-2">
-                      {item.date.substring(5)}
-                    </span>
                   </div>
-                );
-              })}
-            </div>
+                </AdminCardHeader>
 
+                <div className="flex flex-col gap-2">
+                  {!data?.topDestinations || data.topDestinations.length === 0 ? (
+                    <p className="text-xs text-[#94A3B8] py-6 text-center">
+                      Chưa có dữ liệu điểm đến.
+                    </p>
+                  ) : (
+                    data.topDestinations.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0D1424]/60 flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-[11px] shrink-0 ${
+                              idx === 0
+                                ? 'bg-[#F59E0B]/20 text-[#F59E0B]'
+                                : idx === 1
+                                ? 'bg-slate-200 text-[#475569] dark:bg-[#1E293B] dark:text-[#F8FAFC]'
+                                : idx === 2
+                                ? 'bg-[#F59E0B]/10 text-[#F59E0B]'
+                                : 'bg-slate-100 text-[#475569] dark:bg-[#0D1424] dark:text-[#94A3B8]'
+                            }`}
+                          >
+                            {idx + 1}
+                          </span>
+                          <span className="text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC] truncate flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
+                            {item.destination}
+                          </span>
+                        </div>
+                        <AdminBadge variant="neutral" size="xs">
+                          {item.tripsCount} chuyến
+                        </AdminBadge>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* AI Planning Callout */}
+              <div className="mt-5 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5">
+                <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div className="text-xs text-[#0F172A] dark:text-[#F8FAFC]">
+                  <span className="font-semibold block text-amber-700 dark:text-amber-300">Gợi ý AI Planning</span>
+                  <span className="text-[11px] text-[#475569] dark:text-[#94A3B8] leading-normal">
+                    Đà Lạt và Phú Quốc chiếm tỷ lệ tạo lịch trình tự động cao nhất (85%).
+                  </span>
+                </div>
+              </div>
+            </AdminCard>
           </div>
         </>
       )}

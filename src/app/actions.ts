@@ -77,13 +77,20 @@ export async function checkAuthAdmin() {
   }
 }
 
+function unwrap<T = any>(json: any): T {
+  if (json && typeof json === 'object' && 'data' in json && 'success' in json) {
+    return json.data;
+  }
+  return json?.data ?? json;
+}
+
 // --- STATS & ANALYTICS ---
 export async function getStatsAction() {
   try {
     const res = await fetchWithAuth('/admin/stats');
     if (!res.ok) throw new Error('Failed to fetch stats');
     const json = await res.json();
-    return { success: true, data: json.data ?? json };
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -94,7 +101,7 @@ export async function getGrowthAnalyticsAction() {
     const res = await fetchWithAuth('/admin/analytics/growth');
     if (!res.ok) throw new Error('Failed to fetch growth analytics');
     const json = await res.json();
-    return { success: true, data: json.data ?? json };
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -105,7 +112,7 @@ export async function getRevenueAnalyticsAction() {
     const res = await fetchWithAuth('/admin/analytics/revenue');
     if (!res.ok) throw new Error('Failed to fetch revenue analytics');
     const json = await res.json();
-    return { success: true, data: json.data ?? json };
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -116,7 +123,7 @@ export async function getAiAnalyticsAction() {
     const res = await fetchWithAuth('/admin/analytics/ai');
     if (!res.ok) throw new Error('Failed to fetch AI analytics');
     const json = await res.json();
-    return { success: true, data: json.data ?? json };
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -131,7 +138,8 @@ export async function getUsersAction(search?: string, role?: string, page = 1, l
 
     const res = await fetchWithAuth(`/admin/users${query}`);
     if (!res.ok) throw new Error('Failed to fetch users');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -141,7 +149,8 @@ export async function getUserDetailAction(id: string) {
   try {
     const res = await fetchWithAuth(`/admin/users/${id}`);
     if (!res.ok) throw new Error('Failed to fetch user details');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -154,7 +163,8 @@ export async function updateUserAction(id: string, data: { role?: string; isLock
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Failed to update user');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -180,7 +190,8 @@ export async function getTripsAction(search?: string, page = 1, limit = 10) {
 
     const res = await fetchWithAuth(`/admin/trips${query}`);
     if (!res.ok) throw new Error('Failed to fetch trips');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -193,7 +204,8 @@ export async function createTripAction(data: { name: string; destination?: strin
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Failed to create trip');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -206,7 +218,8 @@ export async function updateTripAction(id: string, data: any) {
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Failed to update trip');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -229,7 +242,8 @@ export async function getReservationsAction(page = 1, limit = 10) {
   try {
     const res = await fetchWithAuth(`/admin/reservations?page=${page}&limit=${limit}`);
     if (!res.ok) throw new Error('Failed to fetch reservations');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -242,7 +256,8 @@ export async function createReservationAction(data: any) {
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Failed to create reservation');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -255,7 +270,8 @@ export async function updateReservationAction(id: string, data: any) {
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Failed to update reservation');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -278,7 +294,8 @@ export async function getJournalsAction(page = 1, limit = 10) {
   try {
     const res = await fetchWithAuth(`/admin/journals?page=${page}&limit=${limit}`);
     if (!res.ok) throw new Error('Failed to fetch journals');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -291,7 +308,8 @@ export async function createJournalAction(data: any) {
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Failed to create journal');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -304,7 +322,8 @@ export async function updateJournalAction(id: string, data: any) {
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Failed to update journal');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -327,7 +346,8 @@ export async function getPackingAction(page = 1, limit = 10) {
   try {
     const res = await fetchWithAuth(`/admin/packing-items?page=${page}&limit=${limit}`);
     if (!res.ok) throw new Error('Failed to fetch packing items');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -340,7 +360,8 @@ export async function createPackingAction(data: any) {
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Failed to create packing item');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -353,7 +374,8 @@ export async function updatePackingAction(id: string, data: any) {
       body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error('Failed to update packing item');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -376,7 +398,8 @@ export async function getConfigsAction() {
   try {
     const res = await fetchWithAuth('/admin/configs');
     if (!res.ok) throw new Error('Failed to fetch configs');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -389,9 +412,82 @@ export async function updateConfigAction(key: string, value: string, description
       body: JSON.stringify({ value, description }),
     });
     if (!res.ok) throw new Error('Failed to update config');
-    return { success: true, data: await res.json() };
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
   } catch (err: any) {
     return { success: false, error: err.message };
+  }
+}
+
+export async function deleteConfigAction(key: string) {
+  try {
+    const res = await fetchWithAuth(`/admin/configs/${key}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to delete config');
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function testGeminiApiKeyAction(apiKey: string) {
+  if (!apiKey || !apiKey.trim()) {
+    return { success: false, error: 'Vui lòng nhập Gemini API Key để kiểm tra' };
+  }
+  const t0 = Date.now();
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey.trim()}`);
+    const ms = Date.now() - t0;
+    const data = await res.json();
+    if (res.ok) {
+      const modelsCount = data.models?.length || 0;
+      return {
+        success: true,
+        latency: ms,
+        message: `Kết nối thành công! Đã nhận diện ${modelsCount} models Gemini (${ms}ms).`,
+      };
+    } else {
+      return {
+        success: false,
+        latency: ms,
+        error: data.error?.message || `Khoá API không hợp lệ (HTTP ${res.status})`,
+      };
+    }
+  } catch (err: any) {
+    return { success: false, latency: Date.now() - t0, error: `Không thể kết nối đến máy chủ Google: ${err.message}` };
+  }
+}
+
+export async function testSendgridApiKeyAction(apiKey: string) {
+  if (!apiKey || !apiKey.trim()) {
+    return { success: false, error: 'Vui lòng nhập SendGrid API Key để kiểm tra' };
+  }
+  const t0 = Date.now();
+  try {
+    const res = await fetch('https://api.sendgrid.com/v3/scopes', {
+      headers: { Authorization: `Bearer ${apiKey.trim()}` },
+    });
+    const ms = Date.now() - t0;
+    const data = await res.json();
+    if (res.ok) {
+      const scopesCount = Array.isArray(data.scopes) ? data.scopes.length : 0;
+      return {
+        success: true,
+        latency: ms,
+        message: `Xác thực thành công! Key sở hữu ${scopesCount} quyền gửi mail (${ms}ms).`,
+      };
+    } else {
+      const errMsg = data.errors?.[0]?.message || `Khoá SendGrid không hợp lệ (HTTP ${res.status})`;
+      return {
+        success: false,
+        latency: ms,
+        error: errMsg,
+      };
+    }
+  } catch (err: any) {
+    return { success: false, latency: Date.now() - t0, error: `Không thể kết nối đến SendGrid: ${err.message}` };
   }
 }
 
@@ -472,4 +568,37 @@ export async function revokeSubscriptionAction(id: string, reason: string) {
     return { success: false, error: err.message || 'Lỗi khi thu hồi gói' };
   }
 }
+
+// --- SYSTEM HEALTH ACTION ---
+export async function getSystemHealthAction() {
+  const start = Date.now();
+  try {
+    const res = await fetch(`${BACKEND_URL}/health`, {
+      cache: 'no-store',
+    });
+    const latency = Date.now() - start;
+    if (!res.ok) throw new Error('Health check response error');
+    const json = await res.json();
+    const payload = json.data ?? json;
+    return {
+      success: true,
+      data: {
+        ...payload,
+        latency,
+      },
+    };
+  } catch (err: any) {
+    const latency = Date.now() - start;
+    return {
+      success: false,
+      error: err.message || 'Không thể kết nối máy chủ',
+      data: {
+        status: 'DOWN',
+        latency,
+        checks: { database: 'DOWN', redis: 'DOWN' },
+      },
+    };
+  }
+}
+
 

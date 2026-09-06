@@ -1,33 +1,44 @@
 'use client';
 
+import React from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 interface ErrorStateProps {
+  title?: string;
   message: string;
   onRetry?: () => void;
+  className?: string;
 }
 
-export default function ErrorState({ message, onRetry }: ErrorStateProps) {
+export default function ErrorState({
+  title = 'Lỗi tải dữ liệu',
+  message,
+  onRetry,
+  className = '',
+}: ErrorStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-5 py-16 px-6">
-      <div className="w-16 h-16 rounded-2xl bg-destructive/10 border-[3px] border-destructive flex items-center justify-center shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(254,250,220,0.3)]">
-        <AlertCircle className="w-8 h-8 text-destructive" />
+    <div
+      className={`flex flex-col items-center justify-center gap-3 py-12 px-6 max-w-md mx-auto text-center ${className}`}
+    >
+      <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 flex items-center justify-center text-rose-600 dark:text-rose-400 mb-1">
+        <AlertCircle className="w-6 h-6" />
       </div>
-      <div className="flex flex-col items-center gap-2 text-center max-w-md">
-        <h3 className="text-sm font-black uppercase text-black dark:text-white">
-          Lỗi tải dữ liệu
+      <div className="flex flex-col items-center gap-1 text-center">
+        <h3 className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+          {title}
         </h3>
-        <p className="text-xs font-bold text-muted-foreground">
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm">
           {message}
         </p>
       </div>
       {onRetry && (
         <button
+          type="button"
           onClick={onRetry}
-          className="px-5 py-2.5 rounded-xl bg-white dark:bg-[#252322] border-[3px] border-black dark:border-white text-black dark:text-white text-xs font-black uppercase flex items-center gap-2 shadow-[3px_3px_0px_0px_#000000] dark:shadow-[3px_3px_0px_0px_#ffffff] hover:translate-y-[-1px] active:translate-y-[1px] transition-all cursor-pointer"
+          className="mt-2 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-xs cursor-pointer"
           aria-label="Thử tải lại dữ liệu"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="w-3.5 h-3.5" />
           Thử lại
         </button>
       )}

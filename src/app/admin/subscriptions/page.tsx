@@ -8,26 +8,37 @@ import {
   revokeSubscriptionAction,
 } from '@/app/actions';
 import {
-  CreditCard,
-  Search,
   RefreshCw,
   Download,
-  AlertCircle,
-  Clock,
   Users,
   Eye,
   PlusCircle,
   XCircle,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  ShieldAlert,
-  CheckCircle2,
   AlertTriangle,
+  History,
 } from 'lucide-react';
 import ErrorState from '@/components/ErrorState';
-import EmptyState from '@/components/EmptyState';
 import { exportToCSV } from '@/lib/exportCsv';
+import ToastContainer, { ToastMessage } from '@/components/ui/Toast';
+import { AdminButton } from '@/components/admin/AdminButton';
+import { AdminSelect, AdminTextarea } from '@/components/admin/AdminInput';
+import { AdminBadge } from '@/components/admin/AdminBadge';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminFilterBar } from '@/components/admin/AdminFilterBar';
+import {
+  AdminTable,
+  AdminTableHeader,
+  AdminTableRow,
+  AdminTableHead,
+  AdminTableCell,
+  AdminTableSkeleton,
+  AdminTableEmpty,
+} from '@/components/admin/AdminTable';
+import { AdminPagination } from '@/components/admin/AdminPagination';
+import { AdminTabs } from '@/components/admin/AdminTabs';
+import { AdminRowActions } from '@/components/admin/AdminRowActions';
+import { AdminDrawer } from '@/components/admin/AdminDrawer';
+import { AdminModal } from '@/components/admin/AdminModal';
 
 function formatDate(dateStr?: string | null) {
   if (!dateStr) return '';
@@ -101,6 +112,7 @@ export default function AdminSubscriptionsPage() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
   const [planFilter, setPlanFilter] = useState('');
@@ -108,9 +120,8 @@ export default function AdminSubscriptionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Modals state
+  // Modals & Drawer states
   const [detailModalItem, setDetailModalItem] = useState<SubscriptionDetail | null>(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
   const [extendModalItem, setExtendModalItem] = useState<SubscriptionItem | null>(null);
   const [extendMonths, setExtendMonths] = useState(1);
   const [extendReason, setExtendReason] = useState('');
@@ -118,6 +129,12 @@ export default function AdminSubscriptionsPage() {
 
   const [revokeModalItem, setRevokeModalItem] = useState<SubscriptionItem | null>(null);
   const [revokeReason, setRevokeReason] = useState('');
+
+  // Toast state
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToasts((prev) => [...prev, { id: `${Date.now()}-${prev.length}`, message, type }]);
+  };
 
   const fetchSubscriptions = useCallback(async () => {
     setLoading(true);
@@ -132,12 +149,13 @@ export default function AdminSubscriptionsPage() {
       status: effectiveStatus || undefined,
       expiringSoon,
       page,
-      limit: 10,
+      limit,
     });
 
     if (res.success && res.data) {
+      const payload = res.data.data || res.data;
       const nowMs = Date.now();
-      const itemsWithRemaining = (res.data.items || []).map((sub: SubscriptionItem) => {
+      const itemsWithRemaining = (payload.items || []).map((sub: SubscriptionItem) => {
         const endMs = new Date(sub.currentPeriodEnd).getTime();
         const diff = Math.ceil((endMs - nowMs) / (1000 * 60 * 60 * 24));
         let remainingText = `Còn ${diff} ngày`;
@@ -146,13 +164,13 @@ export default function AdminSubscriptionsPage() {
         return { ...sub, remainingText };
       });
       setSubscriptions(itemsWithRemaining);
-      setTotal(res.data.total || 0);
-      setTotalPages(res.data.totalPages || 1);
+      setTotal(payload.total ?? itemsWithRemaining.length ?? 0);
+      setTotalPages(payload.totalPages || 1);
     } else {
       setError(res.error || 'Không thể tải danh sách gói đăng ký');
     }
     setLoading(false);
-  }, [page, planFilter, statusFilter, search]);
+  }, [page, limit, planFilter, statusFilter, search]);
 
   useEffect(() => {
     fetchSubscriptions();
@@ -164,23 +182,21 @@ export default function AdminSubscriptionsPage() {
     fetchSubscriptions();
   };
 
-  // Open Detail modal
+  // Open Detail Drawer
   const handleOpenDetail = async (sub: SubscriptionItem) => {
-    setLoadingDetail(true);
     const res = await getSubscriptionDetailAction(sub.id);
     if (res.success && res.data) {
       setDetailModalItem(res.data);
     } else {
-      alert(res.error || 'Không thể tải chi tiết gói');
+      showToast(res.error || 'Không thể tải chi tiết gói', 'error');
     }
-    setLoadingDetail(false);
   };
 
   // Handle Extend
   const handleConfirmExtend = async () => {
     if (!extendModalItem) return;
     if (!extendReason.trim()) {
-      alert('Vui lòng nhập lý do gia hạn');
+      showToast('Vui lòng nhập lý do gia hạn', 'error');
       return;
     }
 
@@ -189,11 +205,15 @@ export default function AdminSubscriptionsPage() {
     setActionLoading(false);
 
     if (res.success) {
+      showToast('Gia hạn gói thành công!', 'success');
       setExtendModalItem(null);
       setExtendReason('');
+      if (detailModalItem?.id === extendModalItem.id) {
+        handleOpenDetail(extendModalItem);
+      }
       fetchSubscriptions();
     } else {
-      alert(res.error || 'Gia hạn gói thất bại');
+      showToast(res.error || 'Gia hạn gói thất bại', 'error');
     }
   };
 
@@ -201,7 +221,7 @@ export default function AdminSubscriptionsPage() {
   const handleConfirmRevoke = async () => {
     if (!revokeModalItem) return;
     if (!revokeReason.trim()) {
-      alert('Vui lòng nhập lý do thu hồi');
+      showToast('Vui lòng nhập lý do thu hồi', 'error');
       return;
     }
 
@@ -210,11 +230,15 @@ export default function AdminSubscriptionsPage() {
     setActionLoading(false);
 
     if (res.success) {
+      showToast('Thu hồi gói thành công!', 'success');
       setRevokeModalItem(null);
       setRevokeReason('');
+      if (detailModalItem?.id === revokeModalItem.id) {
+        setDetailModalItem(null);
+      }
       fetchSubscriptions();
     } else {
-      alert(res.error || 'Thu hồi gói thất bại');
+      showToast(res.error || 'Thu hồi gói thất bại', 'error');
     }
   };
 
@@ -228,8 +252,8 @@ export default function AdminSubscriptionsPage() {
       Gói: s.plan,
       'Trạng thái': s.isEffectiveActive ? 'ACTIVE' : s.status,
       'Sắp hết hạn': s.isExpiringSoon ? 'Có' : 'Không',
-      'Kỳ bắt đầu': new Date(s.currentPeriodStart).toLocaleDateString('vi-VN'),
-      'Kỳ kết thúc': new Date(s.currentPeriodEnd).toLocaleDateString('vi-VN'),
+      'Kỳ bắt đầu': formatDate(s.currentPeriodStart),
+      'Kỳ kết thúc': formatDate(s.currentPeriodEnd),
       'Cổng thanh toán': s.provider,
       'Mã ngoài': s.externalId || '',
       'Số ghế': `${s.usedSeatsCount}/${s.seats}`,
@@ -237,670 +261,545 @@ export default function AdminSubscriptionsPage() {
     exportToCSV('tripmate_subscriptions', exportRows);
   };
 
-  // Quick stats from current list
-  const activeCount = subscriptions.filter((s) => s.isEffectiveActive).length;
-  const plusCount = subscriptions.filter((s) => s.plan === 'PLUS' && s.isEffectiveActive).length;
-  const squadCount = subscriptions.filter((s) => s.plan === 'SQUAD' && s.isEffectiveActive).length;
-  const expiringSoonCount = subscriptions.filter((s) => s.isExpiringSoon).length;
-
   return (
     <div className="flex flex-col gap-6">
-      {/* Title Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-black uppercase text-black dark:text-white tracking-tight">
-            Quản Lý Gói Đăng Ký (Subscriptions)
-          </h1>
-          <p className="text-[10px] font-black uppercase text-muted-foreground mt-1">
-            Tra cứu tài khoản trả phí, kiểm tra ghế Squad Pass, hỗ trợ gia hạn và thu hồi gói.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExportCSV}
-            disabled={!subscriptions.length}
-            className="px-4 py-2.5 bg-white dark:bg-[#252322] border-2 border-black dark:border-white hover:bg-secondary text-black dark:text-white text-xs font-black uppercase rounded-xl shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_#ffffff] hover:translate-y-[-1px] transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+      <ToastContainer
+        toasts={toasts}
+        onDismiss={(id) => setToasts((prev) => prev.filter((t) => t.id !== id))}
+      />
+
+      {/* Header */}
+      <AdminPageHeader
+        title="Quản trị Gói Đăng Ký"
+        description={`Quản lý gói hội viên PLUS & SQUAD Pass, kiểm soát ghế nhóm và can thiệp vận hành (${total} gói).`}
+      >
+        <AdminButton
+          variant="outline"
+          size="sm"
+          onClick={fetchSubscriptions}
+          loading={loading}
+          icon={<RefreshCw className="w-3.5 h-3.5" />}
+        >
+          Tải lại
+        </AdminButton>
+        <AdminButton
+          variant="secondary"
+          size="sm"
+          onClick={handleExportCSV}
+          disabled={!subscriptions.length}
+          icon={<Download className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />}
+        >
+          Xuất CSV
+        </AdminButton>
+      </AdminPageHeader>
+
+      {/* Status Filter Tabs */}
+      <AdminTabs
+        activeTab={statusFilter || 'ALL'}
+        onChange={(tab) => {
+          setStatusFilter(tab === 'ALL' ? '' : tab);
+          setPage(1);
+        }}
+        tabs={[
+          { id: 'ALL', label: 'Tất cả gói' },
+          { id: 'ACTIVE', label: 'Đang hoạt động' },
+          { id: 'EXPIRING_SOON', label: 'Sắp hết hạn (7 ngày)' },
+          { id: 'CANCELED', label: 'Chờ huỷ / Đã huỷ' },
+          { id: 'EXPIRED', label: 'Đã hết hạn' },
+        ]}
+      />
+
+      {/* Search & Filter Bar */}
+      <AdminFilterBar
+        search={search}
+        onSearchChange={(val) => setSearch(val)}
+        onSearchSubmit={handleSearchSubmit}
+        searchPlaceholder="Tìm theo email, tên thành viên..."
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-[#475569] dark:text-[#94A3B8] whitespace-nowrap">Loại gói:</span>
+          <AdminSelect
+            value={planFilter}
+            onChange={(e) => {
+              setPlanFilter(e.target.value);
+              setPage(1);
+            }}
+            className="w-36"
           >
-            <Download className="w-4 h-4 text-primary" />
-            Xuất CSV
-          </button>
-          <button
-            onClick={fetchSubscriptions}
-            disabled={loading}
-            className="p-2.5 rounded-xl bg-white dark:bg-[#252322] border-2 border-black dark:border-white hover:bg-secondary text-black dark:text-white shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_#ffffff] hover:translate-y-[-1px] active:translate-y-[1px] transition-all cursor-pointer flex items-center justify-center disabled:opacity-50"
-            aria-label="Tải lại danh sách"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
+            <option value="">Tất cả gói</option>
+            <option value="PLUS">PLUS (Cá nhân)</option>
+            <option value="SQUAD">SQUAD (Nhóm 5 ghế)</option>
+          </AdminSelect>
         </div>
-      </div>
+      </AdminFilterBar>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="p-5 rounded-2xl border-[3px] border-black bg-[#FFD043] text-black shadow-[3px_3px_0px_0px_#000000] flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-wider opacity-85">Gói Active Trong Trang</span>
-            <h3 className="text-2xl font-black mt-0.5">{activeCount}</h3>
-            <p className="text-[9px] font-bold text-black/70">Tổng số gói: {total}</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000000]">
-            <CheckCircle2 className="w-5 h-5 text-black" />
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl border-[3px] border-black bg-[#18A058] text-white shadow-[3px_3px_0px_0px_#000000] flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-wider opacity-90">Gói PLUS (Cá nhân)</span>
-            <h3 className="text-2xl font-black mt-0.5">{plusCount}</h3>
-            <p className="text-[9px] font-bold text-white/80">39.000đ / tháng</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
-            <CreditCard className="w-5 h-5 text-black" />
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl border-[3px] border-black bg-[#C5B4FA] text-black shadow-[3px_3px_0px_0px_#000000] flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-wider opacity-85">Gói SQUAD (5 ghế)</span>
-            <h3 className="text-2xl font-black mt-0.5">{squadCount}</h3>
-            <p className="text-[9px] font-bold text-black/70">99.000đ / tháng</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000000]">
-            <Users className="w-5 h-5 text-black" />
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl border-[3px] border-black bg-[#FF9FCE] text-black shadow-[3px_3px_0px_0px_#000000] flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-wider opacity-85">Hết Hạn ≤ 7 Ngày</span>
-            <h3 className="text-2xl font-black mt-0.5">{expiringSoonCount}</h3>
-            <p className="text-[9px] font-bold text-black/70">Cần theo dõi gia hạn</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000000]">
-            <Clock className="w-5 h-5 text-black" />
-          </div>
-        </div>
-      </div>
-
-      {error && (
-        <div className="p-4 rounded-2xl bg-destructive/10 border-2 border-destructive text-destructive text-xs font-bold flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#000000]">
-          <AlertCircle className="w-5 h-5" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {error && !loading && subscriptions.length === 0 && (
+      {error && !loading && subscriptions.length === 0 ? (
         <ErrorState message={error} onRetry={fetchSubscriptions} />
-      )}
+      ) : (
+        /* Data Table */
+        <AdminTable>
+          <AdminTableHeader>
+            <tr>
+              <AdminTableHead>Thành viên</AdminTableHead>
+              <AdminTableHead>Gói & Ghế</AdminTableHead>
+              <AdminTableHead>Trạng thái</AdminTableHead>
+              <AdminTableHead>Cổng TT</AdminTableHead>
+              <AdminTableHead>Kỳ hạn & Còn lại</AdminTableHead>
+              <AdminTableHead align="right">Thao tác</AdminTableHead>
+            </tr>
+          </AdminTableHeader>
 
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-[#252322] border-[3px] border-black dark:border-white p-4 rounded-2xl shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff]">
-        <form onSubmit={handleSearchSubmit} className="relative w-full md:w-80">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm theo email, tên, username..."
-            className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border-2 border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19] focus:outline-none focus:border-primary font-bold text-black dark:text-white"
-          />
-          <button
-            type="submit"
-            className="absolute inset-y-0 left-0 pl-3 flex items-center cursor-pointer"
-            aria-label="Tìm kiếm gói"
-          >
-            <Search className="w-4 h-4 text-black dark:text-white" />
-          </button>
-        </form>
-
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-black uppercase text-black dark:text-white whitespace-nowrap">Gói:</span>
-            <select
-              value={planFilter}
-              onChange={(e) => {
-                setPlanFilter(e.target.value);
-                setPage(1);
-              }}
-              className="px-3 py-2 text-xs border-2 border-black dark:border-white rounded-xl bg-white dark:bg-[#1C1A19] text-black dark:text-white font-bold"
-            >
-              <option value="">Tất cả</option>
-              <option value="PLUS">PLUS (Cá nhân)</option>
-              <option value="SQUAD">SQUAD (Nhóm)</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-black uppercase text-black dark:text-white whitespace-nowrap">
-              Trạng thái:
-            </span>
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setPage(1);
-              }}
-              className="px-3 py-2 text-xs border-2 border-black dark:border-white rounded-xl bg-white dark:bg-[#1C1A19] text-black dark:text-white font-bold"
-            >
-              <option value="">Tất cả</option>
-              <option value="ACTIVE">Đang hoạt động</option>
-              <option value="EXPIRING_SOON">Sắp hết hạn (≤ 7 ngày)</option>
-              <option value="CANCELING">Chờ huỷ cuối kỳ</option>
-              <option value="EXPIRED">Đã hết hạn / Huỷ</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Subscriptions Table */}
-      <div className="bg-white border-[3px] border-black dark:bg-[#252322] dark:border-white rounded-3xl overflow-hidden shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff]">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-secondary border-b-[3px] border-black dark:border-white text-black font-black uppercase">
-                <th className="p-4 border-r border-black dark:border-white">Thành viên</th>
-                <th className="p-4 border-r border-black dark:border-white">Gói</th>
-                <th className="p-4 border-r border-black dark:border-white">Trạng thái</th>
-                <th className="p-4 border-r border-black dark:border-white">Hiệu lực</th>
-                <th className="p-4 border-r border-black dark:border-white">Cổng</th>
-                <th className="p-4 border-r border-black dark:border-white">Ghế Squad</th>
-                <th className="p-4 text-right">Thao tác</th>
-              </tr>
-            </thead>
+          {loading ? (
+            <AdminTableSkeleton columns={6} rows={6} />
+          ) : subscriptions.length === 0 ? (
+            <AdminTableEmpty colSpan={6} message="Không tìm thấy gói đăng ký nào phù hợp" />
+          ) : (
             <tbody>
-              {loading ? (
-                [1, 2, 3, 4, 5].map((i) => (
-                  <tr key={i} className="border-b border-black/10 dark:border-white/10 animate-pulse">
-                    <td className="p-4">
-                      <div className="h-4 w-32 bg-muted rounded mb-1"></div>
-                      <div className="h-3 w-20 bg-muted rounded"></div>
-                    </td>
-                    <td className="p-4">
-                      <div className="h-5 w-16 bg-muted rounded-full"></div>
-                    </td>
-                    <td className="p-4">
-                      <div className="h-5 w-20 bg-muted rounded-full"></div>
-                    </td>
-                    <td className="p-4">
-                      <div className="h-4 w-24 bg-muted rounded"></div>
-                    </td>
-                    <td className="p-4">
-                      <div className="h-4 w-16 bg-muted rounded"></div>
-                    </td>
-                    <td className="p-4">
-                      <div className="h-4 w-12 bg-muted rounded"></div>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="h-7 w-24 bg-muted rounded-xl inline-block"></div>
-                    </td>
-                  </tr>
-                ))
-              ) : subscriptions.length === 0 ? (
-                <EmptyState
-                  asTableRow
-                  colSpan={7}
-                  message="Không tìm thấy gói đăng ký nào. Hãy thử thay đổi từ khoá tìm kiếm hoặc bộ lọc trạng thái."
-                />
-              ) : (
-                subscriptions.map((sub) => (
-                  <tr
-                    key={sub.id}
-                    className="border-b border-black/10 dark:border-white/10 hover:bg-[#FEFADC]/50 dark:hover:bg-[#1C1A19]/50 transition-colors"
-                  >
-                    {/* User */}
-                    <td className="p-4 border-r border-black/10 dark:border-white/10">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full border border-black dark:border-white bg-[#FFD043] flex items-center justify-center font-black text-xs text-black shrink-0 overflow-hidden">
-                          {sub.user?.avatarUrl ? (
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img
-                              src={sub.user.avatarUrl}
-                              alt={sub.user.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            sub.user?.name?.charAt(0).toUpperCase() || 'U'
-                          )}
+              {subscriptions.map((sub) => {
+                const isSquad = sub.plan === 'SQUAD';
+                return (
+                  <AdminTableRow key={sub.id}>
+                    {/* Member info */}
+                    <AdminTableCell>
+                      <div
+                        className="flex items-center gap-3 cursor-pointer group"
+                        onClick={() => handleOpenDetail(sub)}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold text-xs flex items-center justify-center shrink-0 border border-amber-500/30">
+                          {sub.user?.name ? sub.user.name.substring(0, 2).toUpperCase() : 'US'}
                         </div>
-                        <div>
-                          <p className="font-black text-black dark:text-white leading-tight">
-                            {sub.user?.name || 'Không rõ'}
-                          </p>
-                          <p className="text-[10px] font-bold text-muted-foreground">
-                            {sub.user?.email || sub.userId}
+                        <div className="min-w-0">
+                          <h4 className="font-semibold text-[#0F172A] dark:text-[#F8FAFC] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate">
+                            {sub.user?.name || 'Thành viên'}
+                          </h4>
+                          <p className="text-[11px] text-[#475569] dark:text-[#94A3B8] truncate">
+                            {sub.user?.email}
                           </p>
                         </div>
                       </div>
-                    </td>
+                    </AdminTableCell>
 
-                    {/* Plan */}
-                    <td className="p-4 border-r border-black/10 dark:border-white/10">
-                      {sub.plan === 'SQUAD' ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#C5B4FA] border border-black text-black text-[10px] font-black uppercase">
-                          <Users className="w-3 h-3" />
-                          SQUAD
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#18A058] border border-black text-white text-[10px] font-black uppercase">
-                          <CreditCard className="w-3 h-3" />
-                          PLUS
-                        </span>
-                      )}
-                    </td>
+                    {/* Plan & Seats */}
+                    <AdminTableCell>
+                      <div className="flex items-center gap-1.5">
+                        {isSquad ? (
+                          <AdminBadge variant="primary">
+                            SQUAD PASS ({sub.usedSeatsCount}/{sub.seats})
+                          </AdminBadge>
+                        ) : (
+                          <AdminBadge variant="success">PLUS</AdminBadge>
+                        )}
+                      </div>
+                    </AdminTableCell>
 
                     {/* Status */}
-                    <td className="p-4 border-r border-black/10 dark:border-white/10">
+                    <AdminTableCell>
                       {sub.isEffectiveActive ? (
-                        sub.cancelAtPeriodEnd ? (
-                          <span className="inline-block px-2 py-0.5 rounded-full bg-[#FFD043] border border-black text-black text-[10px] font-black uppercase">
-                            Chờ huỷ cuối kỳ
-                          </span>
-                        ) : sub.isExpiringSoon ? (
-                          <span className="inline-block px-2 py-0.5 rounded-full bg-[#FF9FCE] border border-black text-black text-[10px] font-black uppercase">
+                        sub.isExpiringSoon ? (
+                          <AdminBadge variant="warning" dot pulse>
                             Sắp hết hạn
-                          </span>
+                          </AdminBadge>
+                        ) : sub.cancelAtPeriodEnd ? (
+                          <AdminBadge variant="warning" dot>
+                            Huỷ cuối kỳ
+                          </AdminBadge>
                         ) : (
-                          <span className="inline-block px-2 py-0.5 rounded-full bg-[#18A058]/20 border border-[#18A058] text-[#18A058] dark:text-[#52c41a] text-[10px] font-black uppercase">
-                            Hoạt động
-                          </span>
+                          <AdminBadge variant="success" dot>
+                            Đang hoạt động
+                          </AdminBadge>
                         )
+                      ) : sub.status === 'CANCELED' ? (
+                        <AdminBadge variant="danger">Đã huỷ</AdminBadge>
                       ) : (
-                        <span className="inline-block px-2 py-0.5 rounded-full bg-destructive/15 border border-destructive text-destructive text-[10px] font-black uppercase">
-                          Hết hạn / Huỷ
-                        </span>
+                        <AdminBadge variant="neutral">Hết hạn</AdminBadge>
                       )}
-                    </td>
+                    </AdminTableCell>
 
-                    {/* Effective Dates */}
-                    <td className="p-4 border-r border-black/10 dark:border-white/10">
-                      <div className="flex flex-col">
-                        <span className="font-bold text-black dark:text-white">
-                          {formatDate(sub.currentPeriodEnd)}
+                    {/* Provider */}
+                    <AdminTableCell>
+                      <span className="font-mono text-xs text-slate-600 dark:text-slate-400 uppercase">
+                        {sub.provider}
+                      </span>
+                    </AdminTableCell>
+
+                    {/* Period & Remaining */}
+                    <AdminTableCell>
+                      <div className="flex flex-col text-[11px]">
+                        <span className="text-slate-700 dark:text-slate-300 font-medium">
+                          {formatDate(sub.currentPeriodStart)} - {formatDate(sub.currentPeriodEnd)}
                         </span>
-                        <span className="text-[10px] font-bold text-muted-foreground">
+                        <span
+                          className={`mt-0.5 font-medium ${
+                            sub.isExpiringSoon
+                              ? 'text-amber-600 dark:text-amber-400'
+                              : 'text-slate-400 dark:text-slate-500'
+                          }`}
+                        >
                           {sub.remainingText}
                         </span>
                       </div>
-                    </td>
+                    </AdminTableCell>
 
-                    {/* Provider */}
-                    <td className="p-4 border-r border-black/10 dark:border-white/10">
-                      <span className="text-xs font-black uppercase text-black dark:text-white">
-                        {sub.provider}
-                      </span>
-                    </td>
-
-                    {/* Seats */}
-                    <td className="p-4 border-r border-black/10 dark:border-white/10">
-                      <span className="inline-flex items-center gap-1 font-black text-black dark:text-white">
-                        <Users className="w-3.5 h-3.5 text-primary" />
-                        {sub.usedSeatsCount} / {sub.seats}
-                      </span>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => handleOpenDetail(sub)}
-                          disabled={loadingDetail}
-                          className="p-2 rounded-xl bg-white dark:bg-[#1C1A19] border-2 border-black dark:border-white hover:bg-secondary text-black dark:text-white shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_#ffffff] hover:translate-y-[-1px] transition-all cursor-pointer"
-                          title="Xem chi tiết & danh sách ghế Squad"
-                          aria-label="Xem chi tiết"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-black dark:text-white" />
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setExtendModalItem(sub);
-                            setExtendMonths(1);
-                            setExtendReason('');
-                          }}
-                          className="p-2 rounded-xl bg-[#18A058] border-2 border-black text-white shadow-[2px_2px_0px_0px_#000000] hover:translate-y-[-1px] transition-all cursor-pointer"
-                          title="Gia hạn thủ công"
-                          aria-label="Gia hạn gói"
-                        >
-                          <PlusCircle className="w-3.5 h-3.5" />
-                        </button>
-
-                        {sub.isEffectiveActive && (
-                          <button
-                            onClick={() => {
+                    {/* Actions Menu */}
+                    <AdminTableCell align="right">
+                      <AdminRowActions
+                        quickAction={{
+                          label: 'Xem chi tiết',
+                          icon: <Eye className="w-3.5 h-3.5" />,
+                          onClick: () => handleOpenDetail(sub),
+                        }}
+                        actions={[
+                          {
+                            label: 'Xem chi tiết',
+                            icon: <Eye className="w-3.5 h-3.5 text-slate-400" />,
+                            onClick: () => handleOpenDetail(sub),
+                          },
+                          {
+                            label: 'Gia hạn gói',
+                            icon: <PlusCircle className="w-3.5 h-3.5 text-emerald-500" />,
+                            onClick: () => {
+                              setExtendModalItem(sub);
+                              setExtendMonths(1);
+                              setExtendReason('');
+                            },
+                          },
+                          {
+                            label: 'Thu hồi gói',
+                            icon: <XCircle className="w-3.5 h-3.5 text-rose-500" />,
+                            onClick: () => {
                               setRevokeModalItem(sub);
                               setRevokeReason('');
-                            }}
-                            className="p-2 rounded-xl bg-red-500 border-2 border-black text-white shadow-[2px_2px_0px_0px_#000000] hover:translate-y-[-1px] transition-all cursor-pointer"
-                            title="Thu hồi gói (Hoàn tiền / Gian lận)"
-                            aria-label="Thu hồi gói"
-                          >
-                            <XCircle className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
+                            },
+                            variant: 'danger',
+                            disabled: !sub.isEffectiveActive,
+                          },
+                        ]}
+                      />
+                    </AdminTableCell>
+                  </AdminTableRow>
+                );
+              })}
             </tbody>
-          </table>
-        </div>
+          )}
+        </AdminTable>
+      )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-between items-center p-4 border-t-2 border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19]">
-            <span className="text-xs font-black uppercase text-black dark:text-white">
-              Trang {page} / {totalPages} (Tổng {total} gói)
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1 || loading}
-                className="p-2 rounded-xl border-2 border-black dark:border-white bg-white dark:bg-[#252322] hover:bg-secondary text-black dark:text-white shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_#ffffff] disabled:opacity-40 cursor-pointer"
-                aria-label="Trang trước"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages || loading}
-                className="p-2 rounded-xl border-2 border-black dark:border-white bg-white dark:bg-[#252322] hover:bg-secondary text-black dark:text-white shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_#ffffff] disabled:opacity-40 cursor-pointer"
-                aria-label="Trang sau"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Pagination */}
+      <AdminPagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={total}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={(l) => {
+          setLimit(l);
+          setPage(1);
+        }}
+        itemLabel="gói đăng ký"
+      />
 
-      {/* --- MODAL 1: CHI TIẾT GÓI & GHẾ SQUAD --- */}
-      {detailModalItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="w-full max-w-2xl bg-white dark:bg-[#252322] border-[3px] border-black dark:border-white rounded-3xl p-6 shadow-[6px_6px_0px_0px_#000000] dark:shadow-[6px_6px_0px_0px_#ffffff] max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex justify-between items-center border-b-2 border-black dark:border-white pb-4 mb-5">
-              <div>
-                <span className="text-[10px] font-black uppercase text-primary tracking-wider">
-                  Chi Tiết Gói Đăng Ký
-                </span>
-                <h3 className="text-lg font-black uppercase text-black dark:text-white">
-                  {detailModalItem.user?.name} · {detailModalItem.plan}
-                </h3>
-              </div>
-              <button
+      {/* SUBSCRIPTION DETAIL DRAWER */}
+      <AdminDrawer
+        isOpen={!!detailModalItem}
+        onClose={() => setDetailModalItem(null)}
+        title={
+          detailModalItem
+            ? `Chi tiết Gói ${detailModalItem.plan} · ${detailModalItem.user?.name || 'Thành viên'}`
+            : 'Chi tiết Gói'
+        }
+        description={detailModalItem ? `Mã gói: ${detailModalItem.id}` : undefined}
+        size="lg"
+        footer={
+          detailModalItem && (
+            <>
+              <AdminButton
+                variant="outline"
+                size="sm"
                 onClick={() => setDetailModalItem(null)}
-                className="p-1.5 rounded-xl border-2 border-black dark:border-white bg-white dark:bg-[#1C1A19] hover:bg-secondary text-black dark:text-white cursor-pointer"
-                aria-label="Đóng chi tiết"
               >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* General Info Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-              <div className="p-3 rounded-xl border-2 border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19]">
-                <span className="text-[9px] font-black uppercase text-muted-foreground">ID Gói</span>
-                <p className="text-xs font-mono font-bold truncate text-black dark:text-white">{detailModalItem.id}</p>
+                Đóng
+              </AdminButton>
+              <AdminButton
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setExtendModalItem(detailModalItem);
+                  setExtendMonths(1);
+                  setExtendReason('');
+                }}
+                icon={<PlusCircle className="w-3.5 h-3.5 text-emerald-500" />}
+              >
+                Gia hạn
+              </AdminButton>
+              {detailModalItem.isEffectiveActive && (
+                <AdminButton
+                  variant="danger"
+                  size="sm"
+                  onClick={() => {
+                    setRevokeModalItem(detailModalItem);
+                    setRevokeReason('');
+                  }}
+                  icon={<XCircle className="w-3.5 h-3.5" />}
+                >
+                  Thu hồi gói
+                </AdminButton>
+              )}
+            </>
+          )
+        }
+      >
+        {detailModalItem && (
+          <div className="flex flex-col gap-6">
+            {/* Metadata Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
+                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+                  Loại gói
+                </span>
+                <AdminBadge variant={detailModalItem.plan === 'SQUAD' ? 'primary' : 'success'}>
+                  {detailModalItem.plan} PASS
+                </AdminBadge>
               </div>
 
-              <div className="p-3 rounded-xl border-2 border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19]">
-                <span className="text-[9px] font-black uppercase text-muted-foreground">Trạng Thái</span>
-                <p className="text-xs font-black text-black dark:text-white">
-                  {detailModalItem.isEffectiveActive ? 'ACTIVE (Có hiệu lực)' : 'Hết hạn / Huỷ'}
-                </p>
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
+                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+                  Trạng thái
+                </span>
+                <AdminBadge variant={detailModalItem.isEffectiveActive ? 'success' : 'neutral'} dot>
+                  {detailModalItem.isEffectiveActive ? 'Hoạt động' : detailModalItem.status}
+                </AdminBadge>
               </div>
 
-              <div className="p-3 rounded-xl border-2 border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19]">
-                <span className="text-[9px] font-black uppercase text-muted-foreground">Hạn Dùng</span>
-                <p className="text-xs font-black text-black dark:text-white">
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
+                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+                  Ghế Squad
+                </span>
+                <span className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+                  {detailModalItem.usedSeatsCount} / {detailModalItem.seats} ghế
+                </span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
+                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+                  Kỳ bắt đầu
+                </span>
+                <span className="text-xs text-[#475569] dark:text-[#94A3B8]">
+                  {formatDate(detailModalItem.currentPeriodStart)}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
+                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+                  Kỳ kết thúc
+                </span>
+                <span className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
                   {formatDate(detailModalItem.currentPeriodEnd)}
-                </p>
+                </span>
               </div>
 
-              <div className="p-3 rounded-xl border-2 border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19]">
-                <span className="text-[9px] font-black uppercase text-muted-foreground">Cổng Thanh Toán</span>
-                <p className="text-xs font-black text-black dark:text-white">{detailModalItem.provider}</p>
-              </div>
-
-              <div className="p-3 rounded-xl border-2 border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19]">
-                <span className="text-[9px] font-black uppercase text-muted-foreground">Mã Giao Dịch Ngoài</span>
-                <p className="text-xs font-mono font-bold truncate text-black dark:text-white">
-                  {detailModalItem.externalId || 'Không có'}
-                </p>
-              </div>
-
-              <div className="p-3 rounded-xl border-2 border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19]">
-                <span className="text-[9px] font-black uppercase text-muted-foreground">Số Ghế Squad</span>
-                <p className="text-xs font-black text-black dark:text-white">
-                  {detailModalItem.usedSeatsCount} / {detailModalItem.seats}
-                </p>
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
+                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+                  Cổng thanh toán
+                </span>
+                <span className="font-mono text-xs text-[#0F172A] dark:text-[#F8FAFC] uppercase">
+                  {detailModalItem.provider}
+                </span>
               </div>
             </div>
 
-            {/* Squad Seats Section */}
-            <div className="mb-6">
-              <h4 className="text-xs font-black uppercase text-black dark:text-white mb-3 flex items-center gap-2">
-                <Users className="w-4 h-4 text-primary" />
-                Danh Sách Ghế Squad Pass ({detailModalItem.squadSeats?.length || 0})
+            {/* Squad Seats List (If SQUAD plan) */}
+            {detailModalItem.plan === 'SQUAD' && (
+              <div>
+                <h4 className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] mb-2 flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  Danh sách Ghế Squad ({detailModalItem.squadSeats?.length || 0})
+                </h4>
+
+                {!detailModalItem.squadSeats || detailModalItem.squadSeats.length === 0 ? (
+                  <p className="text-xs text-[#94A3B8] py-3 text-center bg-slate-50 dark:bg-[#0D1424] rounded-lg">
+                    Chưa có thành viên nào nhận ghế trong nhóm.
+                  </p>
+                ) : (
+                  <div className="divide-y divide-[#E2E8F0] dark:divide-[#1E293B] border border-[#E2E8F0] dark:border-[#1E293B] rounded-lg overflow-hidden">
+                    {detailModalItem.squadSeats.map((seat) => (
+                      <div
+                        key={seat.id}
+                        className="p-3 flex items-center justify-between text-xs bg-white dark:bg-[#111827]"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-[#0D1424] text-[#0F172A] dark:text-[#F8FAFC] font-bold text-[10px] flex items-center justify-center shrink-0">
+                            {seat.user?.name ? seat.user.name.charAt(0) : 'U'}
+                          </div>
+                          <div className="min-w-0">
+                            <span className="font-medium text-[#0F172A] dark:text-[#F8FAFC] block truncate">
+                              {seat.user?.name || 'Thành viên'}
+                            </span>
+                            <span className="text-[10px] text-[#475569] dark:text-[#94A3B8] truncate block">
+                              {seat.user?.email || 'n/a'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          {seat.revokedAt ? (
+                            <AdminBadge variant="danger" size="xs">
+                              Đã thu hồi
+                            </AdminBadge>
+                          ) : (
+                            <AdminBadge variant="success" size="xs">
+                              Đang dùng
+                            </AdminBadge>
+                          )}
+                          <span className="text-[10px] text-[#94A3B8] dark:text-[#64748B] block mt-0.5">
+                            Cấp: {formatDate(seat.grantedAt)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Audit Logs Timeline */}
+            <div>
+              <h4 className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] mb-2 flex items-center gap-1.5">
+                <History className="w-3.5 h-3.5 text-[#94A3B8]" />
+                Lịch sử can thiệp Quản trị ({detailModalItem.auditLogs?.length || 0})
               </h4>
 
-              {detailModalItem.squadSeats?.length === 0 ? (
-                <p className="text-xs text-muted-foreground font-bold p-4 rounded-xl border border-black/20 dark:border-white/20 bg-muted/20 text-center">
-                  Gói này chưa cấp ghế Squad nào cho thành viên khác.
+              {!detailModalItem.auditLogs || detailModalItem.auditLogs.length === 0 ? (
+                <p className="text-xs text-[#94A3B8] py-3 text-center bg-slate-50 dark:bg-[#0D1424] rounded-lg">
+                  Chưa có lịch sử thao tác nào từ Admin.
                 </p>
               ) : (
                 <div className="flex flex-col gap-2">
-                  {detailModalItem.squadSeats?.map((seat) => (
-                    <div
-                      key={seat.id}
-                      className="p-3 rounded-xl border-2 border-black dark:border-white bg-white dark:bg-[#1C1A19] flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-full bg-[#FFD043] border border-black flex items-center justify-center font-black text-xs text-black">
-                          {seat.user?.name?.charAt(0).toUpperCase() || 'S'}
-                        </div>
-                        <div>
-                          <p className="font-black text-xs text-black dark:text-white">{seat.user?.name || 'Thành viên'}</p>
-                          <p className="text-[10px] text-muted-foreground font-bold">{seat.user?.email || seat.userId}</p>
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        {seat.revokedAt ? (
-                          <span className="text-[10px] font-black text-destructive uppercase">
-                            Đã thu hồi ({formatDate(seat.revokedAt)})
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-black text-[#18A058] uppercase">
-                            Đang dùng (cấp {formatDate(seat.grantedAt)})
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Admin Audit Logs Section */}
-            <div>
-              <h4 className="text-xs font-black uppercase text-black dark:text-white mb-3 flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-[#FFD043]" />
-                Nhật Ký Thao Tác Của Admin ({detailModalItem.auditLogs?.length || 0})
-              </h4>
-
-              {detailModalItem.auditLogs?.length === 0 ? (
-                <p className="text-xs text-muted-foreground font-bold p-4 rounded-xl border border-black/20 dark:border-white/20 bg-muted/20 text-center">
-                  Chưa có can thiệp thủ công nào từ quản trị viên đối với gói này.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2.5">
-                  {detailModalItem.auditLogs?.map((log) => (
+                  {detailModalItem.auditLogs.map((log) => (
                     <div
                       key={log.id}
-                      className="p-3 rounded-xl border-2 border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19] text-xs"
+                      className="p-3 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0D1424]/60 text-xs"
                     >
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="font-black uppercase text-primary">{log.action}</span>
-                        <span className="text-[10px] font-bold text-muted-foreground">{formatDate(log.createdAt)}</span>
+                      <div className="flex items-center justify-between mb-1">
+                        <AdminBadge variant="neutral" size="xs">
+                          {log.action}
+                        </AdminBadge>
+                        <span className="text-[10px] text-[#94A3B8] dark:text-[#64748B]">
+                          {new Date(log.createdAt).toLocaleString('vi-VN')}
+                        </span>
                       </div>
-                      <p className="font-bold text-black dark:text-white">
-                        Lý do: <span className="font-normal italic">{log.reason}</span>
+                      <p className="text-[#0F172A] dark:text-[#F8FAFC] mt-1">
+                        Lý do: <b>{log.reason}</b>
                       </p>
-                      <p className="text-[10px] text-muted-foreground font-bold mt-1">
-                        Admin: {log.admin?.name || log.admin?.email || 'Admin'}
-                      </p>
+                      {log.admin && (
+                        <span className="text-[10px] text-[#475569] dark:text-[#94A3B8] block mt-0.5">
+                          Admin thực hiện: {log.admin.name} ({log.admin.email})
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
               )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </AdminDrawer>
 
-      {/* --- MODAL 2: GIA HẠN THỦ CÔNG --- */}
-      {extendModalItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="w-full max-w-md bg-white dark:bg-[#252322] border-[3px] border-black dark:border-white rounded-3xl p-6 shadow-[6px_6px_0px_0px_#000000] dark:shadow-[6px_6px_0px_0px_#ffffff]">
-            <div className="flex justify-between items-center border-b-2 border-black dark:border-white pb-3 mb-4">
-              <h3 className="text-base font-black uppercase text-black dark:text-white flex items-center gap-2">
-                <PlusCircle className="w-5 h-5 text-[#18A058]" />
-                Gia Hạn Gói Thủ Công
-              </h3>
-              <button
-                onClick={() => setExtendModalItem(null)}
-                className="p-1.5 rounded-xl border border-black dark:border-white hover:bg-secondary cursor-pointer"
-                aria-label="Đóng modal"
-              >
-                <X className="w-4 h-4 text-black dark:text-white" />
-              </button>
-            </div>
+      {/* EXTEND SUBSCRIPTION MODAL */}
+      <AdminModal
+        isOpen={!!extendModalItem}
+        onClose={() => setExtendModalItem(null)}
+        title="Gia Hạn Gói Hội Viên"
+        description={`Gia hạn thêm thời gian sử dụng cho ${extendModalItem?.user?.name || 'người dùng'}`}
+      >
+        <div className="flex flex-col gap-4">
+          <AdminSelect
+            label="Số tháng gia hạn"
+            value={extendMonths}
+            onChange={(e) => setExtendMonths(Number(e.target.value))}
+            required
+          >
+            <option value={1}>+1 Tháng (30 ngày)</option>
+            <option value={3}>+3 Tháng (90 ngày)</option>
+            <option value={6}>+6 Tháng (180 ngày)</option>
+            <option value={12}>+12 Tháng (365 ngày - 1 năm)</option>
+          </AdminSelect>
 
-            <p className="text-xs font-bold text-muted-foreground mb-4">
-              Người nhận: <span className="text-black dark:text-white font-black">{extendModalItem.user?.name}</span> (
-              {extendModalItem.user?.email}) · Gói: <span className="font-black">{extendModalItem.plan}</span>
-            </p>
+          <AdminTextarea
+            label="Lý do gia hạn (Bắt buộc)"
+            value={extendReason}
+            onChange={(e) => setExtendReason(e.target.value)}
+            placeholder="VD: Đền bù sự cố mạng ngày 20/07, CSKH tặng ưu đãi khách VIP..."
+            rows={3}
+            required
+          />
 
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="text-xs font-black uppercase text-black dark:text-white block mb-1.5">
-                  Số Tháng Gia Hạn:
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[1, 3, 6, 12].map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setExtendMonths(m)}
-                      className={`py-2 rounded-xl border-2 border-black dark:border-white text-xs font-black transition-all cursor-pointer ${
-                        extendMonths === m
-                          ? 'bg-[#FFD043] text-black shadow-[2px_2px_0px_0px_#000000]'
-                          : 'bg-white dark:bg-[#1C1A19] text-black dark:text-white'
-                      }`}
-                    >
-                      +{m} tháng
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-black uppercase text-black dark:text-white block mb-1.5">
-                  Lý Do Gia Hạn <span className="text-destructive">* (Bắt buộc)</span>:
-                </label>
-                <textarea
-                  value={extendReason}
-                  onChange={(e) => setExtendReason(e.target.value)}
-                  placeholder="Ví dụ: Đền bù sự cố cổng thanh toán webhook trễ, hỗ trợ khách hàng VIP..."
-                  rows={3}
-                  className="w-full p-3 text-xs rounded-xl border-2 border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19] text-black dark:text-white font-bold focus:outline-none focus:border-primary"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setExtendModalItem(null)}
-                  disabled={actionLoading}
-                  className="px-4 py-2.5 rounded-xl border-2 border-black dark:border-white bg-white dark:bg-[#1C1A19] text-black dark:text-white text-xs font-black uppercase cursor-pointer"
-                >
-                  Huỷ
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmExtend}
-                  disabled={actionLoading || !extendReason.trim()}
-                  className="px-5 py-2.5 rounded-xl border-2 border-black bg-[#18A058] text-white text-xs font-black uppercase shadow-[2px_2px_0px_0px_#000000] disabled:opacity-50 cursor-pointer"
-                >
-                  {actionLoading ? 'Đang xử lý...' : 'Xác nhận gia hạn'}
-                </button>
-              </div>
-            </div>
+          <div className="flex justify-end gap-2.5 pt-4 border-t border-[#E2E8F0] dark:border-[#1E293B]">
+            <AdminButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setExtendModalItem(null)}
+            >
+              Huỷ
+            </AdminButton>
+            <AdminButton
+              type="button"
+              variant="primary"
+              size="sm"
+              loading={actionLoading}
+              onClick={handleConfirmExtend}
+            >
+              Xác nhận gia hạn
+            </AdminButton>
           </div>
         </div>
-      )}
+      </AdminModal>
 
-      {/* --- MODAL 3: THU HỒI GÓI --- */}
-      {revokeModalItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="w-full max-w-md bg-white dark:bg-[#252322] border-[3px] border-black dark:border-white rounded-3xl p-6 shadow-[6px_6px_0px_0px_#000000] dark:shadow-[6px_6px_0px_0px_#ffffff]">
-            <div className="flex justify-between items-center border-b-2 border-black dark:border-white pb-3 mb-4">
-              <h3 className="text-base font-black uppercase text-destructive flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-destructive" />
-                Thu Hồi Quyền Sử Dụng Gói
-              </h3>
-              <button
-                onClick={() => setRevokeModalItem(null)}
-                className="p-1.5 rounded-xl border border-black dark:border-white hover:bg-secondary cursor-pointer"
-                aria-label="Đóng modal"
-              >
-                <X className="w-4 h-4 text-black dark:text-white" />
-              </button>
-            </div>
+      {/* REVOKE SUBSCRIPTION MODAL */}
+      <AdminModal
+        isOpen={!!revokeModalItem}
+        onClose={() => setRevokeModalItem(null)}
+        title="Xác Nhận Thu Hồi Gói"
+        description={`Thu hồi quyền lợi của ${revokeModalItem?.user?.name || 'người dùng'}. Hành động này sẽ có hiệu lực ngay lập tức.`}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="p-3 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/25 text-xs text-[#EF4444] flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>
+              Người dùng và tất cả thành viên trong nhóm sẽ mất quyền lợi gói ngay lập tức.
+            </span>
+          </div>
 
-            <div className="p-3.5 rounded-xl bg-destructive/10 border-2 border-destructive text-destructive text-xs font-bold mb-4">
-              ⚠️ Cảnh báo: Hành động này sẽ lập tức huỷ quyền của tài khoản{' '}
-              <span className="font-black">{revokeModalItem.user?.name}</span> và thu hồi toàn bộ ghế Squad Pass đã cấp
-              cho các thành viên trong nhóm.
-            </div>
+          <AdminTextarea
+            label="Lý do thu hồi gói (Bắt buộc)"
+            value={revokeReason}
+            onChange={(e) => setRevokeReason(e.target.value)}
+            placeholder="VD: Vi phạm điều khoản sử dụng, hoàn tiền qua cổng ngân hàng..."
+            rows={3}
+            required
+          />
 
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="text-xs font-black uppercase text-black dark:text-white block mb-1.5">
-                  Lý Do Thu Hồi <span className="text-destructive">* (Bắt buộc)</span>:
-                </label>
-                <textarea
-                  value={revokeReason}
-                  onChange={(e) => setRevokeReason(e.target.value)}
-                  placeholder="Ví dụ: Người dùng yêu cầu hoàn tiền Momo, phát hiện gian lận thẻ..."
-                  rows={3}
-                  className="w-full p-3 text-xs rounded-xl border-2 border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19] text-black dark:text-white font-bold focus:outline-none focus:border-destructive"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setRevokeModalItem(null)}
-                  disabled={actionLoading}
-                  className="px-4 py-2.5 rounded-xl border-2 border-black dark:border-white bg-white dark:bg-[#1C1A19] text-black dark:text-white text-xs font-black uppercase cursor-pointer"
-                >
-                  Đóng
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmRevoke}
-                  disabled={actionLoading || !revokeReason.trim()}
-                  className="px-5 py-2.5 rounded-xl border-2 border-black bg-red-600 text-white text-xs font-black uppercase shadow-[2px_2px_0px_0px_#000000] disabled:opacity-50 cursor-pointer"
-                >
-                  {actionLoading ? 'Đang xử lý...' : 'Xác nhận thu hồi'}
-                </button>
-              </div>
-            </div>
+          <div className="flex justify-end gap-2.5 pt-4 border-t border-[#E2E8F0] dark:border-[#1E293B]">
+            <AdminButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setRevokeModalItem(null)}
+            >
+              Huỷ bỏ
+            </AdminButton>
+            <AdminButton
+              type="button"
+              variant="danger"
+              size="sm"
+              loading={actionLoading}
+              onClick={handleConfirmRevoke}
+            >
+              Thu hồi ngay
+            </AdminButton>
           </div>
         </div>
-      )}
+      </AdminModal>
     </div>
   );
 }

@@ -11,16 +11,88 @@ import {
   Activity,
   Download,
   Clock,
-  Users,
   Info,
+  Search,
+  Eye,
+  Receipt,
+  ShieldCheck,
+  User,
 } from 'lucide-react';
 import ErrorState from '@/components/ErrorState';
 import { exportToCSV } from '@/lib/exportCsv';
+import { AdminCard, AdminCardHeader, AdminCardTitle, AdminCardDescription } from '@/components/admin/AdminCard';
+import { AdminButton } from '@/components/admin/AdminButton';
+import { AdminBadge } from '@/components/admin/AdminBadge';
+import { AdminTabs } from '@/components/admin/AdminTabs';
+import { AdminInput } from '@/components/admin/AdminInput';
+import { AdminDrawer } from '@/components/admin/AdminDrawer';
+import {
+  AdminTable,
+  AdminTableHeader,
+  AdminTableBody,
+  AdminTableRow,
+  AdminTableHead,
+  AdminTableCell,
+  AdminTableEmpty,
+} from '@/components/admin/AdminTable';
+import { AdminDonutChart } from '@/components/admin/charts/AdminDonutChart';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminStatCard } from '@/components/admin/AdminStatCard';
 
 interface PlanBreakdownItem {
   count: number;
   monthlyPrice: number;
   revenue: number;
+}
+
+export interface ChargeTransaction {
+  id: string;
+  type: 'SUBSCRIPTION';
+  plan: 'PLUS' | 'SQUAD';
+  amount: number;
+  currency: string;
+  provider: string;
+  status: string;
+  externalId: string;
+  seats: number;
+  createdAt: string;
+  currentPeriodStart?: string;
+  currentPeriodEnd?: string;
+  user?: {
+    id: string;
+    name: string | null;
+    email: string;
+    username: string | null;
+    avatarUrl?: string | null;
+  } | null;
+}
+
+export interface P2PTransaction {
+  id: string;
+  type: 'P2P_SPLIT';
+  amount: number;
+  currency: string;
+  provider: string;
+  status: string;
+  externalId: string;
+  note?: string | null;
+  createdAt: string;
+  sender?: {
+    id: string;
+    name: string | null;
+    email: string;
+    username: string | null;
+  } | null;
+  receiver?: {
+    id: string;
+    name: string | null;
+    email: string;
+    username: string | null;
+  } | null;
+  expense?: {
+    id: string;
+    title: string;
+  } | null;
 }
 
 interface RevenueData {
@@ -36,6 +108,8 @@ interface RevenueData {
     SQUAD?: PlanBreakdownItem;
   };
   subscriptionProviderBreakdown?: Record<string, number>;
+  recentCharges?: ChargeTransaction[];
+  recentP2P?: P2PTransaction[];
   tripSplitVolume: number;
   tripSplitTransactionsCount: number;
   tripSplitStatusBreakdown?: Record<string, number>;
@@ -52,12 +126,17 @@ export default function AdminRevenuePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Ledger state
+  const [ledgerTab, setLedgerTab] = useState<'subs' | 'p2p' | 'all'>('subs');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTxn, setSelectedTxn] = useState<ChargeTransaction | P2PTransaction | null>(null);
+
   const fetchRevenue = async () => {
     setLoading(true);
     setError(null);
     const res = await getRevenueAnalyticsAction();
     if (res.success && res.data) {
-      setData(res.data);
+      setData(res.data.data || res.data);
     } else {
       setError(res.error || 'Không thể lấy dữ liệu doanh thu');
     }
@@ -89,219 +168,699 @@ export default function AdminRevenuePage() {
     exportToCSV('tripmate_revenue_analytics', exportRows);
   };
 
+  const handleExportLedgerCSV = () => {
+    const charges = data?.recentCharges || [];
+    const p2p = data?.recentP2P || [];
+
+    const rows: Record<string, any>[] = [];
+
+    if (ledgerTab === 'subs' || ledgerTab === 'all') {
+      charges.forEach((c) => {
+        rows.push({
+          'Loại Giao Dịch': 'Gói Hội Viên',
+          'Mã Giao Dịch': c.id,
+          'External Ref': c.externalId,
+          'Khách Hàng': c.user?.name || 'Thành viên',
+          'Email': c.user?.email || 'N/A',
+          'Gói': c.plan === 'PLUS' ? 'PLUS Pass' : 'SQUAD Pass',
+          'Số Tiền (VNĐ)': c.amount,
+          'Cổng Thanh Toán': c.provider,
+          'Trạng Thái': c.status,
+          'Thời Gian': new Date(c.createdAt).toLocaleString('vi-VN'),
+        });
+      });
+    }
+
+    if (ledgerTab === 'p2p' || ledgerTab === 'all') {
+      p2p.forEach((t) => {
+        rows.push({
+          'Loại Giao Dịch': 'Chia Tiền Chuyến',
+          'Mã Giao Dịch': t.id,
+          'External Ref': t.externalId,
+          'Người Gửi (Trả)': t.sender?.name || t.sender?.email || 'N/A',
+          'Người Nhận': t.receiver?.name || t.receiver?.email || 'N/A',
+          'Khoản Chi / Ghi Chú': t.expense?.title || t.note || 'Chia sẻ chi tiêu',
+          'Số Tiền (VNĐ)': t.amount,
+          'Cổng Thanh Toán': t.provider,
+          'Trạng Thái': t.status,
+          'Thời Gian': new Date(t.createdAt).toLocaleString('vi-VN'),
+        });
+      });
+    }
+
+    exportToCSV(`tripmate_billing_ledger_${ledgerTab}`, rows);
+  };
+
   const plusRevenue = (data?.activePlusCount || 0) * 39000;
   const squadRevenue = (data?.activeSquadCount || 0) * 99000;
 
+  const providerColors: Record<string, string> = {
+    MOMO: '#EC4899', // Pink
+    ZALOPAY: '#06B6D4', // Cyan
+    VNPAY: '#EF4444', // Red
+    APPLE_PAY: '#F97316', // Orange
+    STRIPE: '#0284C7', // Sky
+    BANK_TRANSFER: '#22C55E', // Green
+    CASH: '#F59E0B', // Amber
+    OTHER: '#64748B', // Slate
+  };
+
+  const subProviderChartData = Object.entries(data?.subscriptionProviderBreakdown || {}).map(
+    ([provider, count]) => ({
+      label: provider === 'OTHER' ? 'Khác' : provider,
+      value: count,
+      color: providerColors[provider] || '#F59E0B',
+    })
+  );
+
+  const p2pMethodChartData = Object.entries(data?.tripSplitMethodBreakdown || data?.methodBreakdown || {}).map(
+    ([method, count]) => ({
+      label: method === 'CASH' ? 'Tiền mặt' : method,
+      value: count,
+      color: providerColors[method] || '#38BDF8',
+    })
+  );
+
+  // Filter ledger rows based on search and tab
+  const filteredCharges = (data?.recentCharges || []).filter((c) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase().trim();
+    return (
+      c.id.toLowerCase().includes(q) ||
+      (c.externalId && c.externalId.toLowerCase().includes(q)) ||
+      c.plan.toLowerCase().includes(q) ||
+      c.provider.toLowerCase().includes(q) ||
+      (c.user?.name && c.user.name.toLowerCase().includes(q)) ||
+      (c.user?.email && c.user.email.toLowerCase().includes(q))
+    );
+  });
+
+  const filteredP2P = (data?.recentP2P || []).filter((p) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase().trim();
+    return (
+      p.id.toLowerCase().includes(q) ||
+      (p.externalId && p.externalId.toLowerCase().includes(q)) ||
+      p.provider.toLowerCase().includes(q) ||
+      (p.sender?.name && p.sender.name.toLowerCase().includes(q)) ||
+      (p.sender?.email && p.sender.email.toLowerCase().includes(q)) ||
+      (p.expense?.title && p.expense.title.toLowerCase().includes(q))
+    );
+  });
+
+  const ledgerTabs = [
+    {
+      id: 'subs',
+      label: 'Gói Hội Viên Nền Tảng (Charges)',
+      count: filteredCharges.length,
+      icon: <CreditCard className="w-3.5 h-3.5" />,
+    },
+    {
+      id: 'p2p',
+      label: 'Thanh Toán Chia Tiền Chuyến (P2P)',
+      count: filteredP2P.length,
+      icon: <Wallet className="w-3.5 h-3.5" />,
+    },
+    {
+      id: 'all',
+      label: 'Tất Cả Giao Dịch',
+      count: filteredCharges.length + filteredP2P.length,
+      icon: <Receipt className="w-3.5 h-3.5" />,
+    },
+  ];
+
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-black uppercase text-black dark:text-white tracking-tight">
-            Doanh Thu & Tài Chính
-          </h1>
-          <p className="text-[10px] font-black uppercase text-muted-foreground mt-1">
-            Số liệu doanh thu thực tế từ gói PLUS/SQUAD và dòng tiền chia hoá đơn giữa các thành viên.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExportCSV}
-            disabled={!data}
-            className="px-4 py-2.5 bg-white dark:bg-[#252322] border-2 border-black dark:border-white hover:bg-secondary text-black dark:text-white text-xs font-black uppercase rounded-xl shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_#ffffff] hover:translate-y-[-1px] transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-          >
-            <Download className="w-4 h-4 text-primary" />
-            Xuất CSV
-          </button>
-          <button
-            onClick={fetchRevenue}
-            disabled={loading}
-            className="p-2.5 rounded-xl bg-white dark:bg-[#252322] border-2 border-black dark:border-white hover:bg-secondary text-black dark:text-white shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_#ffffff] hover:translate-y-[-1px] active:translate-y-[1px] transition-all cursor-pointer flex items-center justify-center disabled:opacity-50"
-            aria-label="Tải lại dữ liệu doanh thu"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Doanh Thu & Dòng Tiền (Revenue & Audit)"
+        description="Báo cáo doanh thu định kỳ từ gói hội viên, đối soát từng khoản charge tiền người dùng và dòng tiền chia sẻ P2P."
+        badgeText="MRR Live"
+        badgeVariant="success"
+        actions={
+          <>
+            <AdminButton
+              variant="outline"
+              size="sm"
+              onClick={fetchRevenue}
+              loading={loading}
+              icon={<RefreshCw className="w-3.5 h-3.5" />}
+            >
+              Làm mới
+            </AdminButton>
+            <AdminButton
+              variant="secondary"
+              size="sm"
+              onClick={handleExportCSV}
+              disabled={!data}
+              icon={<Download className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />}
+            >
+              Xuất Báo Cáo CSV
+            </AdminButton>
+          </>
+        }
+      />
 
       {error && !data && !loading ? (
         <ErrorState message={error} onRetry={fetchRevenue} />
       ) : loading && !data ? (
-        <div className="h-64 rounded-3xl bg-white dark:bg-[#252322] border-2 border-black dark:border-white animate-pulse p-6 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_#ffffff]"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-24 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] animate-pulse p-4 shadow-xs"
+            />
+          ))}
+        </div>
       ) : (
         <>
-          {/* Top Key Metrics Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Real MRR */}
-            <div className="p-6 rounded-[28px] border-[3px] border-black bg-[#FFD043] text-black shadow-[4px_4px_0px_0px_#000000] flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider opacity-85">
-                  Doanh Thu Tháng (MRR Gói)
-                </span>
-                <h3 className="text-xl font-black mt-1">{formatVND(data?.mrr ?? 0)}</h3>
-                <p className="text-[9px] font-bold text-black/70 mt-0.5">Định kỳ từ gói đang Active</p>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
-                <Activity className="w-5 h-5" />
-              </div>
+          {/* SECTION 1: PLATFORM SUBSCRIPTION REVENUE (MRR) */}
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                Doanh Thu Nền Tảng (TripMate Subscription Revenue)
+              </h2>
             </div>
 
-            {/* Active Subscriptions */}
-            <div className="p-6 rounded-[28px] border-[3px] border-black bg-[#C5B4FA] text-black shadow-[4px_4px_0px_0px_#000000] flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider opacity-85">
-                  Gói Đang Hoạt Động
-                </span>
-                <h3 className="text-2xl font-black mt-1">{data?.activeSubscriptionsCount ?? 0}</h3>
-                <p className="text-[9px] font-bold text-black/70 mt-0.5">
-                  {data?.activePlusCount ?? 0} PLUS · {data?.activeSquadCount ?? 0} SQUAD
-                </p>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
-                <CreditCard className="w-5 h-5" />
-              </div>
+            {/* Top Metric Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <AdminStatCard
+                title="Doanh Thu Hàng Tháng (MRR)"
+                value={formatVND(data?.mrr ?? 0)}
+                description="Gói PLUS (39k) & SQUAD (99k) đang hoạt động"
+                icon={<DollarSign className="w-4 h-4" />}
+                variant="success"
+              />
+
+              <AdminStatCard
+                title="Gói Đang Active"
+                value={(data?.activeSubscriptionsCount ?? 0).toLocaleString('vi-VN')}
+                description={`Tổng gói từng đăng ký: ${data?.totalSubscriptionsCount ?? 0}`}
+                icon={<CreditCard className="w-4 h-4" />}
+                variant="brand"
+              />
+
+              <AdminStatCard
+                title="Sắp Hết Hạn (7 ngày tới)"
+                value={(data?.expiringSoonCount ?? 0).toLocaleString('vi-VN')}
+                description="Gói cần gửi email nhắc thanh toán"
+                icon={<Clock className="w-4 h-4" />}
+                badgeText={(data?.expiringSoonCount ?? 0) > 0 ? "Cần gia hạn" : undefined}
+                variant="warning"
+              />
+
+              <AdminStatCard
+                title="Đã Yêu Cầu Huỷ Cuối Kỳ"
+                value={(data?.cancelingCount ?? 0).toLocaleString('vi-VN')}
+                description="Người dùng huỷ tự động gia hạn"
+                icon={<Activity className="w-4 h-4" />}
+                badgeText={(data?.cancelingCount ?? 0) > 0 ? "Churn Risk" : undefined}
+                variant="danger"
+              />
             </div>
 
-            {/* Expiring Soon / Churn Risk */}
-            <div className="p-6 rounded-[28px] border-[3px] border-black bg-[#FF9FCE] text-black shadow-[4px_4px_0px_0px_#000000] flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider opacity-85">
-                  Hết Hạn Trong 7 Ngày
-                </span>
-                <h3 className="text-2xl font-black mt-1">{data?.expiringSoonCount ?? 0}</h3>
-                <p className="text-[9px] font-bold text-black/70 mt-0.5">
-                  {data?.cancelingCount ?? 0} gói chờ huỷ cuối kỳ
-                </p>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
-                <Clock className="w-5 h-5" />
-              </div>
-            </div>
+            {/* Plan Performance & Gateway Donut */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Plan Comparison Cards */}
+              <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* PLUS PASS */}
+                <AdminCard className="p-4 flex flex-col justify-between border-l-4 border-l-amber-500">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <AdminBadge variant="brand" size="sm">PLUS PASS</AdminBadge>
+                      <span className="text-xs font-semibold text-slate-500">39.000 đ/tháng</span>
+                    </div>
+                    <div className="mt-3">
+                      <span className="text-[11px] text-slate-400 block">Số người đăng ký Active</span>
+                      <span className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                        {(data?.activePlusCount ?? 0).toLocaleString('vi-VN')} thành viên
+                      </span>
+                    </div>
+                  </div>
+                  <div className="pt-3 mt-3 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
+                    <span className="text-xs text-slate-500">Doanh số PLUS</span>
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                      {formatVND(plusRevenue)}
+                    </span>
+                  </div>
+                </AdminCard>
 
-            {/* P2P Trip Split Volume */}
-            <div className="p-6 rounded-[28px] border-[3px] border-black bg-[#A2D2FF] text-black shadow-[4px_4px_0px_0px_#000000] flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider opacity-85">
-                  Chia Tiền Chuyến (P2P)
-                </span>
-                <h3 className="text-xl font-black mt-1">
-                  {formatVND(data?.tripSplitVolume ?? data?.totalVolume ?? 0)}
-                </h3>
-                <p className="text-[9px] font-bold text-black/70 mt-0.5">Tiền chia giữa thành viên</p>
+                {/* SQUAD PASS */}
+                <AdminCard className="p-4 flex flex-col justify-between border-l-4 border-l-[#22C55E]">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <AdminBadge variant="success" size="sm">SQUAD PASS</AdminBadge>
+                      <span className="text-xs font-semibold text-slate-500">99.000 đ/tháng</span>
+                    </div>
+                    <div className="mt-3">
+                      <span className="text-[11px] text-slate-400 block">Số nhóm đăng ký Active</span>
+                      <span className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                        {(data?.activeSquadCount ?? 0).toLocaleString('vi-VN')} nhóm
+                      </span>
+                    </div>
+                  </div>
+                  <div className="pt-3 mt-3 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
+                    <span className="text-xs text-slate-500">Doanh số SQUAD</span>
+                    <span className="text-xs font-bold text-[#22C55E]">
+                      {formatVND(squadRevenue)}
+                    </span>
+                  </div>
+                </AdminCard>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center text-black shadow-[2px_2px_0px_0px_#000000]">
-                <DollarSign className="w-5 h-5" />
-              </div>
+
+              {/* Gateway Donut */}
+              <AdminCard className="lg:col-span-5">
+                <AdminCardHeader>
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                      <PieChart className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <AdminCardTitle>Cổng Thanh Toán Gói Hội Viên</AdminCardTitle>
+                      <AdminCardDescription>Tỷ lệ đăng ký qua MoMo, ZaloPay, Apple Pay...</AdminCardDescription>
+                    </div>
+                  </div>
+                </AdminCardHeader>
+
+                {subProviderChartData.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-6 text-center">
+                    Chưa có dữ liệu thanh toán cổng.
+                  </p>
+                ) : (
+                  <AdminDonutChart
+                    data={subProviderChartData}
+                    totalLabel="Tổng Gói"
+                    valueSuffix=" gói"
+                    size={140}
+                  />
+                )}
+              </AdminCard>
             </div>
           </div>
 
-          {/* Section 1: Platform Subscriptions Breakdown */}
+          {/* SECTION 2: AUDIT & CHARGE TRANSACTION LEDGER (THE REQUESTED FEATURE) */}
+          <AdminCard className="overflow-hidden">
+            <AdminCardHeader>
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#22C55E]/10 text-[#22C55E] flex items-center justify-center border border-[#22C55E]/20">
+                    <Receipt className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <AdminCardTitle>Sổ Cái Đối Soát Thu Tiền & Giao Dịch (Billing Audit Ledger)</AdminCardTitle>
+                    <AdminCardDescription>
+                      Theo dõi chi tiết từng khách hàng được charge tiền, số tiền thực thu, mã đối soát và kênh thanh toán.
+                    </AdminCardDescription>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                  <div className="w-full sm:w-72">
+                    <AdminInput
+                      placeholder="Tìm kiếm mã GD, tên khách, email..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      leftIcon={<Search className="w-3.5 h-3.5 text-slate-400" />}
+                    />
+                  </div>
+                  <AdminButton
+                    variant="outline"
+                    size="sm"
+                    onClick={handleExportLedgerCSV}
+                    icon={<Download className="w-3.5 h-3.5" />}
+                  >
+                    Xuất Sổ Cái
+                  </AdminButton>
+                </div>
+              </div>
+            </AdminCardHeader>
+
+            {/* Tabs for Ledger */}
+            <div className="px-5 pb-3">
+              <AdminTabs
+                tabs={ledgerTabs}
+                activeTab={ledgerTab}
+                onChange={(t) => setLedgerTab(t as any)}
+              />
+            </div>
+
+            {/* Platform Subscriptions Charges Table */}
+            {ledgerTab === 'subs' && (
+              <AdminTable>
+                <AdminTableHeader>
+                  <AdminTableRow>
+                    <AdminTableHead>Mã Giao Dịch / External Ref</AdminTableHead>
+                    <AdminTableHead>Khách Hàng (User)</AdminTableHead>
+                    <AdminTableHead>Gói Dịch Vụ</AdminTableHead>
+                    <AdminTableHead>Số Tiền Charge</AdminTableHead>
+                    <AdminTableHead>Cổng Thanh Toán</AdminTableHead>
+                    <AdminTableHead>Trạng Thái</AdminTableHead>
+                    <AdminTableHead>Ngày Thu Tiền</AdminTableHead>
+                    <AdminTableHead className="text-right">Biên Lai</AdminTableHead>
+                  </AdminTableRow>
+                </AdminTableHeader>
+
+                {filteredCharges.length === 0 ? (
+                  <AdminTableEmpty colSpan={8} message="Không có bản ghi charge tiền gói hội viên nào phù hợp" />
+                ) : (
+                  <AdminTableBody>
+                    {filteredCharges.map((charge) => (
+                      <AdminTableRow key={charge.id}>
+                        {/* Transaction ID */}
+                        <AdminTableCell className="font-mono text-xs">
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-slate-900 dark:text-slate-100">
+                              {charge.externalId && charge.externalId !== 'N/A'
+                                ? charge.externalId
+                                : charge.id.slice(0, 12)}
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              UUID: {charge.id.slice(0, 8)}...
+                            </span>
+                          </div>
+                        </AdminTableCell>
+
+                        {/* Customer / User info */}
+                        <AdminTableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold text-xs shrink-0 border border-amber-500/20">
+                              {charge.user?.name ? charge.user.name[0].toUpperCase() : 'U'}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                                {charge.user?.name || charge.user?.username || 'Thành viên'}
+                              </span>
+                              <span className="text-[11px] text-slate-400 truncate max-w-[150px]">
+                                {charge.user?.email || 'N/A'}
+                              </span>
+                            </div>
+                          </div>
+                        </AdminTableCell>
+
+                        {/* Plan */}
+                        <AdminTableCell>
+                          <AdminBadge variant={charge.plan === 'SQUAD' ? 'success' : 'brand'} size="xs">
+                            {charge.plan === 'SQUAD' ? 'SQUAD Pass (Nhóm)' : 'PLUS Pass (Cá nhân)'}
+                          </AdminBadge>
+                        </AdminTableCell>
+
+                        {/* Amount */}
+                        <AdminTableCell>
+                          <span className="text-xs font-bold text-emerald-600 dark:text-[#22C55E] whitespace-nowrap">
+                            +{formatVND(charge.amount)}
+                          </span>
+                        </AdminTableCell>
+
+                        {/* Provider */}
+                        <AdminTableCell>
+                          <AdminBadge variant="neutral" size="xs">
+                            {charge.provider}
+                          </AdminBadge>
+                        </AdminTableCell>
+
+                        {/* Status */}
+                        <AdminTableCell>
+                          <AdminBadge
+                            variant={
+                              charge.status === 'ACTIVE'
+                                ? 'success'
+                                : charge.status === 'EXPIRED'
+                                ? 'neutral'
+                                : 'danger'
+                            }
+                            size="xs"
+                          >
+                            {charge.status}
+                          </AdminBadge>
+                        </AdminTableCell>
+
+                        {/* Date */}
+                        <AdminTableCell className="text-xs text-slate-500 whitespace-nowrap font-mono">
+                          {new Date(charge.createdAt).toLocaleString('vi-VN', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </AdminTableCell>
+
+                        {/* Action */}
+                        <AdminTableCell className="text-right">
+                          <AdminButton
+                            variant="ghost"
+                            size="xs"
+                            onClick={() => setSelectedTxn(charge)}
+                            icon={<Eye className="w-3.5 h-3.5" />}
+                          >
+                            Đối soát
+                          </AdminButton>
+                        </AdminTableCell>
+                      </AdminTableRow>
+                    ))}
+                  </AdminTableBody>
+                )}
+              </AdminTable>
+            )}
+
+            {/* P2P Trip Settlements Table */}
+            {ledgerTab === 'p2p' && (
+              <AdminTable>
+                <AdminTableHeader>
+                  <AdminTableRow>
+                    <AdminTableHead>Mã Giao Dịch P2P</AdminTableHead>
+                    <AdminTableHead>Người Chuyển Tiền</AdminTableHead>
+                    <AdminTableHead>Người Nhận</AdminTableHead>
+                    <AdminTableHead>Khoản Chi / Ghi Chú</AdminTableHead>
+                    <AdminTableHead>Số Tiền</AdminTableHead>
+                    <AdminTableHead>Kênh Thanh Toán</AdminTableHead>
+                    <AdminTableHead>Trạng Thái</AdminTableHead>
+                    <AdminTableHead>Thời Gian</AdminTableHead>
+                    <AdminTableHead className="text-right">Biên Lai</AdminTableHead>
+                  </AdminTableRow>
+                </AdminTableHeader>
+
+                {filteredP2P.length === 0 ? (
+                  <AdminTableEmpty colSpan={9} message="Không có giao dịch chia tiền chuyến nào phù hợp" />
+                ) : (
+                  <AdminTableBody>
+                    {filteredP2P.map((p2p) => (
+                      <AdminTableRow key={p2p.id}>
+                        <AdminTableCell className="font-mono text-xs">
+                          <span className="font-semibold text-slate-800 dark:text-slate-200">
+                            {p2p.externalId && p2p.externalId !== 'N/A' ? p2p.externalId : p2p.id.slice(0, 8)}
+                          </span>
+                        </AdminTableCell>
+
+                        <AdminTableCell>
+                          <div className="flex flex-col">
+                            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                              {p2p.sender?.name || p2p.sender?.email || 'Thành viên'}
+                            </span>
+                          </div>
+                        </AdminTableCell>
+
+                        <AdminTableCell>
+                          <div className="flex flex-col">
+                            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                              {p2p.receiver?.name || p2p.receiver?.email || 'Chủ chi'}
+                            </span>
+                          </div>
+                        </AdminTableCell>
+
+                        <AdminTableCell className="max-w-[180px]">
+                          <span className="text-xs text-slate-600 dark:text-slate-300 truncate block">
+                            {p2p.expense?.title || p2p.note || 'Thanh toán hoá đơn chuyến'}
+                          </span>
+                        </AdminTableCell>
+
+                        <AdminTableCell>
+                          <span className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC] whitespace-nowrap">
+                            {formatVND(p2p.amount)}
+                          </span>
+                        </AdminTableCell>
+
+                        <AdminTableCell>
+                          <AdminBadge variant="neutral" size="xs">
+                            {p2p.provider}
+                          </AdminBadge>
+                        </AdminTableCell>
+
+                        <AdminTableCell>
+                          <AdminBadge
+                            variant={
+                              p2p.status === 'SUCCESS'
+                                ? 'success'
+                                : p2p.status === 'PENDING'
+                                ? 'warning'
+                                : 'danger'
+                            }
+                            size="xs"
+                          >
+                            {p2p.status}
+                          </AdminBadge>
+                        </AdminTableCell>
+
+                        <AdminTableCell className="text-xs text-slate-500 whitespace-nowrap font-mono">
+                          {new Date(p2p.createdAt).toLocaleString('vi-VN', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </AdminTableCell>
+
+                        <AdminTableCell className="text-right">
+                          <AdminButton
+                            variant="ghost"
+                            size="xs"
+                            onClick={() => setSelectedTxn(p2p)}
+                            icon={<Eye className="w-3.5 h-3.5" />}
+                          >
+                            Chi tiết
+                          </AdminButton>
+                        </AdminTableCell>
+                      </AdminTableRow>
+                    ))}
+                  </AdminTableBody>
+                )}
+              </AdminTable>
+            )}
+
+            {/* Combined View Table */}
+            {ledgerTab === 'all' && (
+              <AdminTable>
+                <AdminTableHeader>
+                  <AdminTableRow>
+                    <AdminTableHead>Mã GD / External Ref</AdminTableHead>
+                    <AdminTableHead>Phân Loại</AdminTableHead>
+                    <AdminTableHead>Người Nộp Tiền (User)</AdminTableHead>
+                    <AdminTableHead>Mục Đích Thu</AdminTableHead>
+                    <AdminTableHead>Số Tiền</AdminTableHead>
+                    <AdminTableHead>Kênh Thanh Toán</AdminTableHead>
+                    <AdminTableHead>Trạng Thái</AdminTableHead>
+                    <AdminTableHead>Thời Gian</AdminTableHead>
+                    <AdminTableHead className="text-right">Thao Tác</AdminTableHead>
+                  </AdminTableRow>
+                </AdminTableHeader>
+
+                {filteredCharges.length === 0 && filteredP2P.length === 0 ? (
+                  <AdminTableEmpty colSpan={9} message="Không có bản ghi giao dịch nào" />
+                ) : (
+                  <AdminTableBody>
+                    {filteredCharges.map((charge) => (
+                      <AdminTableRow key={charge.id}>
+                        <AdminTableCell className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">
+                          {charge.externalId && charge.externalId !== 'N/A' ? charge.externalId : charge.id.slice(0, 10)}
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <AdminBadge variant="brand" size="xs">Gói Nền Tảng</AdminBadge>
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                            {charge.user?.name || charge.user?.email || 'Thành viên'}
+                          </span>
+                        </AdminTableCell>
+                        <AdminTableCell className="text-xs">
+                          {charge.plan === 'SQUAD' ? 'Gói SQUAD Pass (12 tháng)' : 'Gói PLUS Pass'}
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <span className="text-xs font-bold text-emerald-600 dark:text-[#22C55E]">
+                            +{formatVND(charge.amount)}
+                          </span>
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <AdminBadge variant="neutral" size="xs">{charge.provider}</AdminBadge>
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <AdminBadge variant="success" size="xs">{charge.status}</AdminBadge>
+                        </AdminTableCell>
+                        <AdminTableCell className="text-xs text-slate-500 font-mono whitespace-nowrap">
+                          {new Date(charge.createdAt).toLocaleDateString('vi-VN')}
+                        </AdminTableCell>
+                        <AdminTableCell className="text-right">
+                          <AdminButton
+                            variant="ghost"
+                            size="xs"
+                            onClick={() => setSelectedTxn(charge)}
+                            icon={<Eye className="w-3.5 h-3.5" />}
+                          >
+                            Xem
+                          </AdminButton>
+                        </AdminTableCell>
+                      </AdminTableRow>
+                    ))}
+
+                    {filteredP2P.map((p2p) => (
+                      <AdminTableRow key={p2p.id}>
+                        <AdminTableCell className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">
+                          {p2p.externalId && p2p.externalId !== 'N/A' ? p2p.externalId : p2p.id.slice(0, 10)}
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <AdminBadge variant="info" size="xs">P2P Chuyến</AdminBadge>
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                            {p2p.sender?.name || p2p.sender?.email || 'Thành viên'}
+                          </span>
+                        </AdminTableCell>
+                        <AdminTableCell className="text-xs truncate max-w-[160px]">
+                          {p2p.expense?.title || p2p.note || 'Chia sẻ chi phí'}
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                            {formatVND(p2p.amount)}
+                          </span>
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <AdminBadge variant="neutral" size="xs">{p2p.provider}</AdminBadge>
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <AdminBadge variant={p2p.status === 'SUCCESS' ? 'success' : 'warning'} size="xs">
+                            {p2p.status}
+                          </AdminBadge>
+                        </AdminTableCell>
+                        <AdminTableCell className="text-xs text-slate-500 font-mono whitespace-nowrap">
+                          {new Date(p2p.createdAt).toLocaleDateString('vi-VN')}
+                        </AdminTableCell>
+                        <AdminTableCell className="text-right">
+                          <AdminButton
+                            variant="ghost"
+                            size="xs"
+                            onClick={() => setSelectedTxn(p2p)}
+                            icon={<Eye className="w-3.5 h-3.5" />}
+                          >
+                            Xem
+                          </AdminButton>
+                        </AdminTableCell>
+                      </AdminTableRow>
+                    ))}
+                  </AdminTableBody>
+                )}
+              </AdminTable>
+            )}
+          </AdminCard>
+
+          {/* SECTION 3: P2P TRIP EXPENSE BREAKDOWN (EXPLAINED CLEARLY) */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm font-black uppercase text-black dark:text-white tracking-wider flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-primary" />
-                Doanh Thu Gói Đăng Ký (Platform Subscriptions)
-              </h2>
-              <span className="text-[9px] bg-primary text-white font-black px-2 py-0.5 rounded-full uppercase">
-                Nguồn Doanh Thu
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#38BDF8]" />
+                <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                  Dòng Tiền Chia Sẻ Nội Bộ (Peer-to-Peer Expense Split)
+                </h2>
+              </div>
+              <span className="text-xs text-slate-400">
+                Tổng thể tích chuyển tiền: {formatVND(data?.tripSplitVolume || data?.totalVolume || 0)}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* PLUS Plan Card */}
-              <div className="p-6 rounded-[32px] bg-white border-[3px] border-black dark:bg-[#252322] dark:border-white shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff] flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="px-2.5 py-1 rounded-full bg-[#18A058]/15 border border-[#18A058] text-[#18A058] text-[10px] font-black uppercase">
-                      Gói Cá Nhân (PLUS)
-                    </span>
-                    <span className="text-xs font-black text-black dark:text-white">39.000đ / tháng</span>
-                  </div>
-                  <h3 className="text-2xl font-black text-black dark:text-white">
-                    {data?.activePlusCount ?? 0}{' '}
-                    <span className="text-xs font-bold text-muted-foreground uppercase">gói đang chạy</span>
-                  </h3>
-                  <p className="text-xs font-bold text-black dark:text-white/80 mt-2">
-                    Doanh thu ước tính: <span className="font-black text-primary">{formatVND(plusRevenue)}</span>/tháng
-                  </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-black/10 dark:border-white/10 text-[10px] font-bold text-muted-foreground">
-                  Gói cá nhân 1 ghế. Mở rộng số chuyến đi và hạn mức AI.
-                </div>
-              </div>
-
-              {/* SQUAD Plan Card */}
-              <div className="p-6 rounded-[32px] bg-white border-[3px] border-black dark:bg-[#252322] dark:border-white shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff] flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="px-2.5 py-1 rounded-full bg-[#FFD043]/40 border border-black text-black text-[10px] font-black uppercase">
-                      Gói Nhóm (SQUAD PASS)
-                    </span>
-                    <span className="text-xs font-black text-black dark:text-white">99.000đ / tháng</span>
-                  </div>
-                  <h3 className="text-2xl font-black text-black dark:text-white">
-                    {data?.activeSquadCount ?? 0}{' '}
-                    <span className="text-xs font-bold text-muted-foreground uppercase">gói đang chạy</span>
-                  </h3>
-                  <p className="text-xs font-bold text-black dark:text-white/80 mt-2">
-                    Doanh thu ước tính: <span className="font-black text-primary">{formatVND(squadRevenue)}</span>/tháng
-                  </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-black/10 dark:border-white/10 text-[10px] font-bold text-muted-foreground">
-                  Bao gồm 5 ghế Squad Pass chia sẻ cho các thành viên trong nhóm.
-                </div>
-              </div>
-
-              {/* Subscription Payment Providers */}
-              <div className="p-6 rounded-[32px] bg-white border-[3px] border-black dark:bg-[#252322] dark:border-white shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff]">
-                <div className="flex items-center gap-3 border-b border-black dark:border-white pb-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-secondary border-2 border-black text-black flex items-center justify-center">
-                    <PieChart className="w-4 h-4" />
-                  </div>
-                  <h3 className="text-xs font-black uppercase text-black dark:text-white">Cổng Thanh Toán Gói</h3>
-                </div>
-
-                {Object.keys(data?.subscriptionProviderBreakdown || {}).length === 0 ? (
-                  <p className="text-xs text-muted-foreground py-6 text-center font-bold uppercase">
-                    Chưa có dữ liệu cổng thanh toán gói.
-                  </p>
-                ) : (
-                  <div className="flex flex-col gap-2.5">
-                    {Object.entries(data?.subscriptionProviderBreakdown || {}).map(([provider, count]) => (
-                      <div
-                        key={provider}
-                        className="flex justify-between items-center p-2.5 rounded-xl border border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19]"
-                      >
-                        <span className="text-xs font-black uppercase text-black dark:text-white">{provider}</span>
-                        <span className="text-xs font-black bg-[#FFD043] text-black px-2 py-0.5 rounded-full border border-black">
-                          {count} gói
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Peer-to-Peer Trip Expense Split (Clearly Demarcated) */}
-          <div className="flex flex-col gap-4 mt-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-black uppercase text-black dark:text-white tracking-wider flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#A2D2FF]" />
-                  Giao Dịch Chia Tiền Trong Chuyến (Peer-to-Peer Split)
-                </h2>
-                <span className="text-[9px] bg-secondary text-black font-black px-2 py-0.5 rounded-full uppercase border border-black">
-                  Không phải doanh thu
-                </span>
-              </div>
-            </div>
-
             {/* Note callout */}
-            <div className="p-4 rounded-2xl bg-white dark:bg-[#252322] border-2 border-black dark:border-white flex items-start gap-3 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_#ffffff]">
-              <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-              <p className="text-xs font-bold text-black/80 dark:text-white/80 leading-relaxed">
+            <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B] flex items-start gap-3">
+              <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <p className="text-xs text-[#475569] dark:text-[#94A3B8] leading-relaxed">
                 Số liệu dưới đây phản ánh tổng lượng tiền mà các thành viên chuyển cho nhau để thanh toán các hoá đơn ăn uống,
                 khách sạn, vé tham quan trong chuyến đi. Đây là dòng tiền trung chuyển nội bộ giữa người dùng (P2P), không phải
                 khoản thu của TripMate.
@@ -309,75 +868,239 @@ export default function AdminRevenuePage() {
             </div>
 
             {/* Breakdown Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Status Breakdown */}
-              <div className="p-6 rounded-[32px] bg-white border-[3px] border-black dark:bg-[#252322] dark:border-white shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff]">
-                <div className="flex items-center gap-3 border-b border-black dark:border-white pb-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 border-2 border-primary text-primary flex items-center justify-center">
-                    <PieChart className="w-4 h-4" />
+              <AdminCard>
+                <AdminCardHeader>
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-[#22C55E]/10 text-[#22C55E] flex items-center justify-center">
+                      <PieChart className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <AdminCardTitle>Trạng Thái Chia Tiền Chuyến</AdminCardTitle>
+                      <AdminCardDescription>Phân bố trạng thái các giao dịch P2P</AdminCardDescription>
+                    </div>
                   </div>
-                  <h3 className="text-xs font-black uppercase text-black dark:text-white">Trạng Thái Chia Tiền Chuyến</h3>
-                </div>
+                </AdminCardHeader>
 
                 {Object.keys(data?.tripSplitStatusBreakdown || data?.statusBreakdown || {}).length === 0 ? (
-                  <p className="text-xs text-muted-foreground py-6 text-center font-bold uppercase">
+                  <p className="text-xs text-[#94A3B8] py-6 text-center">
                     Chưa có dữ liệu trạng thái giao dịch chia tiền.
                   </p>
                 ) : (
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
                     {Object.entries(data?.tripSplitStatusBreakdown || data?.statusBreakdown || {}).map(([status, count]) => (
                       <div
                         key={status}
-                        className="flex justify-between items-center p-3 rounded-xl border border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19]"
+                        className="flex justify-between items-center p-2.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0D1424]/60"
                       >
-                        <span className="text-xs font-black uppercase text-black dark:text-white">{status}</span>
-                        <span className="text-xs font-black bg-primary text-white px-2 py-0.5 rounded-full border border-black">
-                          {count}
+                        <span className="text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC]">
+                          {status}
                         </span>
+                        <AdminBadge variant="neutral" size="xs">
+                          {count} giao dịch
+                        </AdminBadge>
                       </div>
                     ))}
                   </div>
                 )}
-              </div>
+              </AdminCard>
 
               {/* Method Breakdown */}
-              <div className="p-6 rounded-[32px] bg-white border-[3px] border-black dark:bg-[#252322] dark:border-white shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff]">
-                <div className="flex items-center gap-3 border-b border-black dark:border-white pb-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-secondary border-2 border-black text-black flex items-center justify-center">
-                    <Wallet className="w-4 h-4" />
-                  </div>
-                  <div className="flex justify-between items-center flex-1">
-                    <h3 className="text-xs font-black uppercase text-black dark:text-white">Phương Thức Thanh Toán P2P</h3>
-                    <span className="text-[10px] font-bold text-muted-foreground">
+              <AdminCard>
+                <AdminCardHeader>
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-[#38BDF8]/10 text-[#38BDF8] flex items-center justify-center">
+                        <Wallet className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <AdminCardTitle>Phương Thức Thanh Toán P2P</AdminCardTitle>
+                        <AdminCardDescription>Kênh chuyển tiền giữa các thành viên</AdminCardDescription>
+                      </div>
+                    </div>
+                    <span className="text-[11px] text-[#94A3B8]">
                       Tổng ví: {data?.walletCount ?? 0}
                     </span>
                   </div>
-                </div>
+                </AdminCardHeader>
 
                 {Object.keys(data?.tripSplitMethodBreakdown || data?.methodBreakdown || {}).length === 0 ? (
-                  <p className="text-xs text-muted-foreground py-6 text-center font-bold uppercase">
+                  <p className="text-xs text-[#94A3B8] py-6 text-center">
                     Chưa có dữ liệu phương thức thanh toán.
                   </p>
                 ) : (
-                  <div className="flex flex-col gap-3">
-                    {Object.entries(data?.tripSplitMethodBreakdown || data?.methodBreakdown || {}).map(([method, count]) => (
-                      <div
-                        key={method}
-                        className="flex justify-between items-center p-3 rounded-xl border border-black dark:border-white bg-[#FEFADC] dark:bg-[#1C1A19]"
-                      >
-                        <span className="text-xs font-black uppercase text-black dark:text-white">{method}</span>
-                        <span className="text-xs font-black bg-secondary text-black px-2 py-0.5 rounded-full border border-black">
-                          {count}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  <AdminDonutChart
+                    data={p2pMethodChartData}
+                    totalLabel="Tổng GD"
+                    valueSuffix=" lượt"
+                    size={150}
+                  />
                 )}
-              </div>
+              </AdminCard>
             </div>
           </div>
         </>
       )}
+
+      {/* QUICK VIEW RECEIPT DRAWER */}
+      <AdminDrawer
+        isOpen={!!selectedTxn}
+        onClose={() => setSelectedTxn(null)}
+        title="Biên Lai & Chi Tiết Đối Soát Giao Dịch"
+        description={selectedTxn ? `Mã đối soát: ${selectedTxn.id}` : undefined}
+        size="lg"
+        footer={
+          selectedTxn && (
+            <div className="flex items-center justify-between w-full">
+              <span className="text-[11px] text-slate-400">
+                Giao dịch được ghi nhận trên cơ sở dữ liệu TripMate
+              </span>
+              <AdminButton variant="outline" size="sm" onClick={() => setSelectedTxn(null)}>
+                Đóng
+              </AdminButton>
+            </div>
+          )
+        }
+      >
+        {selectedTxn && (
+          <div className="flex flex-col gap-5 text-xs">
+            {/* Amount Banner */}
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B] flex items-center justify-between">
+              <div>
+                <span className="text-[11px] text-slate-400 block font-medium">Số tiền giao dịch thực thu</span>
+                <span className="text-2xl font-bold text-emerald-600 dark:text-[#22C55E]">
+                  {formatVND(selectedTxn.amount)}
+                </span>
+              </div>
+              <AdminBadge
+                variant={
+                  selectedTxn.status === 'ACTIVE' || selectedTxn.status === 'SUCCESS'
+                    ? 'success'
+                    : 'warning'
+                }
+                size="sm"
+              >
+                {selectedTxn.status}
+              </AdminBadge>
+            </div>
+
+            {/* Transaction specs grid */}
+            <div className="grid grid-cols-2 gap-3.5 p-4 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#111827]">
+              <div>
+                <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                  Kênh / Cổng thanh toán
+                </span>
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5 block">
+                  {selectedTxn.provider}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                  Mã tham chiếu ngoại vi (External Ref)
+                </span>
+                <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5 block truncate">
+                  {selectedTxn.externalId || 'N/A'}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                  Thời gian ghi nhận
+                </span>
+                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block">
+                  {new Date(selectedTxn.createdAt).toLocaleString('vi-VN')}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                  Phân loại nghiệp vụ
+                </span>
+                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block">
+                  {selectedTxn.type === 'SUBSCRIPTION' ? 'Gói Hội Viên Nền Tảng' : 'Chia Tiền Chuyến Đi (P2P)'}
+                </span>
+              </div>
+            </div>
+
+            {/* Customer Details */}
+            {selectedTxn.type === 'SUBSCRIPTION' && (
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0D1424]/60 flex flex-col gap-2">
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  <span>Thông tin khách hàng được tính tiền</span>
+                </span>
+                <div className="grid grid-cols-2 gap-2 mt-1">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Họ và tên</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      {(selectedTxn as ChargeTransaction).user?.name || 'Thành viên'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Email tài khoản</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 truncate block">
+                      {(selectedTxn as ChargeTransaction).user?.email || 'N/A'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Gói kích hoạt</span>
+                    <span className="font-semibold text-amber-600 dark:text-amber-400">
+                      {(selectedTxn as ChargeTransaction).plan} Pass
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Hạn kỳ hiện tại</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      {(selectedTxn as ChargeTransaction).currentPeriodEnd
+                        ? new Date((selectedTxn as ChargeTransaction).currentPeriodEnd!).toLocaleDateString('vi-VN')
+                        : 'Vô thời hạn'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedTxn.type === 'P2P_SPLIT' && (
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0D1424]/60 flex flex-col gap-2">
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                  <Wallet className="w-3.5 h-3.5 text-[#38BDF8]" />
+                  <span>Thông tin đối tác chuyển tiền</span>
+                </span>
+                <div className="grid grid-cols-2 gap-2 mt-1">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Người chuyển (Sender)</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      {(selectedTxn as P2PTransaction).sender?.name || (selectedTxn as P2PTransaction).sender?.email || 'Thành viên'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Người nhận (Receiver)</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      {(selectedTxn as P2PTransaction).receiver?.name || (selectedTxn as P2PTransaction).receiver?.email || 'Chủ chi'}
+                    </span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-[10px] text-slate-400 block">Khoản chi tiêu liên quan</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      {(selectedTxn as P2PTransaction).expense?.title || (selectedTxn as P2PTransaction).note || 'Chia đều chi phí'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Audit Notice */}
+            <div className="p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5">
+              <ShieldCheck className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="text-[11px] text-slate-600 dark:text-slate-300 leading-normal">
+                Bản ghi đối soát này được liên kết trực tiếp với lịch sử giao dịch gốc của cổng thanh toán MoMo / ZaloPay. Bạn có thể sử dụng mã đối soát để tra cứu trên Merchant Portal bên thứ 3.
+              </div>
+            </div>
+          </div>
+        )}
+      </AdminDrawer>
     </div>
   );
 }

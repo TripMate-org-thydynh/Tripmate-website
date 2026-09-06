@@ -23,12 +23,12 @@
   --ds-success: #1FA85C;
   --ds-warning: #FFD84D;
   --ds-danger: #D8422B;
-  --ds-info: #8B4DE8;
+  --ds-info: #3D8BFF;
 
   /* Accent mac dinh: mint */
   --ds-primary: #FFD84D;
   --ds-on-primary: #141210;
-  --ds-pair: #8B4DE8;
+  --ds-pair: #F5822B;
   --ds-accent-bg: #FDF6D3;
   --ds-accent-soft: #FFEFAE;
 
@@ -69,7 +69,7 @@
 [data-accent="mint"] {
   --ds-primary: #FFD84D;
   --ds-on-primary: #141210;
-  --ds-pair: #8B4DE8;
+  --ds-pair: #F5822B;
   --ds-accent-bg: #FDF6D3;
   --ds-accent-soft: #FFEFAE;
 }

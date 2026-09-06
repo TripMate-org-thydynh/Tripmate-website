@@ -10,14 +10,12 @@ import {
   CheckSquare, 
   Camera, 
   Sparkles, 
-  Plus, 
   Check, 
   Heart, 
   MessageCircle, 
   Send,
   User,
-  MapPin,
-  Smile
+  MapPin
 } from 'lucide-react';
 
 export default function PreviewPage() {
@@ -27,7 +25,7 @@ export default function PreviewPage() {
   const [itinerary, setItinerary] = useState([
     { id: 1, day: 1, time: '08:00', place: 'Hồ Tuyền Lâm', note: 'Chèo thuyền SUP ngắm sương mù buổi sáng sớm siêu chill!', category: 'Vui chơi', color: 'bg-[#FF9FCE]' },
     { id: 2, day: 1, time: '12:30', place: 'Lẩu GÀ Lá É Tao Ngộ', note: 'Ăn trưa nạp năng lượng sau khi chèo SUP.', category: 'Ăn uống', color: 'bg-[#FFD043]' },
-    { id: 3, day: 1, time: '15:00', place: 'Tiệm Cà Phê Túi Mơ To', note: 'Check-in vườn cúc họa mi huyền thoại.', category: 'Cà phê', color: 'bg-[#C5B4FA]' },
+    { id: 3, day: 1, time: '15:00', place: 'Tiệm Cà Phê Túi Mơ To', note: 'Check-in vườn cúc họa mi huyền thoại.', category: 'Cà phê', color: 'bg-[#FED7AA]' },
     { id: 4, day: 2, time: '04:30', place: 'Đồi Săn Mây Trại Mát', note: 'Dậy sớm ngắm bình minh và săn mây ngập lối.', category: 'Check-in', color: 'bg-[#A2D2FF]' },
   ]);
   const [newTime, setNewTime] = useState('09:00');
@@ -57,7 +55,7 @@ export default function PreviewPage() {
   // --- EXPENSE STATE ---
   const [expenses, setExpenses] = useState([
     { id: 1, desc: 'Thuê Homestay Gỗ 3 đêm', amount: 1500000, paidBy: 'Alex', splits: 'Tất cả (3 người)', color: 'bg-[#FFD043]' },
-    { id: 2, desc: 'Lẩu gà lá é ngày 1', amount: 450000, paidBy: 'Linh', splits: 'Tất cả (3 người)', color: 'bg-[#C5B4FA]' },
+    { id: 2, desc: 'Lẩu gà lá é ngày 1', amount: 450000, paidBy: 'Linh', splits: 'Tất cả (3 người)', color: 'bg-[#FED7AA]' },
     { id: 3, desc: 'Xăng xe máy + Thuê xe', amount: 300000, paidBy: 'Minh', splits: 'Minh & Alex', color: 'bg-[#FF9FCE]' },
   ]);
   const [newExpenseDesc, setNewExpenseDesc] = useState('');
@@ -204,7 +202,7 @@ export default function PreviewPage() {
             <ThemeToggle />
             <Link
               href="/admin/login"
-              className="px-4 py-2 text-xs font-black uppercase rounded-xl bg-[#C5B4FA] hover:bg-[#C5B4FA]/90 text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]"
+              className="px-4 py-2 text-xs font-black uppercase rounded-xl bg-[#FFD84D] hover:bg-[#FFD84D]/90 text-black border-2 border-black shadow-[2px_2px_0px_0px_#000000]"
             >
               Vào Admin
             </Link>
@@ -308,7 +306,7 @@ export default function PreviewPage() {
         {activeTab === 'expenses' && (
           <div className="flex-1 flex flex-col gap-6 md:grid md:grid-cols-12 md:gap-8">
             <div className="md:col-span-8 flex flex-col gap-4">
-              <div className="p-6 rounded-3xl border-[3px] border-black bg-[#C5B4FA] text-black shadow-[4px_4px_0px_0px_#000000] flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="p-6 rounded-3xl border-[3px] border-black bg-[#FFD84D] text-black shadow-[4px_4px_0px_0px_#000000] flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div>
                   <span className="text-[10px] font-black uppercase text-black/60">Tổng chi tiêu quỹ nhóm</span>
                   <h3 className="text-2xl font-black">{(expenses.reduce((acc, curr) => acc + curr.amount, 0)).toLocaleString('vi-VN')} VND</h3>
@@ -440,7 +438,7 @@ export default function PreviewPage() {
                 {/* Header */}
                 <div className="p-4 flex items-center justify-between border-b border-black">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#C5B4FA] border-2 border-black flex items-center justify-center text-xs font-black text-black">
+                    <div className="w-8 h-8 rounded-lg bg-[#FFEFAE] border-2 border-black flex items-center justify-center text-xs font-black text-black">
                       {m.avatar}
                     </div>
                     <div>
@@ -455,6 +453,7 @@ export default function PreviewPage() {
 
                 {/* Image */}
                 <div className="relative w-full aspect-square bg-[#FEFADC] flex items-center justify-center overflow-hidden border-b border-black">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={m.image} alt={m.caption} className="w-full h-full object-cover" />
                 </div>
 
@@ -504,9 +503,9 @@ export default function PreviewPage() {
               {chatMessages.map((msg, idx) => (
                 <div key={idx} className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'self-end flex-row-reverse' : ''}`}>
                   <div className={`w-7 h-7 rounded-xl border-2 border-black flex items-center justify-center shrink-0 text-xs font-black ${
-                    msg.sender === 'user' ? 'bg-[#FFD043] text-black' : 'bg-[#C5B4FA] text-black'
+                    msg.sender === 'user' ? 'bg-[#FFD043] text-black' : 'bg-[#FFEFAE] text-black'
                   }`}>
-                    {msg.sender === 'user' ? <User className="w-4 h-4" /> : <Sparkles className="w-4 h-4 text-primary" />}
+                    {msg.sender === 'user' ? <User className="w-4 h-4" /> : <Sparkles className="w-4 h-4 text-amber-700" />}
                   </div>
                   <div className={`p-3 rounded-2xl text-xs font-bold leading-relaxed whitespace-pre-line shadow-[2px_2px_0px_0px_#000000] border-2 border-black ${
                     msg.sender === 'user' 
@@ -519,8 +518,8 @@ export default function PreviewPage() {
               ))}
               {isTyping && (
                 <div className="flex gap-3 max-w-[80%]">
-                  <div className="w-7 h-7 rounded-xl border-2 border-black bg-[#C5B4FA] flex items-center justify-center text-xs shrink-0">
-                    <Sparkles className="w-4 h-4 text-primary animate-spin" />
+                  <div className="w-7 h-7 rounded-xl border-2 border-black bg-[#FFEFAE] flex items-center justify-center text-xs shrink-0">
+                    <Sparkles className="w-4 h-4 text-amber-700 animate-spin" />
                   </div>
                   <div className="p-3.5 rounded-2xl bg-white border-2 border-black rounded-tl-none flex items-center gap-1 shadow-[2px_2px_0px_0px_#000000]">
                     <div className="w-1.5 h-1.5 bg-black rounded-full animate-bounce"></div>

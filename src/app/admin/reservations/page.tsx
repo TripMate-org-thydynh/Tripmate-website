@@ -1,30 +1,55 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { 
-  getReservationsAction, 
-  createReservationAction, 
-  updateReservationAction, 
-  deleteReservationAction, 
-  getTripsAction, 
-  getUsersAction 
+import { useEffect, useState, useCallback } from 'react';
+import {
+  getReservationsAction,
+  createReservationAction,
+  updateReservationAction,
+  deleteReservationAction,
+  getTripsAction,
+  getUsersAction,
 } from '@/app/actions';
 import {
-  CalendarDays,
   Plus,
   Trash2,
-  ChevronLeft,
-  ChevronRight,
-  AlertCircle,
   Edit2,
-  X,
   Plane,
   Hotel,
   Coffee,
   Ticket,
+  Car,
+  Train,
   HelpCircle,
+  Download,
+  MapPin,
+  RefreshCw,
+  Eye,
+  CreditCard,
+  Hash,
+  Compass,
 } from 'lucide-react';
 import ErrorState from '@/components/ErrorState';
+import { exportToCSV } from '@/lib/exportCsv';
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import ToastContainer, { ToastMessage } from '@/components/ui/Toast';
+import { AdminButton } from '@/components/admin/AdminButton';
+import { AdminInput, AdminSelect } from '@/components/admin/AdminInput';
+import { AdminBadge, AdminBadgeVariant } from '@/components/admin/AdminBadge';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminFilterBar } from '@/components/admin/AdminFilterBar';
+import {
+  AdminTable,
+  AdminTableHeader,
+  AdminTableRow,
+  AdminTableHead,
+  AdminTableCell,
+  AdminTableSkeleton,
+  AdminTableEmpty,
+} from '@/components/admin/AdminTable';
+import { AdminPagination } from '@/components/admin/AdminPagination';
+import { AdminRowActions } from '@/components/admin/AdminRowActions';
+import { AdminDrawer } from '@/components/admin/AdminDrawer';
+import { AdminModal } from '@/components/admin/AdminModal';
 
 const RESERVATION_TYPES = [
   'FLIGHT',
@@ -35,23 +60,83 @@ const RESERVATION_TYPES = [
   'CAR',
   'EVENT',
   'ATTRACTION',
-  'OTHER'
+  'OTHER',
 ];
 
+const TYPE_CONFIG: Record<
+  string,
+  { label: string; icon: any; variant: AdminBadgeVariant }
+> = {
+  FLIGHT: { label: 'Máy bay', icon: Plane, variant: 'primary' },
+  TRAIN: { label: 'Tàu hoả', icon: Train, variant: 'warning' },
+  BUS: { label: 'Xe khách', icon: Car, variant: 'info' },
+  HOTEL: { label: 'Khách sạn', icon: Hotel, variant: 'neutral' },
+  RESTAURANT: { label: 'Nhà hàng', icon: Coffee, variant: 'success' },
+  CAR: { label: 'Thuê xe', icon: Car, variant: 'warning' },
+  EVENT: { label: 'Sự kiện', icon: Ticket, variant: 'info' },
+  ATTRACTION: { label: 'Tham quan', icon: Ticket, variant: 'primary' },
+  OTHER: { label: 'Khác', icon: HelpCircle, variant: 'neutral' },
+};
+
+interface ReservationItem {
+  id: string;
+  tripId: string;
+  addedBy: string;
+  title: string;
+  type: string;
+  location?: string | null;
+  confirmationNumber?: string | null;
+  price?: number | null;
+  createdAt: string;
+  trip?: {
+    id: string;
+    name: string;
+  };
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
 export default function AdminReservationsPage() {
-  const [reservations, setReservations] = useState<any[]>([]);
+  const [reservations, setReservations] = useState<ReservationItem[]>([]);
   const [trips, setTrips] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Quick view drawer state
+  const [viewItem, setViewItem] = useState<ReservationItem | null>(null);
+
+  // Toast state
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const addToast = (type: 'success' | 'error' | 'info', message: string) => {
+    setToasts((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, type, message }]);
+  };
+
+  // Confirm delete state
+  const [confirmDelete, setConfirmDelete] = useState<{
+    isOpen: boolean;
+    id: string;
+    title: string;
+  }>({
+    isOpen: false,
+    id: '',
+    title: '',
+  });
 
   // Form states
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [formTitle, setFormTitle] = useState('');
   const [formType, setFormType] = useState('OTHER');
   const [formLocation, setFormLocation] = useState('');
@@ -60,42 +145,66 @@ export default function AdminReservationsPage() {
   const [formTripId, setFormTripId] = useState('');
   const [formAddedBy, setFormAddedBy] = useState('');
 
-  const fetchReservations = async () => {
+  const fetchReservations = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const res = await getReservationsAction(page, 10);
+    const res = await getReservationsAction(page, limit);
     if (res.success && res.data) {
-      setReservations(res.data.items || []);
-      setTotal(res.data.total || 0);
-      setTotalPages(res.data.totalPages || 1);
+      const payload = res.data.data || res.data;
+      let items: ReservationItem[] = payload.items || (Array.isArray(payload) ? payload : []);
+      if (typeFilter) {
+        items = items.filter((r) => r.type === typeFilter);
+      }
+      if (search) {
+        const query = search.toLowerCase();
+        items = items.filter(
+          (r) =>
+            r.title?.toLowerCase().includes(query) ||
+            r.confirmationNumber?.toLowerCase().includes(query) ||
+            r.location?.toLowerCase().includes(query)
+        );
+      }
+      setReservations(items);
+      setTotal(payload.total ?? items.length ?? 0);
+      setTotalPages(payload.totalPages || 1);
     } else {
       setError(res.error || 'Không thể lấy danh sách đặt chỗ');
     }
     setLoading(false);
-  };
+  }, [page, limit, typeFilter, search]);
 
   const fetchOptions = async () => {
     const [resTrips, resUsers] = await Promise.all([
       getTripsAction(undefined, 1, 100),
-      getUsersAction(undefined, undefined, 1, 100)
+      getUsersAction(undefined, undefined, 1, 100),
     ]);
-    if (resTrips.success && resTrips.data?.items) {
-      setTrips(resTrips.data.items);
-      if (resTrips.data.items.length > 0) setFormTripId(resTrips.data.items[0].id);
+    if (resTrips.success && resTrips.data) {
+      const p = resTrips.data.data || resTrips.data;
+      const items = p.items || (Array.isArray(p) ? p : []);
+      setTrips(items);
+      if (items.length > 0) setFormTripId(items[0].id);
     }
-    if (resUsers.success && resUsers.data?.items) {
-      setUsers(resUsers.data.items);
-      if (resUsers.data.items.length > 0) setFormAddedBy(resUsers.data.items[0].id);
+    if (resUsers.success && resUsers.data) {
+      const p = resUsers.data.data || resUsers.data;
+      const items = p.items || (Array.isArray(p) ? p : []);
+      setUsers(items);
+      if (items.length > 0) setFormAddedBy(items[0].id);
     }
   };
 
   useEffect(() => {
     fetchReservations();
-  }, [page]);
+  }, [fetchReservations]);
 
   useEffect(() => {
     fetchOptions();
   }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(1);
+    fetchReservations();
+  };
 
   const openCreateModal = () => {
     setIsEditing(false);
@@ -110,318 +219,483 @@ export default function AdminReservationsPage() {
     setModalOpen(true);
   };
 
-  const openEditModal = (res: any) => {
+  const openEditModal = (r: ReservationItem) => {
     setIsEditing(true);
-    setEditingId(res.id);
-    setFormTitle(res.title);
-    setFormType(res.type);
-    setFormLocation(res.location || '');
-    setFormConfNum(res.confirmationNumber || '');
-    setFormPrice(res.price ? String(res.price) : '');
-    setFormTripId(res.tripId);
-    setFormAddedBy(res.addedBy);
+    setEditingId(r.id);
+    setFormTitle(r.title);
+    setFormType(r.type);
+    setFormLocation(r.location || '');
+    setFormConfNum(r.confirmationNumber || '');
+    setFormPrice(r.price ? String(r.price) : '');
+    setFormTripId(r.tripId);
+    setFormAddedBy(r.addedBy);
     setModalOpen(true);
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setSubmitting(true);
 
     const payload = {
+      tripId: formTripId,
+      addedBy: formAddedBy,
       title: formTitle,
       type: formType,
       location: formLocation || undefined,
       confirmationNumber: formConfNum || undefined,
-      price: formPrice ? parseFloat(formPrice) : undefined,
-      tripId: formTripId,
-      addedBy: formAddedBy,
+      price: formPrice ? Number(formPrice) : undefined,
     };
 
     if (isEditing && editingId) {
       const res = await updateReservationAction(editingId, payload);
       if (res.success) {
         setModalOpen(false);
+        addToast('success', 'Đã cập nhật phiếu đặt chỗ thành công');
         fetchReservations();
       } else {
-        setError(res.error || 'Cập nhật đặt chỗ thất bại');
+        addToast('error', res.error || 'Cập nhật đặt chỗ thất bại');
       }
     } else {
       const res = await createReservationAction(payload);
       if (res.success) {
         setModalOpen(false);
+        addToast('success', 'Đã tạo phiếu đặt chỗ mới thành công');
         fetchReservations();
       } else {
-        setError(res.error || 'Tạo đặt chỗ thất bại');
+        addToast('error', res.error || 'Tạo đặt chỗ thất bại');
       }
     }
+    setSubmitting(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xoá đặt chỗ này không?')) return;
-    setError(null);
+  const executeDelete = async () => {
+    const id = confirmDelete.id;
+    setConfirmDelete({ isOpen: false, id: '', title: '' });
     const res = await deleteReservationAction(id);
     if (res.success) {
+      addToast('success', 'Đã xoá phiếu đặt chỗ thành công');
+      if (viewItem?.id === id) setViewItem(null);
       fetchReservations();
     } else {
-      setError(res.error || 'Xoá đặt chỗ thất bại');
-    }
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'FLIGHT': return Plane;
-      case 'HOTEL': return Hotel;
-      case 'RESTAURANT': return Coffee;
-      case 'EVENT':
-      case 'ATTRACTION': return Ticket;
-      default: return HelpCircle;
+      addToast('error', res.error || 'Xoá đặt chỗ thất bại');
     }
   };
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Title Header */}
-      <div className="flex justify-between items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-black uppercase text-black dark:text-white tracking-tight">Phiếu Đặt chỗ (Reservations)</h1>
-          <p className="text-[10px] font-black uppercase text-muted-foreground mt-1">Danh sách thông tin đặt chỗ được đồng bộ hoặc tạo thủ công.</p>
-        </div>
-        <button
-          onClick={openCreateModal}
-          className="px-4 py-2.5 bg-primary text-white text-xs font-black uppercase rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000000] hover:translate-y-[-1px] transition-all flex items-center gap-1.5 cursor-pointer"
+      <ToastContainer
+        toasts={toasts}
+        onDismiss={(id) => setToasts((prev) => prev.filter((t) => t.id !== id))}
+      />
+
+      <ConfirmModal
+        isOpen={confirmDelete.isOpen}
+        title="Xoá Phiếu Đặt Chỗ"
+        message={`Bạn có chắc chắn muốn xoá phiếu đặt chỗ "${confirmDelete.title}"?`}
+        isDestructive={true}
+        onConfirm={executeDelete}
+        onCancel={() => setConfirmDelete({ isOpen: false, id: '', title: '' })}
+      />
+
+      {/* Header */}
+      <AdminPageHeader
+        title="Quản lý Đặt chỗ"
+        description="Vé máy bay, khách sạn, nhà hàng và phiếu đặt chỗ được trích xuất tự động qua AI."
+      >
+        <AdminButton
+          variant="outline"
+          size="sm"
+          onClick={fetchReservations}
+          loading={loading}
+          icon={<RefreshCw className="w-3.5 h-3.5" />}
         >
-          <Plus className="w-4 h-4" />
-          Thêm đặt chỗ
-        </button>
-      </div>
+          Tải lại
+        </AdminButton>
+        <AdminButton
+          variant="secondary"
+          size="sm"
+          onClick={() => exportToCSV('tripmate_reservations', reservations)}
+          disabled={!reservations.length}
+          icon={<Download className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />}
+        >
+          Xuất CSV
+        </AdminButton>
+        <AdminButton
+          variant="primary"
+          size="sm"
+          onClick={openCreateModal}
+          icon={<Plus className="w-3.5 h-3.5" />}
+        >
+          Thêm Đặt Chỗ
+        </AdminButton>
+      </AdminPageHeader>
 
-      {error && (
-        <div className="p-4 rounded-2xl bg-destructive/10 border-2 border-destructive text-destructive text-xs font-bold flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#000000]">
-          <AlertCircle className="w-5 h-5" />
-          <span>{error}</span>
+      {/* Filter and Search Bar */}
+      <AdminFilterBar
+        search={search}
+        onSearchChange={(val) => setSearch(val)}
+        onSearchSubmit={handleSearchSubmit}
+        searchPlaceholder="Tìm theo tiêu đề, mã vé, địa điểm..."
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-[#475569] dark:text-[#94A3B8] whitespace-nowrap">Loại dịch vụ:</span>
+          <AdminSelect
+            value={typeFilter}
+            onChange={(e) => {
+              setTypeFilter(e.target.value);
+              setPage(1);
+            }}
+            className="w-36"
+          >
+            <option value="">Tất cả loại</option>
+            {RESERVATION_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {TYPE_CONFIG[t]?.label || t}
+              </option>
+            ))}
+          </AdminSelect>
         </div>
-      )}
+      </AdminFilterBar>
 
-      {error && !loading && reservations.length === 0 && (
+      {error && !loading && reservations.length === 0 ? (
         <ErrorState message={error} onRetry={fetchReservations} />
+      ) : (
+        /* Data Table */
+        <AdminTable>
+          <AdminTableHeader>
+            <tr>
+              <AdminTableHead>Dịch vụ / Tiêu đề</AdminTableHead>
+              <AdminTableHead>Loại</AdminTableHead>
+              <AdminTableHead>Địa điểm</AdminTableHead>
+              <AdminTableHead>Chi phí</AdminTableHead>
+              <AdminTableHead>Chuyến đi</AdminTableHead>
+              <AdminTableHead align="right">Thao tác</AdminTableHead>
+            </tr>
+          </AdminTableHeader>
+
+          {loading ? (
+            <AdminTableSkeleton columns={6} rows={6} />
+          ) : reservations.length === 0 ? (
+            <AdminTableEmpty colSpan={6} message="Không có phiếu đặt chỗ nào phù hợp" />
+          ) : (
+            <tbody>
+              {reservations.map((item) => {
+                const conf = TYPE_CONFIG[item.type] || TYPE_CONFIG.OTHER;
+                const Icon = conf.icon;
+
+                return (
+                  <AdminTableRow key={item.id}>
+                    {/* Title & Confirmation Number */}
+                    <AdminTableCell>
+                      <div
+                        className="flex flex-col gap-0.5 cursor-pointer group"
+                        onClick={() => setViewItem(item)}
+                      >
+                        <h4 className="font-semibold text-[#0F172A] dark:text-[#F8FAFC] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                          {item.title}
+                        </h4>
+                        {item.confirmationNumber ? (
+                          <span className="font-mono text-[10px] text-[#475569] dark:text-[#94A3B8] flex items-center gap-1">
+                            <Hash className="w-2.5 h-2.5" />
+                            {item.confirmationNumber}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-[#94A3B8] dark:text-[#64748B]">Không có mã xác nhận</span>
+                        )}
+                      </div>
+                    </AdminTableCell>
+
+                    {/* Type Badge */}
+                    <AdminTableCell>
+                      <AdminBadge
+                        variant={conf.variant}
+                        icon={<Icon className="w-3 h-3" />}
+                      >
+                        {conf.label}
+                      </AdminBadge>
+                    </AdminTableCell>
+
+                    {/* Location */}
+                    <AdminTableCell>
+                      <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 text-xs">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="truncate max-w-xs">{item.location || 'Chưa có'}</span>
+                      </div>
+                    </AdminTableCell>
+
+                    {/* Price */}
+                    <AdminTableCell>
+                      <span className="font-semibold text-slate-900 dark:text-slate-100 text-xs">
+                        {item.price
+                          ? `${item.price.toLocaleString('vi-VN')} đ`
+                          : 'Miễn phí / Chưa rõ'}
+                      </span>
+                    </AdminTableCell>
+
+                    {/* Trip Name */}
+                    <AdminTableCell>
+                      <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                        {item.trip?.name || 'n/a'}
+                      </span>
+                    </AdminTableCell>
+
+                    {/* Row Actions */}
+                    <AdminTableCell align="right">
+                      <AdminRowActions
+                        quickAction={{
+                          label: 'Xem chi tiết',
+                          icon: <Eye className="w-3.5 h-3.5" />,
+                          onClick: () => setViewItem(item),
+                        }}
+                        actions={[
+                          {
+                            label: 'Xem chi tiết',
+                            icon: <Eye className="w-3.5 h-3.5 text-slate-400" />,
+                            onClick: () => setViewItem(item),
+                          },
+                          {
+                            label: 'Chỉnh sửa phiếu',
+                            icon: <Edit2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />,
+                            onClick: () => openEditModal(item),
+                          },
+                          {
+                            label: 'Xoá đặt chỗ',
+                            icon: <Trash2 className="w-3.5 h-3.5 text-rose-500" />,
+                            onClick: () =>
+                              setConfirmDelete({
+                                isOpen: true,
+                                id: item.id,
+                                title: item.title,
+                              }),
+                            variant: 'danger',
+                          },
+                        ]}
+                      />
+                    </AdminTableCell>
+                  </AdminTableRow>
+                );
+              })}
+            </tbody>
+          )}
+        </AdminTable>
       )}
 
-      {/* Table grid */}
-      <div className="bg-white border-[3px] border-black dark:border-white rounded-3xl overflow-hidden shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_#ffffff] text-black">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-secondary border-b-[3px] border-black text-black font-black uppercase">
-                <th className="p-4 border-r border-black">Tiêu đề / Phân loại</th>
-                <th className="p-4 border-r border-black">Chuyến đi</th>
-                <th className="p-4 border-r border-black">Địa điểm</th>
-                <th className="p-4 border-r border-black">Mã xác nhận</th>
-                <th className="p-4 border-r border-black">Chi phí</th>
-                <th className="p-4 border-r border-black">Thành viên tạo</th>
-                <th className="p-4 text-right">Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                [1, 2, 3].map(i => (
-                  <tr key={i} className="border-b border-black animate-pulse">
-                    <td colSpan={7} className="p-6 h-12"></td>
-                  </tr>
-                ))
-              ) : reservations.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="p-8 text-center text-muted-foreground font-bold uppercase">Chưa có thông tin đặt chỗ nào.</td>
-                </tr>
-              ) : (
-                reservations.map(res => {
-                  const Icon = getTypeIcon(res.type);
-                  return (
-                    <tr key={res.id} className="border-b border-black last:border-0 hover:bg-secondary/15 transition">
-                      <td className="p-4 border-r border-black">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-secondary/30 border border-black text-black flex items-center justify-center">
-                            <Icon className="w-4 h-4 text-primary" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-foreground">{res.title}</h4>
-                            <span className="text-[9px] bg-white border border-black px-1.5 py-0.5 rounded-full font-bold uppercase text-primary shadow-[1px_1px_0px_0px_#000000]">{res.type}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4 border-r border-black font-extrabold text-foreground">{res.trip?.name || 'n/a'}</td>
-                      <td className="p-4 border-r border-black text-black/70 font-semibold">{res.location || '-'}</td>
-                      <td className="p-4 border-r border-black font-mono font-bold text-black/60">{res.confirmationNumber || '-'}</td>
-                      <td className="p-4 border-r border-black font-black text-foreground">
-                        {res.price ? `${Number(res.price).toLocaleString('vi-VN')} đ` : '-'}
-                      </td>
-                      <td className="p-4 border-r border-black font-bold text-black/70">{res.addedByUser?.name || 'n/a'}</td>
-                      <td className="p-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => openEditModal(res)}
-                            className="p-1.5 rounded-xl bg-white border-2 border-black text-black hover:bg-primary hover:text-white flex items-center justify-center transition cursor-pointer shadow-[2px_2px_0px_0px_#000000] hover:translate-y-[-1px]"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(res.id)}
-                            className="p-1.5 rounded-xl bg-white border-2 border-black text-black hover:bg-destructive hover:text-white flex items-center justify-center transition cursor-pointer shadow-[2px_2px_0px_0px_#000000] hover:translate-y-[-1px]"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* Pagination */}
+      <AdminPagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={total}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={(l) => {
+          setLimit(l);
+          setPage(1);
+        }}
+        itemLabel="phiếu đặt chỗ"
+      />
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="p-4 border-t-[3px] border-black flex justify-between items-center bg-[#FEFADC]">
-            <span className="text-[10px] text-black font-black uppercase">Hiển thị {reservations.length}/{total} đặt chỗ</span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="p-2 rounded-xl bg-white border-2 border-black hover:bg-secondary text-black shadow-[2px_2px_0px_0px_#000000] hover:translate-y-[-1px] disabled:opacity-40 cursor-pointer"
+      {/* QUICK VIEW DRAWER */}
+      <AdminDrawer
+        isOpen={!!viewItem}
+        onClose={() => setViewItem(null)}
+        title={viewItem?.title || 'Chi tiết Đặt chỗ'}
+        description={viewItem?.confirmationNumber ? `Mã xác nhận: ${viewItem.confirmationNumber}` : undefined}
+        footer={
+          viewItem && (
+            <>
+              <AdminButton variant="outline" size="sm" onClick={() => setViewItem(null)}>
+                Đóng
+              </AdminButton>
+              <AdminButton
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  const it = viewItem;
+                  setViewItem(null);
+                  openEditModal(it);
+                }}
+                icon={<Edit2 className="w-3.5 h-3.5" />}
               >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <span className="text-xs font-black uppercase px-2">Trang {page} / {totalPages}</span>
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="p-2 rounded-xl bg-white border-2 border-black hover:bg-secondary text-black shadow-[2px_2px_0px_0px_#000000] hover:translate-y-[-1px] disabled:opacity-40 cursor-pointer"
+                Chỉnh sửa
+              </AdminButton>
+              <AdminButton
+                variant="danger"
+                size="sm"
+                onClick={() => {
+                  const it = viewItem;
+                  setConfirmDelete({
+                    isOpen: true,
+                    id: it.id,
+                    title: it.title,
+                  });
+                }}
+                icon={<Trash2 className="w-3.5 h-3.5" />}
               >
-                <ChevronRight className="w-4 h-4" />
-              </button>
+                Xoá
+              </AdminButton>
+            </>
+          )
+        }
+      >
+        {viewItem && (
+          <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
+                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+                  Loại dịch vụ
+                </span>
+                <AdminBadge variant={TYPE_CONFIG[viewItem.type]?.variant || 'neutral'}>
+                  {TYPE_CONFIG[viewItem.type]?.label || viewItem.type}
+                </AdminBadge>
+              </div>
+
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
+                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+                  Chi phí
+                </span>
+                <span className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC] flex items-center gap-1">
+                  <CreditCard className="w-3.5 h-3.5 text-[#94A3B8]" />
+                  {viewItem.price ? `${viewItem.price.toLocaleString('vi-VN')} đ` : 'Miễn phí'}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
+                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+                  Địa điểm
+                </span>
+                <span className="text-xs text-[#475569] dark:text-[#94A3B8] flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
+                  {viewItem.location || 'Chưa cập nhật'}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
+                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+                  Chuyến đi
+                </span>
+                <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                  <Compass className="w-3.5 h-3.5 shrink-0" />
+                  {viewItem.trip?.name || 'n/a'}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#0D1424]">
+              <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+                Người tạo phiếu
+              </span>
+              <p className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+                {viewItem.user?.name || 'Thành viên'}
+              </p>
+              <p className="text-[11px] text-[#475569] dark:text-[#94A3B8]">{viewItem.user?.email || 'n/a'}</p>
             </div>
           </div>
         )}
-      </div>
+      </AdminDrawer>
 
-      {/* CREATE/EDIT DIALOG MODAL */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 text-black">
-          <div className="bg-white border-[3px] border-black w-full max-w-md rounded-[32px] overflow-hidden shadow-[6px_6px_0px_0px_#000000] relative animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b-[3px] border-black bg-secondary flex items-center justify-between">
-              <h3 className="font-black text-xs uppercase">{isEditing ? 'Cập nhật đặt chỗ' : 'Thêm phiếu đặt chỗ mới'}</h3>
-              <button onClick={() => setModalOpen(false)} className="p-1 rounded-lg border border-black bg-white hover:bg-secondary text-black cursor-pointer">
-                <X className="w-4.5 h-4.5" />
-              </button>
-            </div>
+      {/* CREATE / EDIT MODAL */}
+      <AdminModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={isEditing ? 'Cập nhật Phiếu Đặt Chỗ' : 'Tạo Phiếu Đặt Chỗ Mới'}
+        description="Nhập thông tin xác nhận vé hoặc nơi lưu trú"
+      >
+        <form onSubmit={handleFormSubmit} className="flex flex-col gap-4">
+          <AdminInput
+            label="Tiêu đề phiếu đặt chỗ"
+            value={formTitle}
+            onChange={(e) => setFormTitle(e.target.value)}
+            placeholder="VD: Vé máy bay Vietnam Airlines SG-HN"
+            required
+          />
 
-            <form onSubmit={handleFormSubmit} className="p-6 flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
-              <div>
-                <label className="text-[9px] font-black text-muted-foreground uppercase block mb-1">Tiêu đề đặt chỗ</label>
-                <input
-                  type="text"
-                  value={formTitle}
-                  onChange={e => setFormTitle(e.target.value)}
-                  placeholder="VD: Vé Máy Bay VJ321 đi Đà Lạt"
-                  className="w-full neo-input"
-                  required
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <AdminSelect
+              label="Loại dịch vụ"
+              value={formType}
+              onChange={(e) => setFormType(e.target.value)}
+              required
+            >
+              {RESERVATION_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {TYPE_CONFIG[t]?.label || t}
+                </option>
+              ))}
+            </AdminSelect>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[9px] font-black text-muted-foreground uppercase block mb-1">Phân loại</label>
-                  <select
-                    value={formType}
-                    onChange={e => setFormType(e.target.value)}
-                    className="w-full neo-input bg-transparent"
-                  >
-                    {RESERVATION_TYPES.map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[9px] font-black text-muted-foreground uppercase block mb-1">Chi phí (đ)</label>
-                  <input
-                    type="number"
-                    value={formPrice}
-                    onChange={e => setFormPrice(e.target.value)}
-                    placeholder="VD: 1200000"
-                    className="w-full neo-input"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[9px] font-black text-muted-foreground uppercase block mb-1">Địa điểm</label>
-                <input
-                  type="text"
-                  value={formLocation}
-                  onChange={e => setFormLocation(e.target.value)}
-                  placeholder="VD: Sân bay Tân Sơn Nhất"
-                  className="w-full neo-input"
-                />
-              </div>
-
-              <div>
-                <label className="text-[9px] font-black text-muted-foreground uppercase block mb-1">Mã xác nhận (Confirmation #)</label>
-                <input
-                  type="text"
-                  value={formConfNum}
-                  onChange={e => setFormConfNum(e.target.value)}
-                  placeholder="VD: PNR65432"
-                  className="w-full neo-input"
-                />
-              </div>
-
-              <div>
-                <label className="text-[9px] font-black text-muted-foreground uppercase block mb-1">Chọn Chuyến đi</label>
-                <select
-                  value={formTripId}
-                  onChange={e => setFormTripId(e.target.value)}
-                  className="w-full neo-input bg-transparent"
-                  required
-                >
-                  {trips.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-[9px] font-black text-muted-foreground uppercase block mb-1">Thành viên thêm</label>
-                <select
-                  value={formAddedBy}
-                  onChange={e => setFormAddedBy(e.target.value)}
-                  className="w-full neo-input bg-transparent"
-                  required
-                >
-                  {users.map(u => (
-                    <option key={u.id} value={u.id}>{u.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex gap-3 justify-end pt-4 border-t-[3px] border-black mt-2">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2.5 bg-white border-2 border-black text-black text-xs font-black uppercase rounded-xl hover:bg-secondary transition cursor-pointer shadow-[2px_2px_0px_0px_#000000]"
-                >
-                  Huỷ
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-[#FF9FCE] border-2 border-black text-black text-xs font-black uppercase rounded-xl hover:bg-[#FF9FCE]/90 transition shadow-[2px_2px_0px_0px_#000000] cursor-pointer"
-                >
-                  {isEditing ? 'Lưu thay đổi' : 'Tạo đặt chỗ'}
-                </button>
-              </div>
-            </form>
+            <AdminInput
+              label="Mã đặt chỗ / Vé"
+              value={formConfNum}
+              onChange={(e) => setFormConfNum(e.target.value)}
+              placeholder="VD: VN12345"
+            />
           </div>
-        </div>
-      )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <AdminInput
+              label="Địa điểm / Nhà ga / Khách sạn"
+              value={formLocation}
+              onChange={(e) => setFormLocation(e.target.value)}
+              placeholder="VD: Sân bay Nội Bài"
+            />
+
+            <AdminInput
+              label="Chi phí (VND)"
+              type="number"
+              value={formPrice}
+              onChange={(e) => setFormPrice(e.target.value)}
+              placeholder="VD: 1500000"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <AdminSelect
+              label="Chuyến đi liên quan"
+              value={formTripId}
+              onChange={(e) => setFormTripId(e.target.value)}
+              required
+            >
+              {trips.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </AdminSelect>
+
+            <AdminSelect
+              label="Người thêm (User)"
+              value={formAddedBy}
+              onChange={(e) => setFormAddedBy(e.target.value)}
+              required
+            >
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name || u.email}
+                </option>
+              ))}
+            </AdminSelect>
+          </div>
+
+          <div className="flex justify-end gap-2.5 pt-4 mt-2 border-t border-[#E2E8F0] dark:border-[#1E293B]">
+            <AdminButton
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setModalOpen(false)}
+            >
+              Huỷ
+            </AdminButton>
+            <AdminButton
+              type="submit"
+              variant="primary"
+              size="sm"
+              loading={submitting}
+            >
+              {isEditing ? 'Lưu thay đổi' : 'Tạo đặt chỗ'}
+            </AdminButton>
+          </div>
+        </form>
+      </AdminModal>
     </div>
   );
 }
