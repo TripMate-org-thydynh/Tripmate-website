@@ -26,6 +26,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
+  Activity,
+  Target,
 } from 'lucide-react';
 
 const navGroups = [
@@ -36,6 +38,13 @@ const navGroups = [
       { name: 'Tăng trưởng & Phễu', href: '/admin/growth', icon: TrendingUp },
       { name: 'Doanh thu & Ví', href: '/admin/revenue', icon: DollarSign },
       { name: 'AI Analytics', href: '/admin/ai', icon: Sparkles },
+    ],
+  },
+  {
+    group: 'Vận hành & Giám sát',
+    items: [
+      { name: 'Metrics & Hiệu năng', href: '/admin/observability', icon: Activity },
+      { name: 'SLO & Error Budget', href: '/admin/observability/slo', icon: Target },
     ],
   },
   {

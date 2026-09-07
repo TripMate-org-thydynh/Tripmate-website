@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local backups
 .src_backup_*/
+
+.vercel
+.env*.local

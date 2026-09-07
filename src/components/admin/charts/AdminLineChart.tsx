@@ -36,6 +36,8 @@ export function AdminLineChart({
   className = '',
 }: AdminLineChartProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const reactId = React.useId();
+  const gradientId = `primaryGradient_${reactId.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
 
   if (!data || data.length === 0) {
     return (
@@ -134,7 +136,7 @@ export function AdminLineChart({
           className="w-full h-auto overflow-visible"
         >
           <defs>
-            <linearGradient id="primaryGradient" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={primaryColor} stopOpacity="0.15" />
               <stop offset="100%" stopColor={primaryColor} stopOpacity="0.0" />
             </linearGradient>
@@ -164,7 +166,7 @@ export function AdminLineChart({
           ))}
 
           {/* Area fill */}
-          <path d={primaryArea} fill="url(#primaryGradient)" />
+          <path d={primaryArea} fill={`url(#${gradientId})`} />
 
           {/* Secondary Line */}
           {secondaryPath && (

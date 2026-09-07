@@ -601,4 +601,154 @@ export async function getSystemHealthAction() {
   }
 }
 
+// --- OBSERVABILITY & SLO ACTIONS ---
 
+export interface CreateSloTargetPayload {
+  key: string;
+  name: string;
+  sliType: 'AVAILABILITY' | 'LATENCY';
+  objective: number;
+  windowDays?: number;
+  latencyThresholdMs?: number | null;
+  routePrefix?: string | null;
+  isActive?: boolean;
+}
+
+export interface UpdateSloTargetPayload {
+  key?: string;
+  name?: string;
+  sliType?: 'AVAILABILITY' | 'LATENCY';
+  objective?: number;
+  windowDays?: number;
+  latencyThresholdMs?: number | null;
+  routePrefix?: string | null;
+  isActive?: boolean;
+}
+
+export async function getObservabilityOverviewAction(rangeMinutes = 60) {
+  try {
+    const res = await fetchWithAuth(`/admin/observability/overview?rangeMinutes=${rangeMinutes}`);
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || 'Lỗi khi tải tổng quan hiệu năng hệ thống');
+    }
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi tải tổng quan hiệu năng hệ thống' };
+  }
+}
+
+export async function getObservabilityTimeseriesAction(rangeMinutes = 60, stepMinutes = 1) {
+  try {
+    const res = await fetchWithAuth(
+      `/admin/observability/timeseries?rangeMinutes=${rangeMinutes}&stepMinutes=${stepMinutes}`
+    );
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || 'Lỗi khi tải chuỗi thời gian hiệu năng');
+    }
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi tải chuỗi thời gian hiệu năng' };
+  }
+}
+
+export async function getObservabilityRoutesAction(
+  rangeMinutes = 60,
+  limit = 20,
+  sortBy: 'requests' | 'errors' | 'latency' = 'requests'
+) {
+  try {
+    const res = await fetchWithAuth(
+      `/admin/observability/routes?rangeMinutes=${rangeMinutes}&limit=${limit}&sortBy=${sortBy}`
+    );
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || 'Lỗi khi tải danh sách hiệu năng route');
+    }
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi tải danh sách hiệu năng route' };
+  }
+}
+
+export async function getSloStatusAction() {
+  try {
+    const res = await fetchWithAuth('/admin/observability/slo');
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || 'Lỗi khi tải trạng thái đánh giá SLO');
+    }
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi tải trạng thái đánh giá SLO' };
+  }
+}
+
+export async function getSloTargetsAction() {
+  try {
+    const res = await fetchWithAuth('/admin/observability/slo/targets');
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || 'Lỗi khi tải danh sách mục tiêu SLO');
+    }
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi tải danh sách mục tiêu SLO' };
+  }
+}
+
+export async function createSloTargetAction(payload: CreateSloTargetPayload) {
+  try {
+    const res = await fetchWithAuth('/admin/observability/slo/targets', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || 'Tạo mục tiêu SLO thất bại');
+    }
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi tạo mục tiêu SLO' };
+  }
+}
+
+export async function updateSloTargetAction(id: string, payload: UpdateSloTargetPayload) {
+  try {
+    const res = await fetchWithAuth(`/admin/observability/slo/targets/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || 'Cập nhật mục tiêu SLO thất bại');
+    }
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi cập nhật mục tiêu SLO' };
+  }
+}
+
+export async function deleteSloTargetAction(id: string) {
+  try {
+    const res = await fetchWithAuth(`/admin/observability/slo/targets/${id}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => null);
+      throw new Error(errJson?.message || 'Xoá mục tiêu SLO thất bại');
+    }
+    const json = await res.json();
+    return { success: true, data: unwrap(json) };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Lỗi khi xoá mục tiêu SLO' };
+  }
+}
