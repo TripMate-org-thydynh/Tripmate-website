@@ -20,6 +20,8 @@ import {
   Sun,
   Moon,
   PlusCircle,
+  Activity,
+  Target,
 } from 'lucide-react';
 
 interface PaletteItem {
@@ -102,6 +104,24 @@ export function AdminCommandPalette({ isOpen, onClose }: AdminCommandPaletteProp
       icon: Sparkles,
       href: '/admin/ai',
       keywords: ['ai', 'gemini', 'prompt', 'tri tue nhan tao', 'chat'],
+    },
+    {
+      id: 'nav-observability',
+      title: 'Metrics & Hiệu Năng Hệ Thống',
+      subtitle: 'Giám sát RPS, tỉ lệ lỗi 5xx, độ trễ p95/p99 và hiệu năng route',
+      category: 'Trang Điều Hướng',
+      icon: Activity,
+      href: '/admin/observability',
+      keywords: ['observability', 'metrics', 'hieu nang', 'latency', 'do tre', 'rps', 'error rate'],
+    },
+    {
+      id: 'nav-slo',
+      title: 'SLO & Ngân Sách Lỗi (Error Budget)',
+      subtitle: 'Theo dõi SLI, mục tiêu độ tin cậy, ngân sách lỗi và burn rate',
+      category: 'Trang Điều Hướng',
+      icon: Target,
+      href: '/admin/observability/slo',
+      keywords: ['slo', 'sli', 'error budget', 'burn rate', 'ngan sach loi', 'muc tieu'],
     },
     {
       id: 'nav-subs',
