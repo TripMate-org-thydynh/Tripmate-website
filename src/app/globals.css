@@ -4,26 +4,26 @@
 
 @layer base {
   :root {
-    --background: #FDF6D3;       /* ds-cream */
-    --foreground: #141210;        /* ds-ink */
-    --card: #FFFDF5;              /* ds-paper */
-    --card-foreground: #141210;
-    --popover: #FFFDF5;
-    --popover-foreground: #141210;
-    --primary: #FFD84D;           /* ds-primary (mint default) */
-    --primary-foreground: #141210; /* ds-on-primary */
-    --secondary: #F5822B;         /* ds-pair (orange) */
-    --secondary-foreground: #141210;
-    --muted: #F3EDCA;
-    --muted-foreground: #4A453E;  /* ds-ink-soft */
-    --accent: #FDF6D3;            /* ds-cream */
-    --accent-foreground: #141210;
-    --destructive: #D8422B;       /* ds-danger */
-    --destructive-foreground: #FFFDF5;
-    --border: #141210;            /* ds-ink */
-    --input: #FFFDF5;             /* ds-paper */
-    --ring: #FFD84D;              /* ds-primary */
-    --radius: 1.25rem;            /* 20px — ds-radius-card */
+    --background: #FFFFFF;
+    --foreground: #09090B;
+    --card: #FFFFFF;
+    --card-foreground: #09090B;
+    --popover: #FFFFFF;
+    --popover-foreground: #09090B;
+    --primary: #09090B;
+    --primary-foreground: #FFFFFF;
+    --secondary: #F4F4F5;
+    --secondary-foreground: #18181B;
+    --muted: #F4F4F5;
+    --muted-foreground: #71717A;
+    --accent: #F4F4F5;
+    --accent-foreground: #09090B;
+    --destructive: #EF4444;
+    --destructive-foreground: #FFFFFF;
+    --border: #E4E4E7;
+    --input: #E4E4E7;
+    --ring: #F95738;
+    --radius: 0.75rem;
 
     /* Production Admin Tokens (Light) */
     --admin-bg: #F8FAFC;
@@ -43,25 +43,25 @@
   }
 
   .dark {
-    --background: #1A1712;        /* ds-cream dark */
-    --foreground: #FDF6D3;        /* ds-ink dark */
-    --card: #262019;              /* ds-paper dark */
-    --card-foreground: #FDF6D3;
-    --popover: #262019;
-    --popover-foreground: #FDF6D3;
-    --primary: #FFD84D;
-    --primary-foreground: #FDF6D3;
-    --secondary: #F5822B;
-    --secondary-foreground: #1A1712;
-    --muted: #322E26;
-    --muted-foreground: #B8AE9C;  /* ds-ink-soft dark */
-    --accent: #FDF6D3;
-    --accent-foreground: #1A1712;
-    --destructive: #D8422B;
-    --destructive-foreground: #FFFDF5;
-    --border: #FDF6D3;            /* ds-ink dark */
-    --input: #262019;
-    --ring: #FFD84D;
+    --background: #09090B;
+    --foreground: #FAFAFA;
+    --card: #121215;
+    --card-foreground: #FAFAFA;
+    --popover: #121215;
+    --popover-foreground: #FAFAFA;
+    --primary: #FAFAFA;
+    --primary-foreground: #09090B;
+    --secondary: #18181B;
+    --secondary-foreground: #FAFAFA;
+    --muted: #18181B;
+    --muted-foreground: #A1A1AA;
+    --accent: #18181B;
+    --accent-foreground: #FAFAFA;
+    --destructive: #7F1D1D;
+    --destructive-foreground: #FAFAFA;
+    --border: #27272A;
+    --input: #27272A;
+    --ring: #F95738;
 
     /* Production Admin Tokens (Dark - #070B16 Palette) */
     --admin-bg: #070B16;
@@ -237,9 +237,14 @@ body {
   font-size: 12px;
 }
 
-.neo-marquee-content {
+.neo-marquee-content,
+.animate-marquee {
   display: flex;
-  animation: marquee 20s linear infinite;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
 .dark .neo-marquee {

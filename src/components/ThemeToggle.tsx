@@ -85,11 +85,16 @@ export default function ThemeToggle({ className = '', variant = 'auto' }: ThemeT
     <button
       type="button"
       onClick={toggleTheme}
-      className={`p-2 rounded-xl bg-secondary text-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-200 border border-border flex items-center justify-center cursor-pointer ${className}`}
-      aria-label="Đổi giao diện"
+      className={`p-2 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-150 flex items-center justify-center cursor-pointer shadow-xs ${className}`}
+      aria-label={dark ? 'Chuyển sang giao diện Sáng' : 'Chuyển sang giao diện Tối'}
+      title={dark ? 'Chuyển sang giao diện Sáng' : 'Chuyển sang giao diện Tối'}
       suppressHydrationWarning
     >
-      {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      {dark ? (
+        <Sun className="h-4 w-4 text-amber-400 transition-transform duration-200 hover:rotate-45" />
+      ) : (
+        <Moon className="h-4 w-4 text-zinc-600 transition-transform duration-200 hover:-rotate-12" />
+      )}
     </button>
   );
 }

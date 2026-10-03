@@ -1,30 +1,30 @@
 import type { Metadata } from 'next';
-import { Quicksand } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import './tokens.css';
 import './globals.css';
 
-const quicksand = Quicksand({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin', 'vietnamese'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-quicksand',
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-sans',
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://tripmate.app'),
   title: 'TripMate - Plan chill. Chia tiền ez. Lưu moment.',
   description: 'Super-app du lịch nhóm Gen Z. Lập lịch trình, chia tiền chi tiêu nhóm, chuẩn bị hành lý, lưu giữ khoảnh khắc và lên kế hoạch thông minh bằng trợ lý AI.',
   openGraph: {
     title: 'TripMate - Super-app Du Lịch Nhóm Gen Z',
     description: 'Plan chill · Chia tiền ez · Lưu moment',
+    url: 'https://tripmate.app',
+    siteName: 'TripMate',
+    locale: 'vi_VN',
     type: 'website',
-    url: 'https://tripmate.vn',
-    images: [
-      {
-        url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80',
-        width: 1200,
-        height: 630,
-        alt: 'TripMate - Gen Z Travel App',
-      },
-    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'TripMate - Super-app Du Lịch Nhóm Gen Z',
+    description: 'Plan chill · Chia tiền ez · Lưu moment',
   },
 };
 
@@ -34,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className={`${quicksand.variable} scroll-smooth`} suppressHydrationWarning>
+    <html lang="vi" className={`${plusJakarta.variable} scroll-smooth`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -53,7 +53,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-quicksand antialiased min-h-screen transition-colors duration-200" suppressHydrationWarning>
+      <body className="font-sans antialiased min-h-screen transition-colors duration-200" suppressHydrationWarning>
         {children}
       </body>
     </html>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
+import TripMateLogo from '@/components/TripMateLogo';
 import { logoutAdmin } from '@/app/actions';
 import { AdminCommandPalette } from '@/components/admin/AdminCommandPalette';
 import { AdminHealthPopover } from '@/components/admin/AdminHealthPopover';
@@ -131,9 +132,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* MOBILE HEADER */}
       <header className="md:hidden sticky top-0 z-40 bg-white dark:bg-[#0D1424] border-b border-[#E2E8F0] dark:border-[#1E293B] h-14 px-4 flex items-center justify-between shadow-2xs">
         <Link href="/admin" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#FFD84D] flex items-center justify-center text-[#141210] font-black text-sm shadow-xs border border-amber-500/20">
-            TM
-          </div>
+          <TripMateLogo size="xs" variant="badge" />
           <div className="flex items-center gap-1.5">
             <span className="font-bold text-sm text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">
               TripMate
@@ -187,9 +186,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin"
             className={`flex items-center gap-2.5 overflow-hidden ${collapsed ? 'justify-center w-full' : ''}`}
           >
-            <div className="w-7 h-7 rounded-lg bg-[#FFD84D] flex items-center justify-center text-[#141210] font-black text-xs shadow-xs shrink-0 border border-amber-500/20">
-              TM
-            </div>
+            <TripMateLogo size="xs" variant="badge" />
             {!collapsed && (
               <div className="flex items-center gap-1.5 min-w-0">
                 <span className="font-bold text-sm text-[#0F172A] dark:text-[#F8FAFC] tracking-tight truncate">
