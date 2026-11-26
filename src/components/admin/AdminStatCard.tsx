@@ -25,12 +25,12 @@ export interface AdminStatCardProps {
 }
 
 const VARIANT_STYLES: Record<string, string> = {
-  default: 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
-  brand: 'text-[var(--admin-accent-ink)] bg-[var(--admin-accent-bg)] border-transparent',
-  success: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-800/50',
-  warning: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border-amber-100 dark:border-amber-800/50',
-  danger: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border-rose-100 dark:border-rose-800/50',
-  info: 'text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/40 border-sky-100 dark:border-sky-800/50',
+  default: 'text-admin-text-muted bg-admin-bg',
+  brand: 'text-[var(--admin-accent-ink)] bg-[var(--admin-accent-bg)]',
+  success: 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40',
+  warning: 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40',
+  danger: 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40',
+  info: 'text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/40',
 };
 
 export function AdminStatCard({
@@ -50,7 +50,7 @@ export function AdminStatCard({
 }: AdminStatCardProps) {
   const subtitle = description ?? helper;
   const badgeLabel = badgeText ?? badge;
-  const colorClass = color || (variant ? VARIANT_STYLES[variant] : VARIANT_STYLES.brand);
+  const colorClass = color || VARIANT_STYLES[variant ?? 'default'];
 
   const renderIcon = () => {
     if (!icon) return null;
@@ -61,22 +61,22 @@ export function AdminStatCard({
   return (
     <div
       onClick={onClick}
-      className={`min-w-0 max-w-full p-3.5 rounded-xl bg-[var(--admin-surface)] border border-[var(--admin-border)] flex flex-col justify-between gap-2 transition-colors duration-150 ${
-        onClick ? 'cursor-pointer hover:border-slate-300 dark:hover:border-slate-700' : ''
+      className={`flex min-w-0 max-w-full flex-col justify-between gap-2.5 bg-admin-surface px-4 py-3.5 transition-colors sm:px-5 sm:py-4 ${
+        onClick ? 'cursor-pointer hover:bg-admin-surface-hover' : ''
       } ${className}`}
     >
       <div className="flex min-w-0 items-start justify-between gap-2">
-        <span className="min-w-0 break-words text-xs font-medium leading-relaxed text-[var(--admin-text-secondary)]">
+        <span className="min-w-0 self-center break-words text-xs font-medium leading-relaxed text-admin-text-secondary">
           {title}
         </span>
         <div className="flex max-w-[48%] shrink-0 flex-wrap justify-end gap-1.5">
           {badgeLabel && (
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-[#172238] text-slate-600 dark:text-slate-300">
+            <span className="bg-admin-bg px-1.5 py-0.5 text-[11px] font-semibold text-admin-text-muted">
               {badgeLabel}
             </span>
           )}
           {icon && (
-            <div className={`w-7 h-7 rounded-lg flex items-center justify-center border shrink-0 ${colorClass}`}>
+            <div className={`flex size-7 shrink-0 items-center justify-center ${colorClass}`} aria-hidden="true">
               {renderIcon()}
             </div>
           )}
@@ -84,13 +84,13 @@ export function AdminStatCard({
       </div>
 
       <div className="@container">
-        <div className="break-words text-[clamp(1rem,14cqi,1.65rem)] font-semibold leading-snug tracking-tight tabular-nums text-[var(--admin-text-primary)]">
+        <div className="break-words text-[clamp(1.05rem,14cqi,1.75rem)] font-semibold leading-tight tracking-tight tabular-nums text-admin-text-primary">
           {typeof value === 'number' ? value.toLocaleString('vi-VN') : value}
         </div>
         
-        <div className="mt-1 flex flex-wrap items-center justify-between gap-1 text-xs">
+        {(subtitle || trend) && <div className="mt-2 flex flex-wrap items-center justify-between gap-1 text-xs">
           {subtitle && (
-            <span className="min-w-0 break-words text-[var(--admin-text-muted)]">
+            <span className="min-w-0 break-words text-admin-text-muted">
               {subtitle}
             </span>
           )}
@@ -114,11 +114,11 @@ export function AdminStatCard({
               </span>
             </div>
           )}
-        </div>
+        </div>}
       </div>
 
       {action && (
-        <div className="pt-2 mt-1 border-t border-slate-100 dark:border-[#1E293B]">
+        <div className="mt-1 border-t border-admin-border pt-2">
           {action}
         </div>
       )}

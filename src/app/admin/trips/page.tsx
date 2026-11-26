@@ -319,11 +319,11 @@ export default function AdminTripsPage() {
                       className="flex flex-col gap-0.5 cursor-pointer group"
                       onClick={() => setViewTrip(trip)}
                     >
-                      <h4 className="font-semibold text-[#0F172A] dark:text-[#F8FAFC] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      <h4 className="font-semibold text-admin-text-primary group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                         {trip.name}
                       </h4>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-mono text-[10px] text-[#475569] dark:text-[#94A3B8] bg-slate-100 dark:bg-[#1E293B] px-1.5 py-0.2 rounded-sm border border-[#E2E8F0] dark:border-[#1E293B]">
+                        <span className="font-mono text-[10px] text-admin-text-secondary dark:text-admin-text-muted bg-admin-surface-hover px-1.5 py-0.2 border border-admin-border">
                           MÃ: {trip.inviteCode}
                         </span>
                       </div>
@@ -332,16 +332,16 @@ export default function AdminTripsPage() {
 
                   {/* Destination */}
                   <AdminTableCell>
-                    <div className="flex items-center gap-1.5 text-[#475569] dark:text-[#94A3B8]">
-                      <MapPin className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
+                    <div className="flex items-center gap-1.5 text-admin-text-secondary dark:text-admin-text-muted">
+                      <MapPin className="w-3.5 h-3.5 text-admin-text-muted shrink-0" />
                       <span>{trip.destination || 'Chưa xác định'}</span>
                     </div>
                   </AdminTableCell>
 
                   {/* Date Range */}
                   <AdminTableCell>
-                    <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-[11px]">
-                      <Calendar className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+                    <div className="flex items-center gap-1.5 text-admin-text-muted text-[11px]">
+                      <Calendar className="w-3.5 h-3.5 shrink-0 text-admin-text-muted" />
                       <span>
                         {new Date(trip.startDate).toLocaleDateString('vi-VN')} -{' '}
                         {new Date(trip.endDate).toLocaleDateString('vi-VN')}
@@ -351,7 +351,7 @@ export default function AdminTripsPage() {
 
                   {/* Creator */}
                   <AdminTableCell>
-                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                    <span className="font-medium text-admin-text-primary dark:text-admin-text-secondary">
                       {trip.creator?.name || 'n/a'}
                     </span>
                   </AdminTableCell>
@@ -374,7 +374,7 @@ export default function AdminTripsPage() {
                       actions={[
                         {
                           label: 'Xem chi tiết',
-                          icon: <Eye className="w-3.5 h-3.5 text-slate-400" />,
+                          icon: <Eye className="w-3.5 h-3.5 text-admin-text-muted" />,
                           onClick: () => setViewTrip(trip),
                         },
                         {
@@ -468,33 +468,33 @@ export default function AdminTripsPage() {
           <div className="flex flex-col gap-6">
             {/* Metadata Grid */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Điểm đến
                 </span>
-                <span className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+                <span className="text-xs font-semibold text-admin-text-primary">
                   {viewTrip.destination || 'Chưa cập nhật'}
                 </span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Vibe Chuyến đi
                 </span>
-                <span className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] uppercase">
+                <span className="text-xs font-semibold text-admin-text-primary uppercase">
                   {viewTrip.vibe || 'CHILL'}
                 </span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Thời gian
                 </span>
-                <span className="text-xs text-[#0F172A] dark:text-[#F8FAFC]">
+                <span className="text-xs text-admin-text-primary">
                   {new Date(viewTrip.startDate).toLocaleDateString('vi-VN')} -{' '}
                   {new Date(viewTrip.endDate).toLocaleDateString('vi-VN')}
                 </span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Thành viên
                 </span>
                 <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
@@ -504,19 +504,19 @@ export default function AdminTripsPage() {
             </div>
 
             {/* Creator Card */}
-            <div className="p-3.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#0D1424] flex items-center justify-between">
+            <div className="p-3.5 border-admin-border bg-admin-surface dark:bg-admin-bg flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block">
                   Người khởi tạo (Creator)
                 </span>
-                <p className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] mt-0.5">
+                <p className="text-xs font-semibold text-admin-text-primary mt-0.5">
                   {viewTrip.creator?.name || 'Thành viên'}
                 </p>
-                <p className="text-[11px] text-[#475569] dark:text-[#94A3B8]">
+                <p className="text-[11px] text-admin-text-secondary dark:text-admin-text-muted">
                   {viewTrip.creator?.email || 'n/a'}
                 </p>
               </div>
-              <span className="font-mono text-xs text-[#94A3B8] dark:text-[#64748B]">
+              <span className="font-mono text-xs text-admin-text-muted">
                 @{viewTrip.creator?.username || 'n/a'}
               </span>
             </div>
@@ -524,10 +524,10 @@ export default function AdminTripsPage() {
             {/* Description */}
             {viewTrip.description && (
               <div>
-                <span className="text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC] block mb-1.5">
+                <span className="text-xs font-medium text-admin-text-primary block mb-1.5">
                   Mô tả hành trình
                 </span>
-                <p className="text-xs text-[#475569] dark:text-[#94A3B8] bg-slate-50 dark:bg-[#0D1424] p-3 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] leading-relaxed">
+                <p className="text-xs text-admin-text-secondary dark:text-admin-text-muted bg-admin-bg p-3 border border-admin-border leading-relaxed">
                   {viewTrip.description}
                 </p>
               </div>
@@ -589,7 +589,7 @@ export default function AdminTripsPage() {
             ))}
           </AdminSelect>
 
-          <div className="flex justify-end gap-2.5 pt-4 mt-2 border-t border-[#E2E8F0] dark:border-[#1E293B]">
+          <div className="flex justify-end gap-2.5 pt-4 mt-2 border-t border-admin-border">
             <AdminButton
               type="button"
               variant="outline"

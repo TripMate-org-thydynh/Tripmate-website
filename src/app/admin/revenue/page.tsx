@@ -328,7 +328,7 @@ export default function AdminRevenuePage() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-24 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] animate-pulse p-4 shadow-xs"
+              className="h-24 bg-admin-surface border border-admin-border animate-pulse p-4 "
             />
           ))}
         </div>
@@ -338,7 +338,7 @@ export default function AdminRevenuePage() {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-amber-500" />
-              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+              <h2 className="text-sm font-bold text-admin-text-primary uppercase tracking-wider">
                 Doanh Thu Nền Tảng (TripMate Subscription Revenue)
               </h2>
             </div>
@@ -389,17 +389,17 @@ export default function AdminRevenuePage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <AdminBadge variant="brand" size="sm">PLUS PASS</AdminBadge>
-                      <span className="text-xs font-semibold text-slate-500">39.000 đ/tháng</span>
+                      <span className="text-xs font-semibold text-admin-text-muted">39.000 đ/tháng</span>
                     </div>
                     <div className="mt-3">
-                      <span className="text-[11px] text-slate-400 block">Số người đăng ký Active</span>
-                      <span className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                      <span className="text-[11px] text-admin-text-muted block">Số người đăng ký Active</span>
+                      <span className="text-xl font-bold text-admin-text-primary">
                         {(data?.activePlusCount ?? 0).toLocaleString('vi-VN')} thành viên
                       </span>
                     </div>
                   </div>
-                  <div className="pt-3 mt-3 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
-                    <span className="text-xs text-slate-500">Doanh số PLUS</span>
+                  <div className="pt-3 mt-3 border-t border-admin-border flex items-center justify-between">
+                    <span className="text-xs text-admin-text-muted">Doanh số PLUS</span>
                     <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
                       {formatVND(plusRevenue)}
                     </span>
@@ -411,17 +411,17 @@ export default function AdminRevenuePage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <AdminBadge variant="success" size="sm">SQUAD PASS</AdminBadge>
-                      <span className="text-xs font-semibold text-slate-500">99.000 đ/tháng</span>
+                      <span className="text-xs font-semibold text-admin-text-muted">99.000 đ/tháng</span>
                     </div>
                     <div className="mt-3">
-                      <span className="text-[11px] text-slate-400 block">Số nhóm đăng ký Active</span>
-                      <span className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                      <span className="text-[11px] text-admin-text-muted block">Số nhóm đăng ký Active</span>
+                      <span className="text-xl font-bold text-admin-text-primary">
                         {(data?.activeSquadCount ?? 0).toLocaleString('vi-VN')} nhóm
                       </span>
                     </div>
                   </div>
-                  <div className="pt-3 mt-3 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
-                    <span className="text-xs text-slate-500">Doanh số SQUAD</span>
+                  <div className="pt-3 mt-3 border-t border-admin-border flex items-center justify-between">
+                    <span className="text-xs text-admin-text-muted">Doanh số SQUAD</span>
                     <span className="text-xs font-bold text-[#22C55E]">
                       {formatVND(squadRevenue)}
                     </span>
@@ -433,7 +433,7 @@ export default function AdminRevenuePage() {
               <AdminCard className="lg:col-span-5">
                 <AdminCardHeader>
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                    <div className="w-7 h-7 bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border-amber-500/20">
                       <PieChart className="w-4 h-4" />
                     </div>
                     <div>
@@ -444,7 +444,7 @@ export default function AdminRevenuePage() {
                 </AdminCardHeader>
 
                 {subProviderChartData.length === 0 ? (
-                  <p className="text-xs text-slate-400 py-6 text-center">
+                  <p className="text-xs text-admin-text-muted py-6 text-center">
                     Chưa có dữ liệu thanh toán cổng.
                   </p>
                 ) : (
@@ -464,7 +464,7 @@ export default function AdminRevenuePage() {
             <AdminCardHeader>
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[#22C55E]/10 text-[#22C55E] flex items-center justify-center border border-[#22C55E]/20">
+                  <div className="w-8 h-8 bg-[#22C55E]/10 text-[#22C55E] flex items-center justify-center border-[#22C55E]/20">
                     <Receipt className="w-4 h-4" />
                   </div>
                   <div>
@@ -481,7 +481,7 @@ export default function AdminRevenuePage() {
                       placeholder="Tìm kiếm mã GD, tên khách, email..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      leftIcon={<Search className="w-3.5 h-3.5 text-slate-400" />}
+                      leftIcon={<Search className="w-3.5 h-3.5 text-admin-text-muted" />}
                     />
                   </div>
                   <AdminButton
@@ -530,12 +530,12 @@ export default function AdminRevenuePage() {
                         {/* Transaction ID */}
                         <AdminTableCell className="font-mono text-xs">
                           <div className="flex flex-col">
-                            <span className="font-semibold text-slate-900 dark:text-slate-100">
+                            <span className="font-semibold text-admin-text-primary">
                               {charge.externalId && charge.externalId !== 'N/A'
                                 ? charge.externalId
                                 : charge.id.slice(0, 12)}
                             </span>
-                            <span className="text-[10px] text-slate-400">
+                            <span className="text-[10px] text-admin-text-muted">
                               UUID: {charge.id.slice(0, 8)}...
                             </span>
                           </div>
@@ -544,14 +544,14 @@ export default function AdminRevenuePage() {
                         {/* Customer / User info */}
                         <AdminTableCell>
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold text-xs shrink-0 border border-amber-500/20">
+                            <div className="w-7 h-7 bg-amber-500/10 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold text-xs shrink-0 border-amber-500/20">
                               {charge.user?.name ? charge.user.name[0].toUpperCase() : 'U'}
                             </div>
                             <div className="flex flex-col min-w-0">
-                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                              <span className="text-xs font-semibold text-admin-text-primary dark:text-admin-text-secondary truncate">
                                 {charge.user?.name || charge.user?.username || 'Thành viên'}
                               </span>
-                              <span className="text-[11px] text-slate-400 truncate max-w-[150px]">
+                              <span className="text-[11px] text-admin-text-muted truncate max-w-[150px]">
                                 {charge.user?.email || 'N/A'}
                               </span>
                             </div>
@@ -596,7 +596,7 @@ export default function AdminRevenuePage() {
                         </AdminTableCell>
 
                         {/* Date */}
-                        <AdminTableCell className="text-xs text-slate-500 whitespace-nowrap font-mono">
+                        <AdminTableCell className="text-xs text-admin-text-muted whitespace-nowrap font-mono">
                           {new Date(charge.createdAt).toLocaleString('vi-VN', {
                             day: '2-digit',
                             month: '2-digit',
@@ -648,14 +648,14 @@ export default function AdminRevenuePage() {
                     {filteredP2P.map((p2p) => (
                       <AdminTableRow key={p2p.id}>
                         <AdminTableCell className="font-mono text-xs">
-                          <span className="font-semibold text-slate-800 dark:text-slate-200">
+                          <span className="font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                             {p2p.externalId && p2p.externalId !== 'N/A' ? p2p.externalId : p2p.id.slice(0, 8)}
                           </span>
                         </AdminTableCell>
 
                         <AdminTableCell>
                           <div className="flex flex-col">
-                            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                            <span className="text-xs font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                               {p2p.sender?.name || p2p.sender?.email || 'Thành viên'}
                             </span>
                           </div>
@@ -663,20 +663,20 @@ export default function AdminRevenuePage() {
 
                         <AdminTableCell>
                           <div className="flex flex-col">
-                            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                            <span className="text-xs font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                               {p2p.receiver?.name || p2p.receiver?.email || 'Chủ chi'}
                             </span>
                           </div>
                         </AdminTableCell>
 
                         <AdminTableCell className="max-w-[180px]">
-                          <span className="text-xs text-slate-600 dark:text-slate-300 truncate block">
+                          <span className="text-xs text-admin-text-secondary truncate block">
                             {p2p.expense?.title || p2p.note || 'Thanh toán hoá đơn chuyến'}
                           </span>
                         </AdminTableCell>
 
                         <AdminTableCell>
-                          <span className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC] whitespace-nowrap">
+                          <span className="text-xs font-bold text-admin-text-primary whitespace-nowrap">
                             {formatVND(p2p.amount)}
                           </span>
                         </AdminTableCell>
@@ -702,7 +702,7 @@ export default function AdminRevenuePage() {
                           </AdminBadge>
                         </AdminTableCell>
 
-                        <AdminTableCell className="text-xs text-slate-500 whitespace-nowrap font-mono">
+                        <AdminTableCell className="text-xs text-admin-text-muted whitespace-nowrap font-mono">
                           {new Date(p2p.createdAt).toLocaleString('vi-VN', {
                             day: '2-digit',
                             month: '2-digit',
@@ -752,14 +752,14 @@ export default function AdminRevenuePage() {
                   <AdminTableBody>
                     {filteredCharges.map((charge) => (
                       <AdminTableRow key={charge.id}>
-                        <AdminTableCell className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">
+                        <AdminTableCell className="font-mono text-xs font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                           {charge.externalId && charge.externalId !== 'N/A' ? charge.externalId : charge.id.slice(0, 10)}
                         </AdminTableCell>
                         <AdminTableCell>
                           <AdminBadge variant="brand" size="xs">Gói Nền Tảng</AdminBadge>
                         </AdminTableCell>
                         <AdminTableCell>
-                          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                          <span className="text-xs font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                             {charge.user?.name || charge.user?.email || 'Thành viên'}
                           </span>
                         </AdminTableCell>
@@ -777,7 +777,7 @@ export default function AdminRevenuePage() {
                         <AdminTableCell>
                           <AdminBadge variant="success" size="xs">{charge.status}</AdminBadge>
                         </AdminTableCell>
-                        <AdminTableCell className="text-xs text-slate-500 font-mono whitespace-nowrap">
+                        <AdminTableCell className="text-xs text-admin-text-muted font-mono whitespace-nowrap">
                           {new Date(charge.createdAt).toLocaleDateString('vi-VN')}
                         </AdminTableCell>
                         <AdminTableCell className="text-right">
@@ -795,14 +795,14 @@ export default function AdminRevenuePage() {
 
                     {filteredP2P.map((p2p) => (
                       <AdminTableRow key={p2p.id}>
-                        <AdminTableCell className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">
+                        <AdminTableCell className="font-mono text-xs font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                           {p2p.externalId && p2p.externalId !== 'N/A' ? p2p.externalId : p2p.id.slice(0, 10)}
                         </AdminTableCell>
                         <AdminTableCell>
                           <AdminBadge variant="info" size="xs">P2P Chuyến</AdminBadge>
                         </AdminTableCell>
                         <AdminTableCell>
-                          <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                          <span className="text-xs font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                             {p2p.sender?.name || p2p.sender?.email || 'Thành viên'}
                           </span>
                         </AdminTableCell>
@@ -810,7 +810,7 @@ export default function AdminRevenuePage() {
                           {p2p.expense?.title || p2p.note || 'Chia sẻ chi phí'}
                         </AdminTableCell>
                         <AdminTableCell>
-                          <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                          <span className="text-xs font-bold text-admin-text-primary">
                             {formatVND(p2p.amount)}
                           </span>
                         </AdminTableCell>
@@ -822,7 +822,7 @@ export default function AdminRevenuePage() {
                             {p2p.status}
                           </AdminBadge>
                         </AdminTableCell>
-                        <AdminTableCell className="text-xs text-slate-500 font-mono whitespace-nowrap">
+                        <AdminTableCell className="text-xs text-admin-text-muted font-mono whitespace-nowrap">
                           {new Date(p2p.createdAt).toLocaleDateString('vi-VN')}
                         </AdminTableCell>
                         <AdminTableCell className="text-right">
@@ -848,19 +848,19 @@ export default function AdminRevenuePage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#38BDF8]" />
-                <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                <h2 className="text-sm font-bold text-admin-text-primary uppercase tracking-wider">
                   Dòng Tiền Chia Sẻ Nội Bộ (Peer-to-Peer Expense Split)
                 </h2>
               </div>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-admin-text-muted">
                 Tổng thể tích chuyển tiền: {formatVND(data?.tripSplitVolume || data?.totalVolume || 0)}
               </span>
             </div>
 
             {/* Note callout */}
-            <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B] flex items-start gap-3">
+            <div className="p-3.5 bg-admin-bg border-admin-border flex items-start gap-3">
               <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-              <p className="text-xs text-[#475569] dark:text-[#94A3B8] leading-relaxed">
+              <p className="text-xs text-admin-text-secondary dark:text-admin-text-muted leading-relaxed">
                 Số liệu dưới đây phản ánh tổng lượng tiền mà các thành viên chuyển cho nhau để thanh toán các hoá đơn ăn uống,
                 khách sạn, vé tham quan trong chuyến đi. Đây là dòng tiền trung chuyển nội bộ giữa người dùng (P2P), không phải
                 khoản thu của TripMate.
@@ -873,7 +873,7 @@ export default function AdminRevenuePage() {
               <AdminCard>
                 <AdminCardHeader>
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-[#22C55E]/10 text-[#22C55E] flex items-center justify-center">
+                    <div className="w-7 h-7 bg-[#22C55E]/10 text-[#22C55E] flex items-center justify-center">
                       <PieChart className="w-4 h-4" />
                     </div>
                     <div>
@@ -884,7 +884,7 @@ export default function AdminRevenuePage() {
                 </AdminCardHeader>
 
                 {Object.keys(data?.tripSplitStatusBreakdown || data?.statusBreakdown || {}).length === 0 ? (
-                  <p className="text-xs text-[#94A3B8] py-6 text-center">
+                  <p className="text-xs text-admin-text-muted py-6 text-center">
                     Chưa có dữ liệu trạng thái giao dịch chia tiền.
                   </p>
                 ) : (
@@ -892,9 +892,9 @@ export default function AdminRevenuePage() {
                     {Object.entries(data?.tripSplitStatusBreakdown || data?.statusBreakdown || {}).map(([status, count]) => (
                       <div
                         key={status}
-                        className="flex justify-between items-center p-2.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0D1424]/60"
+                        className="flex justify-between items-center p-2.5 border border-admin-border bg-admin-bg/50 dark:bg-admin-bg/60"
                       >
-                        <span className="text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC]">
+                        <span className="text-xs font-medium text-admin-text-primary">
                           {status}
                         </span>
                         <AdminBadge variant="neutral" size="xs">
@@ -911,7 +911,7 @@ export default function AdminRevenuePage() {
                 <AdminCardHeader>
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-[#38BDF8]/10 text-[#38BDF8] flex items-center justify-center">
+                      <div className="w-7 h-7 bg-[#38BDF8]/10 text-[#38BDF8] flex items-center justify-center">
                         <Wallet className="w-4 h-4" />
                       </div>
                       <div>
@@ -919,14 +919,14 @@ export default function AdminRevenuePage() {
                         <AdminCardDescription>Kênh chuyển tiền giữa các thành viên</AdminCardDescription>
                       </div>
                     </div>
-                    <span className="text-[11px] text-[#94A3B8]">
+                    <span className="text-[11px] text-admin-text-muted">
                       Tổng ví: {data?.walletCount ?? 0}
                     </span>
                   </div>
                 </AdminCardHeader>
 
                 {Object.keys(data?.tripSplitMethodBreakdown || data?.methodBreakdown || {}).length === 0 ? (
-                  <p className="text-xs text-[#94A3B8] py-6 text-center">
+                  <p className="text-xs text-admin-text-muted py-6 text-center">
                     Chưa có dữ liệu phương thức thanh toán.
                   </p>
                 ) : (
@@ -953,7 +953,7 @@ export default function AdminRevenuePage() {
         footer={
           selectedTxn && (
             <div className="flex items-center justify-between w-full">
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] text-admin-text-muted">
                 Giao dịch được ghi nhận trên cơ sở dữ liệu TripMate
               </span>
               <AdminButton variant="outline" size="sm" onClick={() => setSelectedTxn(null)}>
@@ -966,9 +966,9 @@ export default function AdminRevenuePage() {
         {selectedTxn && (
           <div className="flex flex-col gap-5 text-xs">
             {/* Amount Banner */}
-            <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B] flex items-center justify-between">
+            <div className="p-4 bg-admin-bg border-admin-border flex items-center justify-between">
               <div>
-                <span className="text-[11px] text-slate-400 block font-medium">Số tiền giao dịch thực thu</span>
+                <span className="text-[11px] text-admin-text-muted block font-medium">Số tiền giao dịch thực thu</span>
                 <span className="text-2xl font-bold text-emerald-600 dark:text-[#22C55E]">
                   {formatVND(selectedTxn.amount)}
                 </span>
@@ -986,39 +986,39 @@ export default function AdminRevenuePage() {
             </div>
 
             {/* Transaction specs grid */}
-            <div className="grid grid-cols-2 gap-3.5 p-4 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#111827]">
+            <div className="grid grid-cols-2 gap-3.5 p-4 border-admin-border bg-admin-surface">
               <div>
-                <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                <span className="text-[10px] uppercase font-semibold text-admin-text-muted block">
                   Kênh / Cổng thanh toán
                 </span>
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5 block">
+                <span className="text-xs font-bold text-admin-text-primary dark:text-admin-text-secondary mt-0.5 block">
                   {selectedTxn.provider}
                 </span>
               </div>
 
               <div>
-                <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                <span className="text-[10px] uppercase font-semibold text-admin-text-muted block">
                   Mã tham chiếu ngoại vi (External Ref)
                 </span>
-                <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5 block truncate">
+                <span className="text-xs font-mono font-bold text-admin-text-primary dark:text-admin-text-secondary mt-0.5 block truncate">
                   {selectedTxn.externalId || 'N/A'}
                 </span>
               </div>
 
               <div>
-                <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                <span className="text-[10px] uppercase font-semibold text-admin-text-muted block">
                   Thời gian ghi nhận
                 </span>
-                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block">
+                <span className="text-xs font-semibold text-admin-text-primary dark:text-admin-text-secondary mt-0.5 block">
                   {new Date(selectedTxn.createdAt).toLocaleString('vi-VN')}
                 </span>
               </div>
 
               <div>
-                <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+                <span className="text-[10px] uppercase font-semibold text-admin-text-muted block">
                   Phân loại nghiệp vụ
                 </span>
-                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block">
+                <span className="text-xs font-semibold text-admin-text-primary dark:text-admin-text-secondary mt-0.5 block">
                   {selectedTxn.type === 'SUBSCRIPTION' ? 'Gói Hội Viên Nền Tảng' : 'Chia Tiền Chuyến Đi (P2P)'}
                 </span>
               </div>
@@ -1026,33 +1026,33 @@ export default function AdminRevenuePage() {
 
             {/* Customer Details */}
             {selectedTxn.type === 'SUBSCRIPTION' && (
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0D1424]/60 flex flex-col gap-2">
-                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+              <div className="p-4 border-admin-border bg-admin-bg/50 dark:bg-admin-bg/60 flex flex-col gap-2">
+                <span className="text-xs font-bold text-admin-text-primary flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   <span>Thông tin khách hàng được tính tiền</span>
                 </span>
                 <div className="grid grid-cols-2 gap-2 mt-1">
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Họ và tên</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    <span className="text-[10px] text-admin-text-muted block">Họ và tên</span>
+                    <span className="font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                       {(selectedTxn as ChargeTransaction).user?.name || 'Thành viên'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Email tài khoản</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200 truncate block">
+                    <span className="text-[10px] text-admin-text-muted block">Email tài khoản</span>
+                    <span className="font-semibold text-admin-text-primary dark:text-admin-text-secondary truncate block">
                       {(selectedTxn as ChargeTransaction).user?.email || 'N/A'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Gói kích hoạt</span>
+                    <span className="text-[10px] text-admin-text-muted block">Gói kích hoạt</span>
                     <span className="font-semibold text-amber-600 dark:text-amber-400">
                       {(selectedTxn as ChargeTransaction).plan} Pass
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Hạn kỳ hiện tại</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    <span className="text-[10px] text-admin-text-muted block">Hạn kỳ hiện tại</span>
+                    <span className="font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                       {(selectedTxn as ChargeTransaction).currentPeriodEnd
                         ? new Date((selectedTxn as ChargeTransaction).currentPeriodEnd!).toLocaleDateString('vi-VN')
                         : 'Vô thời hạn'}
@@ -1063,27 +1063,27 @@ export default function AdminRevenuePage() {
             )}
 
             {selectedTxn.type === 'P2P_SPLIT' && (
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0D1424]/60 flex flex-col gap-2">
-                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+              <div className="p-4 border-admin-border bg-admin-bg/50 dark:bg-admin-bg/60 flex flex-col gap-2">
+                <span className="text-xs font-bold text-admin-text-primary flex items-center gap-1.5">
                   <Wallet className="w-3.5 h-3.5 text-[#38BDF8]" />
                   <span>Thông tin đối tác chuyển tiền</span>
                 </span>
                 <div className="grid grid-cols-2 gap-2 mt-1">
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Người chuyển (Sender)</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    <span className="text-[10px] text-admin-text-muted block">Người chuyển (Sender)</span>
+                    <span className="font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                       {(selectedTxn as P2PTransaction).sender?.name || (selectedTxn as P2PTransaction).sender?.email || 'Thành viên'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Người nhận (Receiver)</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    <span className="text-[10px] text-admin-text-muted block">Người nhận (Receiver)</span>
+                    <span className="font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                       {(selectedTxn as P2PTransaction).receiver?.name || (selectedTxn as P2PTransaction).receiver?.email || 'Chủ chi'}
                     </span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-[10px] text-slate-400 block">Khoản chi tiêu liên quan</span>
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    <span className="text-[10px] text-admin-text-muted block">Khoản chi tiêu liên quan</span>
+                    <span className="font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                       {(selectedTxn as P2PTransaction).expense?.title || (selectedTxn as P2PTransaction).note || 'Chia đều chi phí'}
                     </span>
                   </div>
@@ -1092,9 +1092,9 @@ export default function AdminRevenuePage() {
             )}
 
             {/* Audit Notice */}
-            <div className="p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5">
+            <div className="p-3.5 bg-amber-500/10 border-amber-500/20 flex items-start gap-2.5">
               <ShieldCheck className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-              <div className="text-[11px] text-slate-600 dark:text-slate-300 leading-normal">
+              <div className="text-[11px] text-admin-text-secondary leading-normal">
                 Bản ghi đối soát này được liên kết trực tiếp với lịch sử giao dịch gốc của cổng thanh toán MoMo / ZaloPay. Bạn có thể sử dụng mã đối soát để tra cứu trên Merchant Portal bên thứ 3.
               </div>
             </div>

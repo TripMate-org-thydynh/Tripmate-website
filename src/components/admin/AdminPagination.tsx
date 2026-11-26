@@ -28,29 +28,30 @@ export function AdminPagination({
 }: AdminPaginationProps) {
   const startItem = totalItems === 0 ? 0 : (page - 1) * limit + 1;
   const endItem = Math.min(page * limit, totalItems);
+  const buttonClass = 'admin-toolbar-control min-h-8 min-w-8 px-1.5 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent';
 
   return (
     <div
-      className={`flex min-w-0 flex-wrap items-center justify-between gap-3 border-t border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 py-3 text-xs text-[var(--admin-text-secondary)] sm:px-4 ${className}`}
+      className={`flex min-w-0 flex-wrap items-center justify-between gap-3 border-t border-admin-border bg-admin-surface px-3 py-3 text-xs text-admin-text-secondary sm:px-4 ${className}`}
     >
       {/* Summary Info & Limit Selector */}
       <div className="flex min-w-0 flex-wrap items-center gap-2.5">
         <span>
           Hiển thị{' '}
-          <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">
+          <span className="font-semibold text-admin-text-primary">
             {startItem}-{endItem}
           </span>{' '}
-          / <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{totalItems}</span>{' '}
+          / <span className="font-semibold text-admin-text-primary">{totalItems}</span>{' '}
           {itemLabel}
         </span>
 
         {onLimitChange && (
           <div className="flex items-center gap-1.5">
-            <span className="text-slate-500 dark:text-[#64748B] text-[11px]">Mỗi trang:</span>
-            <select
+            <span className="text-admin-text-muted text-[11px]">Mỗi trang:</span>
+            <select aria-label="Số mục mỗi trang"
               value={limit}
               onChange={(e) => onLimitChange(Number(e.target.value))}
-              className="px-2 py-1 text-xs rounded-md border border-slate-300 dark:border-[#1E293B] bg-white dark:bg-[#172238] text-slate-900 dark:text-[#F8FAFC] cursor-pointer focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-amber-500"
+              className="admin-field min-h-8 cursor-pointer px-2 text-xs"
             >
               {limitOptions.map((opt) => (
                 <option key={opt} value={opt}>
@@ -63,52 +64,56 @@ export function AdminPagination({
       </div>
 
       {/* Page Navigation Controls */}
-      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-        <span className="text-slate-500 dark:text-[#64748B] text-xs mr-2">
-          Trang <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{page}</span> /{' '}
-          <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{Math.max(1, totalPages)}</span>
+      <nav aria-label="Phân trang" className="flex min-w-0 flex-wrap items-center gap-1.5 tabular-nums">
+        <span className="text-admin-text-muted text-xs mr-2">
+          Trang <span className="font-semibold text-admin-text-primary">{page}</span> /{' '}
+          <span className="font-semibold text-admin-text-primary">{Math.max(1, totalPages)}</span>
         </span>
 
         <button
+          type="button"
           onClick={() => onPageChange(1)}
           disabled={page <= 1}
           title="Trang đầu"
           aria-label="Trang đầu"
-          className="p-1.5 rounded-md border border-slate-200 dark:border-[#1E293B] hover:bg-slate-100 dark:hover:bg-[#172238] text-slate-700 dark:text-[#F8FAFC] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+          className={buttonClass}
         >
           <ChevronsLeft className="w-3.5 h-3.5" />
         </button>
 
         <button
+          type="button"
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
           title="Trang trước"
           aria-label="Trang trước"
-          className="p-1.5 rounded-md border border-slate-200 dark:border-[#1E293B] hover:bg-slate-100 dark:hover:bg-[#172238] text-slate-700 dark:text-[#F8FAFC] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+          className={buttonClass}
         >
           <ChevronLeft className="w-3.5 h-3.5" />
         </button>
 
         <button
+          type="button"
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
           title="Trang sau"
           aria-label="Trang sau"
-          className="p-1.5 rounded-md border border-slate-200 dark:border-[#1E293B] hover:bg-slate-100 dark:hover:bg-[#172238] text-slate-700 dark:text-[#F8FAFC] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+          className={buttonClass}
         >
           <ChevronRight className="w-3.5 h-3.5" />
         </button>
 
         <button
+          type="button"
           onClick={() => onPageChange(totalPages)}
           disabled={page >= totalPages}
           title="Trang cuối"
           aria-label="Trang cuối"
-          className="p-1.5 rounded-md border border-slate-200 dark:border-[#1E293B] hover:bg-slate-100 dark:hover:bg-[#172238] text-slate-700 dark:text-[#F8FAFC] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+          className={buttonClass}
         >
           <ChevronsRight className="w-3.5 h-3.5" />
         </button>
-      </div>
+      </nav>
     </div>
   );
 }

@@ -94,7 +94,7 @@ export function PolicyForm({ initial, channel }: { initial: PolicyOverview; chan
           {channel !== 'default' && <AdminInput id="policy-url" label="Link cập nhật" type="url" maxLength={500}
             placeholder="https://" value={draft.updateUrl ?? ''} onChange={(e) => setDraft({ ...draft, updateUrl: e.target.value })} />}
           <label className="flex items-center gap-2 text-sm font-medium">
-            <input type="checkbox" checked={draft.maintenance} onChange={(e) => setDraft({ ...draft, maintenance: e.target.checked })} />
+            <input type="checkbox" className="size-4 accent-admin-primary" checked={draft.maintenance} onChange={(e) => setDraft({ ...draft, maintenance: e.target.checked })} />
             Bật bảo trì {channel === 'default' ? 'cho mọi kênh' : 'cho kênh này'}
           </label>
           <AdminInput id="policy-message" label="Thông báo bảo trì" maxLength={300} value={draft.maintenanceMessage ?? ''}
@@ -109,16 +109,16 @@ export function PolicyForm({ initial, channel }: { initial: PolicyOverview; chan
           <h2 className="text-base font-semibold">Xem trước trên app</h2>
           <AdminInput id="policy-preview-version" label="Phiên bản đang chạy" value={testVersion} onChange={(e) => setTestVersion(e.target.value)} />
           <p className="break-words text-sm font-medium" aria-live="polite">{preview}</p>
-          {globalMaintenance && <p className="text-sm text-slate-600 dark:text-slate-300">Tất cả kênh đang bảo trì theo chính sách mặc định.</p>}
+          {globalMaintenance && <p className="text-sm text-admin-text-secondary">Tất cả kênh đang bảo trì theo chính sách mặc định.</p>}
         </AdminCard>
         <AdminCard className="space-y-3">
           <h2 className="text-base font-semibold">Lịch sử thay đổi</h2>
-          {overview.history.length === 0 ? <p className="text-sm text-slate-500">Chưa có thay đổi.</p> :
-            <ol className="divide-y divide-slate-200 dark:divide-slate-700">
+          {overview.history.length === 0 ? <p className="text-sm text-admin-text-muted">Chưa có thay đổi.</p> :
+            <ol className="divide-y divide-admin-border">
               {overview.history.map((entry) => (
                 <li key={entry.id} className="space-y-1 py-3 text-sm">
                   <p className="break-words font-medium">{entry.reason}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-admin-text-muted">
                     {entry.admin.name ?? 'Quản trị viên'} · <time dateTime={entry.createdAt}>
                       {new Date(entry.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}
                     </time>

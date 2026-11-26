@@ -578,7 +578,7 @@ export default function AdminConfigsPage() {
           variant="brand"
         />
 
-        <Link href="/admin/app-policy" className="block rounded-xl focus-visible:outline-2">
+        <Link href="/admin/app-policy" className="block focus-visible:outline-2">
           <AdminStatCard
             title="Phiên bản & bảo trì"
             value="Chính sách ứng dụng"
@@ -590,7 +590,7 @@ export default function AdminConfigsPage() {
 
       {/* Unsaved Changes Warning Callout */}
       {(hasUnsavedFlags || hasUnsavedGeneral) && (
-        <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200 flex items-center justify-between gap-3 text-xs">
+        <div className="p-3.5 border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200 flex items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 font-medium">
             <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span>
@@ -638,7 +638,7 @@ export default function AdminConfigsPage() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-64 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] animate-pulse p-6"
+              className="h-64 bg-admin-surface border border-admin-border animate-pulse p-6"
             />
           ))}
         </div>
@@ -651,7 +651,7 @@ export default function AdminConfigsPage() {
                 <AdminCardHeader>
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                      <div className="w-8 h-8 bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border-amber-500/20">
                         <ToggleLeft className="w-4 h-4" />
                       </div>
                       <div>
@@ -665,24 +665,24 @@ export default function AdminConfigsPage() {
                 </AdminCardHeader>
 
                 {/* Quick actions bar */}
-                <div className="flex items-center justify-between pb-3 pt-1 border-b border-slate-100 dark:border-[#1E293B] text-xs">
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400">Thao tác nhanh:</span>
+                <div className="flex items-center justify-between pb-3 pt-1 border-b border-admin-border text-xs">
+                  <span className="text-[11px] text-admin-text-muted">Thao tác nhanh:</span>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleSetAllFlags(true)}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-slate-100 dark:bg-[#172238] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 transition"
+                      className="px-2 py-1 text-[11px] font-medium bg-admin-surface-hover hover:bg-admin-surface-hover text-admin-text-secondary transition"
                     >
                       Bật tất cả
                     </button>
                     <button
                       onClick={() => handleSetAllFlags(false)}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-slate-100 dark:bg-[#172238] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 transition"
+                      className="px-2 py-1 text-[11px] font-medium bg-admin-surface-hover hover:bg-admin-surface-hover text-admin-text-secondary transition"
                     >
                       Tắt tất cả
                     </button>
                     <button
                       onClick={handleResetDefaultFlags}
-                      className="px-2 py-1 rounded text-[11px] font-medium bg-slate-100 dark:bg-[#172238] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 transition flex items-center gap-1"
+                      className="px-2 py-1 text-[11px] font-medium bg-admin-surface-hover hover:bg-admin-surface-hover text-admin-text-secondary transition flex items-center gap-1"
                     >
                       <RotateCcw className="w-2.5 h-2.5" />
                       Mặc định
@@ -690,7 +690,7 @@ export default function AdminConfigsPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col divide-y divide-slate-100 dark:divide-[#1E293B] mt-2">
+                <div className="flex flex-col divide-y divide-admin-border mt-2">
                   {Object.keys(featureFlags).map((flag) => {
                     const info = FEATURE_FLAG_LABELS[flag] || {
                       label: flag,
@@ -706,17 +706,17 @@ export default function AdminConfigsPage() {
                       >
                         <div className="min-w-0 pr-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                            <span className="text-xs font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                               {info.label}
                             </span>
                             <AdminBadge variant={isEnabled ? 'success' : 'neutral'} size="xs">
                               {isEnabled ? 'BẬT' : 'TẮT'}
                             </AdminBadge>
-                            <span className="text-[10px] text-slate-400 font-mono">
+                            <span className="text-[10px] text-admin-text-muted font-mono">
                               @{flag}
                             </span>
                           </div>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          <p className="text-[11px] text-admin-text-muted mt-0.5 leading-snug">
                             {info.desc}
                           </p>
                         </div>
@@ -730,8 +730,8 @@ export default function AdminConfigsPage() {
                 </div>
               </div>
 
-              <div className="pt-4 mt-6 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">
+              <div className="pt-4 mt-6 border-t border-admin-border flex items-center justify-between">
+                <span className="text-[11px] text-admin-text-muted">
                   {hasUnsavedFlags ? '⚠️ Có thay đổi chưa lưu' : 'Đã đồng bộ với máy chủ'}
                 </span>
                 <AdminButton
@@ -753,7 +753,7 @@ export default function AdminConfigsPage() {
               <div>
                 <AdminCardHeader>
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 flex items-center justify-center border border-sky-100 dark:border-sky-800/50">
+                    <div className="w-8 h-8 bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 flex items-center justify-center border-sky-100 dark:border-sky-800/50">
                       <Key className="w-4 h-4" />
                     </div>
                     <div>
@@ -767,11 +767,11 @@ export default function AdminConfigsPage() {
 
                 <div className="flex flex-col gap-4">
                   {/* Google Gemini API */}
-                  <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B] flex flex-col gap-3">
+                  <div className="p-3.5 bg-admin-bg border-admin-border flex flex-col gap-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-amber-500" />
-                        <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+                        <span className="text-xs font-semibold text-admin-text-primary">
                           Google Gemini API
                         </span>
                       </div>
@@ -803,7 +803,7 @@ export default function AdminConfigsPage() {
                         <button
                           type="button"
                           onClick={() => setShowGeminiKey(!showGeminiKey)}
-                          className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                          className="p-1 text-admin-text-muted hover:text-admin-text-secondary"
                           title={showGeminiKey ? 'Ẩn khoá' : 'Hiện khoá'}
                         >
                           {showGeminiKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -811,7 +811,7 @@ export default function AdminConfigsPage() {
                         <button
                           type="button"
                           onClick={() => handleCopy(geminiKey, 'Gemini API Key')}
-                          className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                          className="p-1 text-admin-text-muted hover:text-admin-text-secondary"
                           title="Sao chép"
                         >
                           {copiedKey === 'Gemini API Key' ? (
@@ -826,7 +826,7 @@ export default function AdminConfigsPage() {
                     {/* Test result feedback banner */}
                     {geminiTestResult && (
                       <div
-                        className={`p-2.5 rounded-md text-[11px] flex items-center gap-2 ${
+                        className={`p-2.5 text-[11px] flex items-center gap-2 ${
                           geminiTestResult.success
                             ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
                             : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-500/20'
@@ -850,11 +850,11 @@ export default function AdminConfigsPage() {
                   </div>
 
                   {/* SendGrid Mailer API */}
-                  <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B] flex flex-col gap-3">
+                  <div className="p-3.5 bg-admin-bg border-admin-border flex flex-col gap-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 text-emerald-500" />
-                        <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+                        <span className="text-xs font-semibold text-admin-text-primary">
                           SendGrid Mailer API
                         </span>
                       </div>
@@ -886,7 +886,7 @@ export default function AdminConfigsPage() {
                         <button
                           type="button"
                           onClick={() => setShowSendgridKey(!showSendgridKey)}
-                          className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                          className="p-1 text-admin-text-muted hover:text-admin-text-secondary"
                           title={showSendgridKey ? 'Ẩn khoá' : 'Hiện khoá'}
                         >
                           {showSendgridKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -894,7 +894,7 @@ export default function AdminConfigsPage() {
                         <button
                           type="button"
                           onClick={() => handleCopy(sendgridKey, 'SendGrid API Key')}
-                          className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                          className="p-1 text-admin-text-muted hover:text-admin-text-secondary"
                           title="Sao chép"
                         >
                           {copiedKey === 'SendGrid API Key' ? (
@@ -909,7 +909,7 @@ export default function AdminConfigsPage() {
                     {/* Test result feedback banner */}
                     {sendgridTestResult && (
                       <div
-                        className={`p-2.5 rounded-md text-[11px] flex items-center gap-2 ${
+                        className={`p-2.5 text-[11px] flex items-center gap-2 ${
                           sendgridTestResult.success
                             ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
                             : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-500/20'
@@ -934,8 +934,8 @@ export default function AdminConfigsPage() {
                 </div>
               </div>
 
-              <div className="pt-4 mt-6 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">
+              <div className="pt-4 mt-6 border-t border-admin-border flex items-center justify-between">
+                <span className="text-[11px] text-admin-text-muted">
                   Chuỗi khoá được lưu trực tiếp vào cơ sở dữ liệu Supabase
                 </span>
                 <AdminButton
@@ -957,7 +957,7 @@ export default function AdminConfigsPage() {
               <div>
                 <AdminCardHeader>
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 flex items-center justify-center border border-orange-100 dark:border-orange-800/50">
+                    <div className="w-8 h-8 bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 flex items-center justify-center border-orange-100 dark:border-orange-800/50">
                       <Settings className="w-4 h-4" />
                     </div>
                     <div>
@@ -1031,8 +1031,8 @@ export default function AdminConfigsPage() {
                 </div>
               </div>
 
-              <div className="pt-4 mt-6 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">
+              <div className="pt-4 mt-6 border-t border-admin-border flex items-center justify-between">
+                <span className="text-[11px] text-admin-text-muted">
                   {hasUnsavedGeneral ? '⚠️ Có thay đổi chưa lưu' : 'Đã đồng bộ'}
                 </span>
                 <AdminButton
@@ -1055,7 +1055,7 @@ export default function AdminConfigsPage() {
                 <AdminCardHeader>
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-800/50">
+                      <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border-emerald-100 dark:border-emerald-800/50">
                         <CreditCard className="w-4 h-4" />
                       </div>
                       <div>
@@ -1067,14 +1067,14 @@ export default function AdminConfigsPage() {
                     </div>
 
                     {/* Sandbox / Production selector */}
-                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#0D1424] p-1 rounded-lg border border-slate-200 dark:border-[#1E293B]">
+                    <div className="flex items-center gap-1 bg-admin-surface-hover dark:bg-admin-bg p-1 border-admin-border">
                       <button
                         type="button"
                         onClick={() => setPaymentEnv('sandbox')}
-                        className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition ${
+                        className={`px-2.5 py-1 text-[11px] font-semibold transition ${
                           paymentEnv === 'sandbox'
-                            ? 'bg-white dark:bg-[#1E293B] text-amber-700 dark:text-amber-300 shadow-sm'
-                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                            ? 'bg-admin-surface dark:bg-admin-surface-hover text-amber-700 dark:text-amber-300 shadow-sm'
+                            : 'text-admin-text-muted hover:text-admin-text-secondary'
                         }`}
                       >
                         Sandbox
@@ -1082,10 +1082,10 @@ export default function AdminConfigsPage() {
                       <button
                         type="button"
                         onClick={() => setPaymentEnv('production')}
-                        className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition ${
+                        className={`px-2.5 py-1 text-[11px] font-semibold transition ${
                           paymentEnv === 'production'
                             ? 'bg-emerald-500 text-white shadow-sm'
-                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                            : 'text-admin-text-muted hover:text-admin-text-secondary'
                         }`}
                       >
                         Production
@@ -1096,11 +1096,11 @@ export default function AdminConfigsPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* MoMo Section */}
-                  <div className="p-3.5 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-slate-50 dark:bg-[#0D1424] flex flex-col gap-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-[#1E293B]">
+                  <div className="p-3.5 border-admin-border bg-admin-bg flex flex-col gap-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-admin-border">
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full bg-pink-500" />
-                        <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                        <h3 className="text-xs font-bold text-admin-text-primary">
                           Cổng MoMo Payment
                         </h3>
                       </div>
@@ -1127,7 +1127,7 @@ export default function AdminConfigsPage() {
                       <button
                         type="button"
                         onClick={() => setShowMomoAccess(!showMomoAccess)}
-                        className="absolute right-2.5 top-7 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        className="absolute right-2.5 top-7 p-1 text-admin-text-muted hover:text-admin-text-secondary"
                       >
                         {showMomoAccess ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
@@ -1144,7 +1144,7 @@ export default function AdminConfigsPage() {
                       <button
                         type="button"
                         onClick={() => setShowMomoSecret(!showMomoSecret)}
-                        className="absolute right-2.5 top-7 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        className="absolute right-2.5 top-7 p-1 text-admin-text-muted hover:text-admin-text-secondary"
                       >
                         {showMomoSecret ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
@@ -1152,11 +1152,11 @@ export default function AdminConfigsPage() {
                   </div>
 
                   {/* ZaloPay Section */}
-                  <div className="p-3.5 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-slate-50 dark:bg-[#0D1424] flex flex-col gap-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-[#1E293B]">
+                  <div className="p-3.5 border-admin-border bg-admin-bg flex flex-col gap-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-admin-border">
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full bg-cyan-500" />
-                        <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                        <h3 className="text-xs font-bold text-admin-text-primary">
                           Cổng ZaloPay Payment
                         </h3>
                       </div>
@@ -1183,7 +1183,7 @@ export default function AdminConfigsPage() {
                       <button
                         type="button"
                         onClick={() => setShowZaloKey1(!showZaloKey1)}
-                        className="absolute right-2.5 top-7 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        className="absolute right-2.5 top-7 p-1 text-admin-text-muted hover:text-admin-text-secondary"
                       >
                         {showZaloKey1 ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
@@ -1200,7 +1200,7 @@ export default function AdminConfigsPage() {
                       <button
                         type="button"
                         onClick={() => setShowZaloKey2(!showZaloKey2)}
-                        className="absolute right-2.5 top-7 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        className="absolute right-2.5 top-7 p-1 text-admin-text-muted hover:text-admin-text-secondary"
                       >
                         {showZaloKey2 ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
@@ -1209,12 +1209,12 @@ export default function AdminConfigsPage() {
                 </div>
 
                 {/* Webhook IPN Box */}
-                <div className="mt-4 p-3 rounded-lg border border-slate-200 dark:border-[#1E293B] bg-slate-100 dark:bg-[#0B101B] flex items-center justify-between text-xs">
+                <div className="mt-4 p-3 border-admin-border bg-admin-surface-hover dark:bg-[#0B101B] flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2 overflow-hidden">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span className="text-[11px] text-slate-600 dark:text-slate-400 truncate">
+                    <span className="text-[11px] text-admin-text-secondary dark:text-admin-text-muted truncate">
                       Webhook IPN URL:{' '}
-                      <code className="font-mono text-slate-900 dark:text-slate-100">
+                      <code className="font-mono text-admin-text-primary">
                         http://localhost:3000/api/v1/payments/webhook
                       </code>
                     </span>
@@ -1224,7 +1224,7 @@ export default function AdminConfigsPage() {
                     onClick={() =>
                       handleCopy('http://localhost:3000/api/v1/payments/webhook', 'Webhook IPN URL')
                     }
-                    className="px-2 py-1 text-[10px] font-medium rounded bg-white dark:bg-[#1E293B] hover:bg-slate-200 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition flex items-center gap-1 shrink-0 ml-2"
+                    className="px-2 py-1 text-[10px] font-medium bg-admin-surface dark:bg-admin-surface-hover hover:bg-admin-surface-hover text-admin-text-secondary border border-admin-border transition flex items-center gap-1 shrink-0 ml-2"
                   >
                     <Copy className="w-2.5 h-2.5" />
                     Copy IPN
@@ -1232,8 +1232,8 @@ export default function AdminConfigsPage() {
                 </div>
               </div>
 
-              <div className="pt-4 mt-6 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">
+              <div className="pt-4 mt-6 border-t border-admin-border flex items-center justify-between">
+                <span className="text-[11px] text-admin-text-muted">
                   Hỗ trợ định dạng JSON đối soát giao dịch
                 </span>
                 <AdminButton
@@ -1256,7 +1256,7 @@ export default function AdminConfigsPage() {
                 <AdminCardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                      <div className="w-8 h-8 bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border-amber-500/20">
                         <Sliders className="w-4 h-4" />
                       </div>
                       <div>
@@ -1269,13 +1269,13 @@ export default function AdminConfigsPage() {
 
                     <div className="flex items-center gap-2">
                       <div className="relative w-48 sm:w-64">
-                        <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                        <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-admin-text-muted" />
                         <input
                           type="text"
                           value={customSearch}
                           onChange={(e) => setCustomSearch(e.target.value)}
                           placeholder="Tìm theo key hoặc mô tả..."
-                          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0D1424] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                          className="w-full pl-8 pr-3 py-1.5 text-xs border border-admin-border bg-admin-surface dark:bg-admin-bg text-admin-text-primary focus:outline-none focus:ring-1 focus:ring-amber-500"
                         />
                       </div>
                       <AdminButton
@@ -1291,9 +1291,9 @@ export default function AdminConfigsPage() {
                 </AdminCardHeader>
 
                 {/* Table of all system configs */}
-                <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-[#1E293B]">
+                <div className="overflow-x-auto border border-admin-border">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 dark:bg-[#0D1424] border-b border-slate-200 dark:border-[#1E293B] text-slate-600 dark:text-slate-400 font-semibold">
+                    <thead className="bg-admin-bg border-b border-admin-border text-admin-text-secondary dark:text-admin-text-muted font-semibold">
                       <tr>
                         <th className="py-2.5 px-3.5">Khóa Cấu Hình (Key)</th>
                         <th className="py-2.5 px-3.5">Giá Trị (Value Preview)</th>
@@ -1302,10 +1302,10 @@ export default function AdminConfigsPage() {
                         <th className="py-2.5 px-3.5 text-right">Thao Tác</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]">
+                    <tbody className="divide-y divide-admin-border">
                       {filteredConfigs.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="py-8 text-center text-slate-400">
+                          <td colSpan={5} className="py-8 text-center text-admin-text-muted">
                             Không tìm thấy cấu hình phù hợp với từ khoá
                           </td>
                         </tr>
@@ -1316,9 +1316,9 @@ export default function AdminConfigsPage() {
                           return (
                             <tr
                               key={cfg.key}
-                              className="hover:bg-slate-50/50 dark:hover:bg-[#172238]/50 transition group"
+                              className="hover:bg-admin-bg/50 dark:hover:bg-admin-surface-hover/50 transition group"
                             >
-                              <td className="py-2.5 px-3.5 font-mono font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                              <td className="py-2.5 px-3.5 font-mono font-semibold text-admin-text-primary flex items-center gap-1.5">
                                 <span className="text-amber-600 dark:text-amber-400">@</span>
                                 <span>{cfg.key}</span>
                                 {isCore && (
@@ -1327,27 +1327,27 @@ export default function AdminConfigsPage() {
                                   </AdminBadge>
                                 )}
                               </td>
-                              <td className="py-2.5 px-3.5 max-w-xs truncate font-mono text-[11px] text-slate-600 dark:text-slate-300">
+                              <td className="py-2.5 px-3.5 max-w-xs truncate font-mono text-[11px] text-admin-text-secondary">
                                 {cfg.value.length > 50 ? `${cfg.value.slice(0, 50)}...` : cfg.value}
                               </td>
-                              <td className="py-2.5 px-3.5 text-slate-600 dark:text-slate-400 max-w-sm truncate">
+                              <td className="py-2.5 px-3.5 text-admin-text-secondary dark:text-admin-text-muted max-w-sm truncate">
                                 {cfg.description || 'Chưa có mô tả'}
                               </td>
-                              <td className="py-2.5 px-3.5 text-slate-400 text-[11px]">
+                              <td className="py-2.5 px-3.5 text-admin-text-muted text-[11px]">
                                 {cfg.updatedAt ? new Date(cfg.updatedAt).toLocaleDateString('vi-VN') : 'Mặc định'}
                               </td>
                               <td className="py-2.5 px-3.5 text-right">
                                 <div className="flex items-center justify-end gap-1.5">
                                   <button
                                     onClick={() => handleCopy(cfg.value, `Giá trị @${cfg.key}`)}
-                                    className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                    className="p-1 text-admin-text-muted hover:text-admin-text-secondary"
                                     title="Copy Value"
                                   >
                                     <Copy className="w-3.5 h-3.5" />
                                   </button>
                                   <button
                                     onClick={() => handleOpenEditModal(cfg)}
-                                    className="p-1 rounded text-amber-600 hover:text-amber-700 dark:text-amber-400"
+                                    className="p-1 text-amber-600 hover:text-amber-700 dark:text-amber-400"
                                     title="Chỉnh sửa"
                                   >
                                     <Edit2 className="w-3.5 h-3.5" />
@@ -1355,7 +1355,7 @@ export default function AdminConfigsPage() {
                                   {!isCore && (
                                     <button
                                       onClick={() => setConfirmDelete({ isOpen: true, key: cfg.key })}
-                                      className="p-1 rounded text-rose-500 hover:text-rose-700"
+                                      className="p-1 text-rose-500 hover:text-rose-700"
                                       title="Xoá cấu hình"
                                     >
                                       <Trash2 className="w-3.5 h-3.5" />
@@ -1372,7 +1372,7 @@ export default function AdminConfigsPage() {
                 </div>
               </div>
 
-              <div className="pt-4 mt-6 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+              <div className="pt-4 mt-6 border-t border-admin-border flex items-center justify-between text-xs text-admin-text-muted">
                 <span>Tổng cộng: {configs.length} bản ghi cấu hình trong bảng SystemConfig</span>
                 <span className="font-mono text-[11px]">Database: PostgreSQL (Supabase Tokyo AWS-1)</span>
               </div>
@@ -1384,19 +1384,19 @@ export default function AdminConfigsPage() {
       {/* MODAL: ADD / EDIT CUSTOM CONFIG */}
       {modalConfig.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
+          <div className="w-full max-w-lg bg-admin-surface border-admin-border shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-admin-border flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                <div className="w-7 h-7 bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border-amber-500/20">
                   <Sliders className="w-4 h-4" />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                <h3 className="text-sm font-bold text-admin-text-primary">
                   {modalConfig.isEditing ? `Chỉnh Sửa Cấu Hình @${modalConfig.key}` : 'Thêm Cấu Hình Tuỳ Chỉnh Mới'}
                 </h3>
               </div>
               <button
                 onClick={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-admin-text-muted hover:text-admin-text-secondary"
               >
                 ✕
               </button>
@@ -1418,7 +1418,7 @@ export default function AdminConfigsPage() {
               />
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-semibold text-admin-text-secondary">
                   Giá Trị (Value / JSON Text)
                 </label>
                 <textarea
@@ -1426,7 +1426,7 @@ export default function AdminConfigsPage() {
                   onChange={(e) => setModalConfig((prev) => ({ ...prev, value: e.target.value }))}
                   placeholder='vd: true, 100, hoặc {"enabled": true}'
                   rows={4}
-                  className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0D1424] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-2 text-xs font-mono border border-admin-border bg-admin-surface dark:bg-admin-bg text-admin-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500"
                   required
                 />
               </div>
@@ -1438,7 +1438,7 @@ export default function AdminConfigsPage() {
                 placeholder="Mục đích sử dụng của biến cấu hình này..."
               />
 
-              <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-admin-border flex items-center justify-end gap-2">
                 <AdminButton
                   variant="outline"
                   size="sm"

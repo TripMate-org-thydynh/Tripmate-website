@@ -156,27 +156,28 @@ export function AdminNotificationDropdown() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="p-1.5 rounded-lg text-[#475569] hover:text-[#0F172A] dark:text-[#94A3B8] dark:hover:text-[#F8FAFC] hover:bg-[#F1F5F9] dark:hover:bg-[#172238] transition-colors cursor-pointer relative"
+        className="admin-toolbar-control relative"
         aria-label="Xem thông báo hệ thống"
+        aria-expanded={open}
         title="Xem thông báo hệ thống"
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400 ring-2 ring-white dark:ring-[#0D1424]" />
+          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400 ring-2 ring-admin-surface dark:ring-[#0D1424]" />
         )}
       </button>
 
       {/* Dropdown Card */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] shadow-2xl z-50 overflow-hidden animate-in fade-in-50 zoom-in-95 duration-100 flex flex-col">
+        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-admin-surface border-admin-border shadow-xl z-50 overflow-hidden animate-in fade-in-50 zoom-in-95 duration-100 flex flex-col">
           {/* Header */}
-          <div className="p-3.5 border-b border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
+          <div className="p-3.5 border-b border-admin-border flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-900 dark:text-[#F8FAFC]">
-                Thông Báo Hệ Thống
+              <span className="text-xs font-bold text-admin-text-primary">
+                Thông báo mẫu
               </span>
               {unreadCount > 0 && (
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/20">
+                <span className="bg-[var(--admin-accent-bg)] px-1.5 py-0.5 text-[11px] font-semibold text-[var(--admin-accent-ink)]">
                   {unreadCount} mới
                 </span>
               )}
@@ -195,26 +196,28 @@ export function AdminNotificationDropdown() {
           </div>
 
           {/* Filter Bar */}
-          <div className="flex items-center justify-between px-3.5 py-2 bg-slate-50 dark:bg-[#0D1424] border-b border-slate-100 dark:border-[#1E293B]">
+          <div className="flex items-center justify-between px-3.5 py-2 bg-admin-bg border-b border-admin-border">
             <div className="flex items-center gap-2 text-xs">
               <button
                 type="button"
+                aria-pressed={filter === 'all'}
                 onClick={() => setFilter('all')}
-                className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                className={`px-2 py-0.5 text-[11px] font-medium transition-colors cursor-pointer ${
                   filter === 'all'
-                    ? 'bg-white dark:bg-[#111827] text-slate-900 dark:text-[#F8FAFC] shadow-2xs font-semibold'
-                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400'
+                    ? 'bg-admin-surface text-admin-text-primary shadow-2xs font-semibold'
+                    : 'text-admin-text-muted hover:text-admin-text-primary dark:text-admin-text-muted'
                 }`}
               >
                 Tất cả ({notifications.length})
               </button>
               <button
                 type="button"
+                aria-pressed={filter === 'unread'}
                 onClick={() => setFilter('unread')}
-                className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                className={`px-2 py-0.5 text-[11px] font-medium transition-colors cursor-pointer ${
                   filter === 'unread'
-                    ? 'bg-white dark:bg-[#111827] text-slate-900 dark:text-[#F8FAFC] shadow-2xs font-semibold'
-                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400'
+                    ? 'bg-admin-surface text-admin-text-primary shadow-2xs font-semibold'
+                    : 'text-admin-text-muted hover:text-admin-text-primary dark:text-admin-text-muted'
                 }`}
               >
                 Chưa đọc ({unreadCount})
@@ -225,7 +228,7 @@ export function AdminNotificationDropdown() {
               <button
                 type="button"
                 onClick={clearAll}
-                className="text-[11px] text-slate-400 hover:text-rose-500 flex items-center gap-1 cursor-pointer transition-colors"
+                className="text-[11px] text-admin-text-muted hover:text-rose-500 flex items-center gap-1 cursor-pointer transition-colors"
                 title="Xóa tất cả thông báo"
               >
                 <Trash2 className="w-3 h-3" />
@@ -235,13 +238,13 @@ export function AdminNotificationDropdown() {
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-[#1E293B]/60">
+          <div className="max-h-80 overflow-y-auto divide-y divide-admin-border dark:divide-admin-border/60">
             {filtered.length === 0 ? (
-              <div className="py-10 text-center text-xs text-slate-400 flex flex-col items-center justify-center">
+              <div className="py-10 text-center text-xs text-admin-text-muted flex flex-col items-center justify-center">
                 <Bell className="w-7 h-7 mb-2 opacity-30" />
                 <p>Không có thông báo nào {filter === 'unread' ? 'chưa đọc' : ''}</p>
-                <span className="text-[10px] text-slate-500 mt-0.5">
-                  Các sự kiện hoạt động mới sẽ hiển thị tại đây
+                <span className="text-[10px] text-admin-text-muted mt-0.5">
+                  Danh sách này dùng dữ liệu minh họa.
                 </span>
               </div>
             ) : (
@@ -250,55 +253,56 @@ export function AdminNotificationDropdown() {
                 const Icon = config.icon;
 
                 return (
-                  <div
+                  <button
                     key={n.id}
+                    type="button"
                     onClick={() => handleItemClick(n)}
-                    className={`p-3.5 flex items-start gap-3 transition-colors cursor-pointer relative group ${
+                    className={`group relative flex w-full cursor-pointer items-start gap-3 p-3.5 text-left transition-colors focus-visible:-outline-offset-2 ${
                       !n.isRead
                         ? 'bg-amber-500/5 dark:bg-amber-500/10 hover:bg-amber-500/10 dark:hover:bg-amber-500/15'
-                        : 'hover:bg-slate-50 dark:hover:bg-[#172238]'
+                        : 'hover:bg-admin-bg dark:hover:bg-admin-surface-hover'
                     }`}
                   >
                     {/* Icon */}
-                    <div
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border mt-0.5 ${config.color}`}
+                    <span
+                      className={`mt-0.5 flex size-7 shrink-0 items-center justify-center ${config.color}`}
                     >
                       <Icon className="w-3.5 h-3.5" />
-                    </div>
+                    </span>
 
                     {/* Content */}
-                    <div className="flex-1 min-w-0 pr-2">
-                      <div className="flex items-center justify-between gap-1">
-                        <h4 className="text-xs font-semibold text-slate-900 dark:text-[#F8FAFC] truncate">
+                    <span className="flex-1 min-w-0 pr-2">
+                      <span className="flex items-center justify-between gap-1">
+                        <span className="text-xs font-semibold text-admin-text-primary truncate">
                           {n.title}
-                        </h4>
-                        <span className="text-[10px] text-slate-400 shrink-0 font-mono">
+                        </span>
+                        <span className="text-[10px] text-admin-text-muted shrink-0 font-mono">
                           {n.time}
                         </span>
-                      </div>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 line-clamp-2 leading-relaxed">
+                      </span>
+                      <span className="text-[11px] text-admin-text-secondary mt-0.5 line-clamp-2 leading-relaxed">
                         {n.message}
-                      </p>
-                    </div>
+                      </span>
+                    </span>
 
                     {/* Unread indicator / Link arrow */}
-                    <div className="shrink-0 flex items-center self-center">
+                    <span className="shrink-0 flex items-center self-center">
                       {!n.isRead ? (
                         <span className="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400" />
                       ) : (
-                        <ExternalLink className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ExternalLink className="w-3 h-3 text-admin-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                       )}
-                    </div>
-                  </div>
+                    </span>
+                  </button>
                 );
               })
             )}
           </div>
 
           {/* Footer Link */}
-          <div className="p-2.5 bg-slate-50 dark:bg-[#0D1424] border-t border-slate-100 dark:border-[#1E293B] text-center">
-            <span className="text-[11px] text-slate-500 dark:text-slate-400">
-              TripMate Live Telemetry & Event Streams
+          <div className="p-2.5 bg-admin-bg border-t border-admin-border text-center">
+            <span className="text-[11px] text-admin-text-muted">
+              Dữ liệu minh họa
             </span>
           </div>
         </div>

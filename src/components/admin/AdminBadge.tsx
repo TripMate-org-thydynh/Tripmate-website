@@ -53,16 +53,16 @@ export function AdminBadge({
       dot: 'bg-[#38BDF8]',
     },
     neutral: {
-      bg: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-[#172238] dark:text-[#94A3B8] dark:border-[#1E293B]',
+      bg: 'bg-admin-surface-hover text-admin-text-secondary border-admin-border dark:bg-admin-surface-hover dark:text-admin-text-muted dark:border-admin-border',
       dot: 'bg-[#64748B]',
     },
     primary: {
-      bg: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30',
-      dot: 'bg-amber-500 dark:bg-amber-400',
+      bg: 'bg-[var(--admin-accent-bg)] text-[var(--admin-accent-ink)]',
+      dot: 'bg-admin-primary',
     },
     brand: {
-      bg: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30',
-      dot: 'bg-amber-500 dark:bg-amber-400',
+      bg: 'bg-[var(--admin-accent-bg)] text-[var(--admin-accent-ink)]',
+      dot: 'bg-admin-primary',
     },
   };
 
@@ -70,7 +70,7 @@ export function AdminBadge({
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border leading-none transition-colors select-none ${style.bg} ${sizeClasses} ${className}`}
+      className={`inline-flex items-center leading-snug transition-colors select-none ${style.bg} ${sizeClasses} ${className}`}
     >
       {dot && (
         <span

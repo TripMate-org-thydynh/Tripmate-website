@@ -58,23 +58,23 @@ export function AdminDrawer({
 
       {/* Slide-over Panel */}
       <div
-        className={`relative z-10 w-full ${sizeClasses} h-full bg-white dark:bg-[#111827] border-l border-[#E2E8F0] dark:border-[#1E293B] shadow-2xl flex flex-col transition-transform duration-200 animate-in slide-in-from-right`}
+        className={`relative z-10 w-full ${sizeClasses} h-full bg-admin-surface border-l border-admin-border shadow-xl flex flex-col transition-transform duration-200 animate-in slide-in-from-right`}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#E2E8F0] dark:border-[#1E293B] flex items-start justify-between gap-4 bg-slate-50/60 dark:bg-[#0D1424]/60 shrink-0">
+        <div className="px-6 py-4 border-b border-admin-border flex items-start justify-between gap-4 bg-admin-bg/60 shrink-0">
           <div>
-            <h2 className="text-base font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+            <h2 className="text-base font-semibold text-admin-text-primary">
               {title}
             </h2>
             {description && (
-              <p className="text-xs text-[#475569] dark:text-[#94A3B8] mt-0.5 leading-relaxed">
+              <p className="text-xs text-admin-text-secondary dark:text-admin-text-muted mt-0.5 leading-relaxed">
                 {description}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] hover:bg-[#F1F5F9] dark:hover:bg-[#172238] transition-colors cursor-pointer shrink-0"
+            className="p-1.5 text-admin-text-muted hover:text-admin-text-primary hover:bg-admin-surface-hover transition-colors cursor-pointer shrink-0"
             aria-label="Đóng bảng chi tiết"
           >
             <X className="w-4 h-4" />
@@ -82,13 +82,13 @@ export function AdminDrawer({
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 p-6 overflow-y-auto text-xs text-[#0F172A] dark:text-[#F8FAFC]">
+        <div className="flex-1 p-6 overflow-y-auto text-xs text-admin-text-primary">
           {children}
         </div>
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-3.5 border-t border-[#E2E8F0] dark:border-[#1E293B] bg-slate-50/70 dark:bg-[#0D1424]/70 shrink-0 flex items-center justify-end gap-2.5">
+          <div className="px-6 py-3.5 border-t border-admin-border bg-admin-bg/70 shrink-0 flex items-center justify-end gap-2.5">
             {footer}
           </div>
         )}

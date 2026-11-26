@@ -26,34 +26,36 @@ export function AdminTabs<T extends string>({
 }: AdminTabsProps<T>) {
   if (variant === 'underline') {
     return (
-      <div className={`flex items-center gap-6 border-b border-[#E2E8F0] dark:border-[#1E293B] overflow-x-auto ${className}`}>
+      <div className={`flex items-center gap-6 border-b border-admin-border overflow-x-auto ${className}`}>
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab;
           return (
             <button
               key={tab.id}
+              type="button"
+              aria-pressed={isActive}
               onClick={() => onChange(tab.id)}
               className={`pb-3 pt-1 text-xs font-medium relative whitespace-nowrap transition-colors flex items-center gap-2 cursor-pointer ${
                 isActive
-                  ? 'text-amber-800 dark:text-amber-300 font-semibold'
-                  : 'text-[#475569] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC]'
+                  ? 'font-semibold text-[var(--admin-accent-ink)]'
+                  : 'text-admin-text-secondary dark:text-admin-text-muted hover:text-admin-text-primary'
               }`}
             >
               {tab.icon && <span>{tab.icon}</span>}
               <span>{tab.label}</span>
               {tab.count !== undefined && (
                 <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                  className={`px-1.5 py-0.5 text-[11px] tabular-nums ${
                     isActive
-                      ? 'bg-amber-500/10 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300'
-                      : 'bg-slate-100 text-[#475569] dark:bg-[#1E293B] dark:text-[#94A3B8]'
+                      ? 'bg-[var(--admin-accent-bg)] text-[var(--admin-accent-ink)]'
+                      : 'bg-admin-surface-hover text-admin-text-secondary dark:bg-admin-surface-hover dark:text-admin-text-muted'
                   }`}
                 >
                   {tab.count}
                 </span>
               )}
               {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500 dark:bg-amber-400 rounded-full" />
+                <span className="absolute inset-x-0 bottom-0 h-0.5 bg-admin-primary" />
               )}
             </button>
           );
@@ -64,7 +66,7 @@ export function AdminTabs<T extends string>({
 
   return (
     <div
-      className={`inline-flex items-center p-1 bg-slate-100 dark:bg-[#0D1424] rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] overflow-x-auto max-w-full ${className}`}
+      className={`inline-flex max-w-full items-center gap-0.5 overflow-x-auto bg-admin-bg p-1 ${className}`}
     >
       {tabs.map((tab) => {
         const isActive = tab.id === activeTab;
@@ -72,21 +74,22 @@ export function AdminTabs<T extends string>({
           <button
             key={tab.id}
             type="button"
+            aria-pressed={isActive}
             onClick={() => onChange(tab.id)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150 flex items-center gap-2 whitespace-nowrap cursor-pointer select-none ${
+            className={`flex min-h-8 cursor-pointer select-none items-center gap-2 whitespace-nowrap px-3 py-1.5 text-xs font-medium transition-colors focus-visible:-outline-offset-2 ${
               isActive
-                ? 'bg-white dark:bg-[#111827] text-[#0F172A] dark:text-[#F8FAFC] shadow-xs font-semibold'
-                : 'text-[#475569] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC]'
+                ? 'bg-[var(--admin-accent-bg)] font-semibold text-[var(--admin-accent-ink)]'
+                : 'text-admin-text-secondary dark:text-admin-text-muted hover:text-admin-text-primary'
             }`}
           >
             {tab.icon && <span className="shrink-0">{tab.icon}</span>}
             <span>{tab.label}</span>
             {tab.count !== undefined && (
               <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full font-medium ${
+                className={`px-1.5 py-0.5 text-[11px] font-medium tabular-nums ${
                   isActive
-                    ? 'bg-amber-500/10 text-amber-800 dark:bg-amber-500/25 dark:text-amber-300'
-                    : 'bg-slate-200/70 text-[#475569] dark:bg-[#1E293B] dark:text-[#94A3B8]'
+                    ? 'text-[var(--admin-accent-ink)]'
+                    : 'bg-admin-surface-hover/70 text-admin-text-secondary dark:bg-admin-surface-hover dark:text-admin-text-muted'
                 }`}
               >
                 {tab.count}

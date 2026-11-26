@@ -35,7 +35,7 @@ export function AdminBarChart({
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-48 text-slate-400 dark:text-slate-500 text-xs">
+      <div className="flex flex-col items-center justify-center h-48 text-admin-text-muted text-xs">
         Chưa có dữ liệu biểu đồ
       </div>
     );
@@ -66,20 +66,20 @@ export function AdminBarChart({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             {title && (
-              <h4 className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+              <h4 className="text-xs font-semibold text-admin-text-primary">
                 {title}
               </h4>
             )}
             {subtitle && (
-              <p className="text-[11px] text-[#475569] dark:text-[#94A3B8]">
+              <p className="text-[11px] text-admin-text-secondary dark:text-admin-text-muted">
                 {subtitle}
               </p>
             )}
           </div>
-          <div className="flex items-center gap-4 text-[11px] text-[#475569] dark:text-[#94A3B8]">
+          <div className="flex items-center gap-4 text-[11px] text-admin-text-secondary dark:text-admin-text-muted">
             <div className="flex items-center gap-1.5">
               <span
-                className="w-2.5 h-2.5 rounded-xs"
+                className="w-2.5 h-2.5 "
                 style={{ backgroundColor: primaryColor }}
               />
               <span>{primaryLabel}</span>
@@ -87,7 +87,7 @@ export function AdminBarChart({
             {secondaryLabel && (
               <div className="flex items-center gap-1.5">
                 <span
-                  className="w-2.5 h-2.5 rounded-xs"
+                  className="w-2.5 h-2.5 "
                   style={{ backgroundColor: secondaryColor }}
                 />
                 <span>{secondaryLabel}</span>
@@ -99,6 +99,8 @@ export function AdminBarChart({
 
       <div className="relative w-full overflow-hidden">
         <svg
+          role="img"
+          aria-label={title || primaryLabel}
           viewBox={`0 0 ${width} ${height}`}
           className="w-full h-auto overflow-visible"
         >
@@ -110,7 +112,7 @@ export function AdminBarChart({
                 y1={tick.y}
                 x2={width - padding.right}
                 y2={tick.y}
-                className="stroke-slate-200 dark:stroke-[#1E293B]"
+                className="stroke-admin-border"
                 strokeDasharray="3 3"
                 strokeWidth="1"
               />
@@ -118,7 +120,7 @@ export function AdminBarChart({
                 x={padding.left - 6}
                 y={tick.y + 3}
                 textAnchor="end"
-                className="text-[10px] fill-[#94A3B8] dark:fill-[#64748B]"
+                className="fill-admin-text-muted text-[10px] tabular-nums"
               >
                 {tick.val}
               </text>
@@ -158,8 +160,7 @@ export function AdminBarChart({
                     y={padding.top}
                     width={slotWidth}
                     height={chartHeight}
-                    className="fill-slate-100/70 dark:fill-slate-800/40"
-                    rx="4"
+                    className="fill-admin-bg"
                   />
                 )}
 
@@ -169,7 +170,6 @@ export function AdminBarChart({
                   y={primaryY}
                   width={barWidth}
                   height={primaryHeight}
-                  rx="3"
                   fill={primaryColor}
                   className="transition-all duration-150"
                   opacity={isHovered ? 1 : 0.85}
@@ -182,7 +182,6 @@ export function AdminBarChart({
                     y={secondaryY}
                     width={barWidth}
                     height={secondaryHeight}
-                    rx="3"
                     fill={secondaryColor}
                     className="transition-all duration-150"
                     opacity={isHovered ? 1 : 0.85}
@@ -196,7 +195,7 @@ export function AdminBarChart({
                     x={slotCenter}
                     y={height - 10}
                     textAnchor="middle"
-                    className="text-[10px] fill-slate-400 dark:fill-slate-500"
+                    className="fill-admin-text-muted text-[10px] tabular-nums"
                   >
                     {d.label.includes('-')
                       ? d.label.split('-').slice(1).join('/')
@@ -211,7 +210,7 @@ export function AdminBarChart({
         {/* Hover Tooltip */}
         {hoveredIdx !== null && data[hoveredIdx] && (
           <div
-            className="absolute top-2 z-20 pointer-events-none transform -translate-x-1/2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-[11px] font-medium py-1 px-2.5 rounded-md shadow-md"
+            className="absolute top-2 z-20 pointer-events-none transform -translate-x-1/2 bg-slate-900 text-white dark:bg-admin-surface dark:text-admin-text-primary text-[11px] font-medium py-1 px-2.5 shadow-md"
             style={{
               left: `${
                 ((padding.left +

@@ -46,18 +46,18 @@ export function AdminCheckbox({
         <label
           htmlFor={inputId}
           className={`
-            w-4 h-4 rounded border transition-colors flex items-center justify-center
+            w-4 h-4 border transition-colors flex items-center justify-center
             ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
             ${
               checked || indeterminate
-                ? 'bg-amber-500 border-amber-500 text-white dark:bg-amber-400 dark:border-amber-400 dark:text-slate-950'
-                : 'border-slate-300 dark:border-[#1E293B] bg-white dark:bg-[#111827] hover:border-slate-400 dark:hover:border-slate-600'
+                ? 'bg-amber-500 border-amber-500 text-white dark:bg-amber-400 dark:border-amber-400 dark:text-admin-text-primary'
+                : 'border-admin-border bg-admin-surface hover:border-admin-border'
             }
             peer-focus-visible:ring-2 peer-focus-visible:ring-amber-500/30 peer-focus-visible:border-amber-500
           `}
         >
           {indeterminate ? (
-            <span className="w-2 h-0.5 bg-white dark:bg-slate-950 rounded-xs" />
+            <span className="w-2 h-0.5 bg-admin-surface dark:bg-slate-950 " />
           ) : checked ? (
             <Check className="w-3 h-3 stroke-[3]" />
           ) : null}
@@ -69,7 +69,7 @@ export function AdminCheckbox({
           {label && (
             <label
               htmlFor={inputId}
-              className={`text-xs font-medium text-slate-900 dark:text-[#F8FAFC] leading-snug ${
+              className={`text-xs font-medium text-admin-text-primary leading-snug ${
                 disabled ? 'cursor-not-allowed' : 'cursor-pointer'
               }`}
             >
@@ -77,7 +77,7 @@ export function AdminCheckbox({
             </label>
           )}
           {description && (
-            <p className="text-[11px] text-slate-500 dark:text-[#64748B] mt-0.5">{description}</p>
+            <p className="text-[11px] text-admin-text-muted mt-0.5">{description}</p>
           )}
           {error && (
             <p className="text-[11px] text-rose-500 dark:text-[#EF4444] mt-0.5">{error}</p>
@@ -123,8 +123,8 @@ export function AdminRadio({
             ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}
             ${
               checked
-                ? 'border-amber-500 bg-white dark:bg-[#111827]'
-                : 'border-slate-300 dark:border-[#1E293B] bg-white dark:bg-[#111827] hover:border-slate-400 dark:hover:border-slate-600'
+                ? 'border-amber-500 bg-admin-surface'
+                : 'border-admin-border bg-admin-surface hover:border-admin-border'
             }
             peer-focus-visible:ring-2 peer-focus-visible:ring-amber-500/30 peer-focus-visible:border-amber-500
           `}
@@ -138,7 +138,7 @@ export function AdminRadio({
           {label && (
             <label
               htmlFor={inputId}
-              className={`text-xs font-medium text-slate-900 dark:text-[#F8FAFC] leading-snug ${
+              className={`text-xs font-medium text-admin-text-primary leading-snug ${
                 disabled ? 'cursor-not-allowed' : 'cursor-pointer'
               }`}
             >
@@ -146,7 +146,7 @@ export function AdminRadio({
             </label>
           )}
           {description && (
-            <p className="text-[11px] text-slate-500 dark:text-[#64748B] mt-0.5">{description}</p>
+            <p className="text-[11px] text-admin-text-muted mt-0.5">{description}</p>
           )}
         </div>
       )}

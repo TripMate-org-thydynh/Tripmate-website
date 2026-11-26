@@ -24,7 +24,7 @@ export function AdminFunnelChart({
 }: AdminFunnelChartProps) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-48 text-slate-400 dark:text-slate-500 text-xs">
+      <div className="flex flex-col items-center justify-center h-48 text-admin-text-muted text-xs">
         Chưa có dữ liệu phễu chuyển đổi
       </div>
     );
@@ -37,12 +37,12 @@ export function AdminFunnelChart({
       {(title || subtitle) && (
         <div>
           {title && (
-            <h4 className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+            <h4 className="text-xs font-semibold text-admin-text-primary">
               {title}
             </h4>
           )}
           {subtitle && (
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-[11px] text-admin-text-muted mt-0.5">
               {subtitle}
             </p>
           )}
@@ -61,11 +61,11 @@ export function AdminFunnelChart({
             <div key={idx} className="flex flex-col gap-1.5">
               {/* Step info row */}
               <div className="flex items-center justify-between text-xs">
-                <span className="font-medium text-[#475569] dark:text-[#94A3B8]">
+                <span className="font-medium text-admin-text-secondary dark:text-admin-text-muted">
                   {item.step}
                 </span>
                 <div className="flex items-center gap-3">
-                  <span className="font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+                  <span className="font-semibold text-admin-text-primary">
                     {item.count.toLocaleString('vi-VN')}
                   </span>
                   <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium w-12 text-right">
@@ -75,16 +75,16 @@ export function AdminFunnelChart({
               </div>
 
               {/* Bar track */}
-              <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-[#1E293B] overflow-hidden relative">
+              <div className="w-full h-3 bg-admin-surface-hover overflow-hidden relative">
                 <div
-                  className="h-full rounded-full bg-amber-500 dark:bg-amber-400 transition-all duration-300"
+                  className="h-full bg-amber-500 dark:bg-amber-400 transition-all duration-300"
                   style={{ width: `${barWidthPercent}%` }}
                 />
               </div>
 
               {/* Conversion indicator to next step */}
               {idx < data.length - 1 && (
-                <div className="flex items-center gap-1.5 text-[10px] text-[#94A3B8] dark:text-[#64748B] pl-1 py-0.5">
+                <div className="flex items-center gap-1.5 text-[10px] text-admin-text-muted pl-1 py-0.5">
                   <ArrowDown className="w-2.5 h-2.5" />
                   <span>Chuyển tiếp bước sau: <b>{stepConversion}</b></span>
                 </div>

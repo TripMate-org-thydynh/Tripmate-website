@@ -20,6 +20,7 @@ export async function getDashboard(
   }
   try {
     const response = await fetchWithAuth('/admin/observability/dashboard?' + query.toString());
+    if (response.status === 404) return { error: 'Phiên bản API đang chạy chưa hỗ trợ trang giám sát.' };
     if (!response.ok) return { error: 'Không thể tải dữ liệu giám sát.' };
     const body = await response.json();
     return { data: body.data as DashboardSnapshot };

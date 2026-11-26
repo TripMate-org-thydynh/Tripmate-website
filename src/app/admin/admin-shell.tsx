@@ -23,7 +23,7 @@ const groups = [
     { title: 'Phân tích AI', href: '/admin/ai', icon: Sparkles },
   ] },
   { name: 'Vận hành', links: [
-    { title: 'Observability', href: '/admin/observability', icon: Activity },
+    { title: 'Giám sát hệ thống', href: '/admin/observability', icon: Activity },
     { title: 'SLO & ngân sách lỗi', href: '/admin/observability/slo', icon: Target },
     { title: 'Phiên bản & bảo trì', href: '/admin/app-policy', icon: Smartphone },
   ] },
@@ -42,28 +42,27 @@ const groups = [
   ] },
 ];
 
-const focus = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500';
-const toolbarButton = 'inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] px-2.5 text-sm text-[var(--admin-text-secondary)] hover:bg-[var(--admin-surface-hover)] ' + focus;
+const toolbarButton = 'admin-toolbar-control text-sm';
 
 function Brand({ collapsed = false, onClick }: { collapsed?: boolean; onClick?: () => void }) {
   return (
-    <Link href="/admin" aria-label="TripMate Dashboard" onClick={onClick} className={'flex w-fit items-center gap-3 rounded-lg ' + focus}>
-      <TripMateMark size={30} />
-      {!collapsed && <span className="whitespace-nowrap text-base font-extrabold tracking-tight">TripMate<span className="ml-1.5 text-xs font-medium text-[var(--admin-text-secondary)]">Admin</span></span>}
+    <Link href="/admin" aria-label="TripMate Dashboard" onClick={onClick} className="flex w-fit items-center gap-3">
+      <TripMateMark size={32} />
+      {!collapsed && <span className="flex flex-col leading-tight"><span className="text-[15px] font-bold tracking-tight">TripMate</span><span className="text-[11px] font-medium text-admin-text-muted">Quản trị hệ thống</span></span>}
     </Link>
   );
 }
 
 function Navigation({ pathname, collapsed = false, onNavigate }: { pathname: string; collapsed?: boolean; onNavigate?: () => void }) {
   return (
-    <nav aria-label="Điều hướng quản trị" className="flex-1 space-y-5 overflow-y-auto px-3 py-5">
+    <nav aria-label="Điều hướng quản trị" className="flex-1 space-y-5 overflow-y-auto px-3 pb-5 pt-3">
       {groups.map((group) => (
-        <section key={group.name} aria-label={group.name} className="space-y-1">
-          {!collapsed && <h2 className="px-2.5 pb-1 text-[11px] font-semibold tracking-wide text-[var(--admin-text-secondary)]">{group.name}</h2>}
+        <section key={group.name} aria-label={group.name} className="space-y-0.5">
+          {!collapsed && <h2 className="px-3 pb-1 text-[11px] font-semibold text-admin-text-muted">{group.name}</h2>}
           {group.links.map(({ title, href, icon: Icon }) => (
             <Link key={href} href={href} onClick={onNavigate}
               aria-current={pathname === href ? 'page' : undefined} aria-label={collapsed ? title : undefined} title={collapsed ? title : undefined}
-              className={'flex min-h-9 items-center gap-2.5 rounded-md text-sm font-medium text-[var(--admin-text-secondary)] hover:bg-[var(--admin-surface-hover)] aria-[current=page]:bg-[var(--admin-accent-bg)] aria-[current=page]:text-[var(--admin-accent-ink)] aria-[current=page]:font-semibold ' + focus + (collapsed ? ' justify-center px-1' : ' px-2.5')}>
+              className={'admin-nav-link flex min-h-9 items-center gap-3 text-[13px] font-medium text-admin-text-secondary transition-colors hover:bg-admin-surface-hover aria-[current=page]:bg-[var(--admin-accent-bg)] aria-[current=page]:text-[var(--admin-accent-ink)] aria-[current=page]:font-semibold' + (collapsed ? ' justify-center px-1' : ' px-3')}>
               <Icon className="size-4 shrink-0" aria-hidden="true" />
               {!collapsed && <span className="truncate">{title}</span>}
             </Link>
@@ -118,38 +117,38 @@ export function AdminShell({ children, adminName }: { children: ReactNode; admin
   const initials = adminName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
 
   return (
-    <div className="tripmate-admin min-h-dvh bg-[var(--admin-bg)] text-[var(--admin-text-primary)] md:flex">
-      <a href="#admin-main" className="sr-only z-60 focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:rounded-lg focus:bg-[#FFD84D] focus:px-4 focus:py-2 focus:text-[#141210]">Đến nội dung chính</a>
+    <div className="tripmate-admin min-h-dvh bg-admin-bg text-admin-text-primary md:flex">
+      <a href="#admin-main" className="sr-only z-60 focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:bg-admin-surface focus:px-4 focus:py-2">Đến nội dung chính</a>
 
-      <aside className={'sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-[var(--admin-border)] bg-[var(--admin-sidebar)] md:flex ' + (collapsed ? 'w-16' : 'w-60')}>
-        <div className={'flex h-16 items-center border-b border-[var(--admin-border)] ' + (collapsed ? 'justify-center' : 'px-5')}>
+      <aside className={'sticky top-0 hidden h-dvh shrink-0 flex-col bg-admin-sidebar md:flex ' + (collapsed ? 'w-16' : 'w-60')}>
+        <div className={'flex h-18 shrink-0 items-center ' + (collapsed ? 'justify-center' : 'px-6')}>
           <Brand collapsed={collapsed} />
         </div>
         <Navigation pathname={pathname} collapsed={collapsed} />
-        <div className="space-y-1 border-t border-[var(--admin-border)] p-3">
+        <div className="px-3 py-3">
           <button type="button" onClick={toggleSidebar} aria-label={collapsed ? 'Mở rộng thanh menu' : 'Thu gọn thanh menu'} aria-expanded={!collapsed} className={toolbarButton + ' w-full ' + (collapsed ? '' : 'justify-start')}>
             {collapsed ? <ChevronRight className="size-4" /> : <><ChevronLeft className="size-4" />Thu gọn</>}
           </button>
         </div>
       </aside>
 
-      <dialog ref={drawer} aria-label="Menu quản trị" className="fixed inset-y-0 left-0 m-0 h-dvh max-h-none w-[min(18rem,90vw)] max-w-none bg-[var(--admin-sidebar)] text-[var(--admin-text-primary)] backdrop:bg-slate-950/60" onClick={(event) => {
+      <dialog ref={drawer} aria-label="Menu quản trị" className="fixed inset-y-0 left-0 m-0 h-dvh max-h-none w-[min(18rem,90vw)] max-w-none bg-admin-sidebar text-admin-text-primary backdrop:bg-slate-950/60" onClick={(event) => {
         if (event.target === event.currentTarget) closeDrawer();
       }}>
         <div className="flex h-full flex-col">
-          <div className="flex h-16 shrink-0 items-center justify-between border-b border-[var(--admin-border)] px-4">
+          <div className="flex h-16 shrink-0 items-center justify-between px-4">
             <Brand onClick={closeDrawer} />
             <button type="button" onClick={closeDrawer} aria-label="Đóng menu" className={toolbarButton}><X className="size-4" /></button>
           </div>
           <Navigation pathname={pathname} onNavigate={closeDrawer} />
-          <div className="border-t border-[var(--admin-border)] p-3">
+          <div className="p-3">
             <button type="button" onClick={signOut} className={toolbarButton + ' w-full justify-start'}><LogOut className="size-4" />Đăng xuất</button>
           </div>
         </div>
       </dialog>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-[var(--admin-border)] bg-[var(--admin-sidebar)] px-3 sm:px-5 xl:px-8">
+        <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 bg-admin-surface px-3 sm:px-6 xl:px-9">
           <div className="flex min-w-0 items-center gap-2 md:hidden">
             <button type="button" aria-label="Mở menu" aria-haspopup="dialog" onClick={() => drawer.current?.showModal()} className={toolbarButton}><Menu className="size-4" /></button>
             <Brand collapsed />
@@ -157,29 +156,29 @@ export function AdminShell({ children, adminName }: { children: ReactNode; admin
           </div>
           <nav aria-label="Đường dẫn" className="hidden min-w-0 md:block">
             <ol className="flex items-center gap-2 text-sm">
-              <li><Link href="/admin" className={'rounded text-[var(--admin-text-secondary)] hover:underline ' + focus}>Quản trị</Link></li>
-              {group && <li className="hidden items-center gap-2 text-[var(--admin-text-secondary)] xl:flex"><ChevronRight className="size-3.5" aria-hidden="true" />{group.name}</li>}
+              <li><Link href="/admin" className="text-admin-text-secondary hover:underline">Quản trị</Link></li>
+              {group && <li className="hidden items-center gap-2 text-admin-text-secondary xl:flex"><ChevronRight className="size-3.5" aria-hidden="true" />{group.name}</li>}
               <li aria-current="page" className="flex min-w-0 items-center gap-2 font-semibold"><ChevronRight className="size-3.5 shrink-0" aria-hidden="true" /><span className="truncate">{title}</span></li>
             </ol>
           </nav>
           <div className="flex shrink-0 items-center gap-2">
-            <button type="button" onClick={() => setCommandOpen(true)} aria-label="Tìm kiếm nhanh" className={toolbarButton}>
-              <Search className="size-4" aria-hidden="true" /><span className="hidden lg:inline">Tìm kiếm</span><kbd className="hidden text-xs text-[var(--admin-text-secondary)] xl:inline">Ctrl K</kbd>
+            <button type="button" onClick={() => setCommandOpen(true)} aria-label="Tìm kiếm nhanh" aria-haspopup="dialog" className={toolbarButton + ' bg-admin-bg lg:min-w-38 lg:justify-start'}>
+              <Search className="size-4" aria-hidden="true" /><span className="hidden lg:inline">Tìm kiếm</span><kbd className="ml-auto hidden whitespace-nowrap bg-admin-surface px-1.5 py-0.5 text-[11px] text-admin-text-muted xl:inline">Ctrl K</kbd>
             </button>
             <div className="hidden sm:block"><AdminHealthPopover /></div>
             <div className="hidden sm:block"><AdminNotificationDropdown /></div>
             <ThemeToggle />
             <details className="relative hidden md:block">
-              <summary aria-label="Tài khoản quản trị viên" className={'grid size-9 cursor-pointer list-none place-items-center rounded-full bg-amber-500/15 text-xs font-bold ' + focus}>{initials || 'TM'}</summary>
-              <div className="absolute right-0 mt-2 w-48 space-y-2 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] p-3 shadow-lg">
+              <summary aria-label="Tài khoản quản trị viên" className="grid size-9 cursor-pointer list-none place-items-center bg-[var(--admin-accent-bg)] text-xs font-bold text-[var(--admin-accent-ink)]">{initials || 'TM'}</summary>
+              <div className="absolute right-0 mt-2 w-48 space-y-2 bg-admin-surface p-3 shadow-lg">
                 <p className="truncate text-sm font-semibold">{adminName}</p>
-                <Link href="/admin/configs" className={'block rounded text-sm hover:underline ' + focus}>Cấu hình</Link>
+                <Link href="/admin/configs" className="block text-sm hover:underline">Cấu hình</Link>
                 <button type="button" onClick={signOut} className={toolbarButton + ' w-full justify-start'}><LogOut className="size-4" />Đăng xuất</button>
               </div>
             </details>
           </div>
         </header>
-        <main id="admin-main" tabIndex={-1} className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 sm:py-7 xl:px-8">
+        <main id="admin-main" tabIndex={-1} className="mx-auto w-full max-w-[90rem] px-4 pb-12 pt-6 sm:px-6 sm:pt-8 xl:px-9 xl:pt-9">
           {children}
         </main>
       </div>

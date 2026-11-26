@@ -33,15 +33,15 @@ export function AdminSwitch({
             <span
               className={`text-xs font-medium ${
                 disabled
-                  ? 'text-[#94A3B8] dark:text-[#64748B]'
-                  : 'text-[#0F172A] dark:text-[#F8FAFC]'
+                  ? 'text-admin-text-muted'
+                  : 'text-admin-text-primary'
               }`}
             >
               {label}
             </span>
           )}
           {description && (
-            <span className="text-[11px] text-[#475569] dark:text-[#94A3B8] leading-tight">
+            <span className="text-[11px] text-admin-text-secondary dark:text-admin-text-muted leading-tight">
               {description}
             </span>
           )}
@@ -57,7 +57,7 @@ export function AdminSwitch({
         className={`relative inline-flex items-center rounded-full transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500/40 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0 p-0.5 ${switchWidth} ${
           checked
             ? 'bg-amber-500 dark:bg-amber-400'
-            : 'bg-slate-200 dark:bg-[#1E293B]'
+            : 'bg-admin-surface-hover'
         }`}
       >
         <span
