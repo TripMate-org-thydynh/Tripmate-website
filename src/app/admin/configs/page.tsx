@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import Link from 'next/link';
 import {
   getConfigsAction,
   updateConfigAction,
@@ -577,15 +578,14 @@ export default function AdminConfigsPage() {
           variant="brand"
         />
 
-        <AdminStatCard
-          title="Bảo Trì Hệ Thống"
-          value={generalSettings.maintenanceMode ? 'Đang BẢO TRÌ' : 'Hoạt Động Bình Thường'}
-          description="Khóa truy cập người dùng phổ thông"
-          icon={<Activity className="w-4 h-4" />}
-          badgeText={generalSettings.maintenanceMode ? 'Bảo Trì' : 'Online'}
-          badgeVariant={generalSettings.maintenanceMode ? 'danger' : 'success'}
-          variant={generalSettings.maintenanceMode ? 'danger' : 'default'}
-        />
+        <Link href="/admin/app-policy" className="block rounded-xl focus-visible:outline-2">
+          <AdminStatCard
+            title="Phiên bản & bảo trì"
+            value="Chính sách ứng dụng"
+            description="Quản lý theo kênh phát hành"
+            icon={<Activity className="w-4 h-4" />}
+          />
+        </Link>
       </div>
 
       {/* Unsaved Changes Warning Callout */}
@@ -970,43 +970,9 @@ export default function AdminConfigsPage() {
                 </AdminCardHeader>
 
                 <div className="flex flex-col gap-4">
-                  {/* Maintenance Mode */}
-                  <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B] flex flex-col gap-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-xs font-semibold text-slate-900 dark:text-slate-100">
-                          Chế Độ Bảo Trì Ứng Dụng
-                        </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                          Khi bật, chỉ tài khoản quản trị mới có thể đăng nhập vào ứng dụng
-                        </p>
-                      </div>
-                      <AdminSwitch
-                        checked={generalSettings.maintenanceMode}
-                        onChange={() =>
-                          setGeneralSettings((prev) => ({
-                            ...prev,
-                            maintenanceMode: !prev.maintenanceMode,
-                          }))
-                        }
-                      />
-                    </div>
-
-                    {generalSettings.maintenanceMode && (
-                      <AdminInput
-                        label="Thông báo hiển thị tới người dùng"
-                        value={generalSettings.maintenanceMessage}
-                        onChange={(e) =>
-                          setGeneralSettings((prev) => ({
-                            ...prev,
-                            maintenanceMessage: e.target.value,
-                          }))
-                        }
-                        placeholder="Hệ thống đang bảo trì..."
-                      />
-                    )}
-                  </div>
-
+                  <Link href="/admin/app-policy" className="text-sm font-medium underline underline-offset-4">
+                    Quản lý cập nhật và bảo trì ứng dụng
+                  </Link>
                   {/* Operational Limits */}
                   <div className="grid grid-cols-2 gap-3">
                     <AdminInput
