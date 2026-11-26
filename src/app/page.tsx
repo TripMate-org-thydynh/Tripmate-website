@@ -35,7 +35,7 @@ const days = [
 const heroRoute = 'M-65 480C123 485 65 311 202 316c114 4 87 127 209 134 160 9 101-164 234-182 94-13 187 67 228-28 24-54-30-97 17-142';
 
 const questions = [
-  { question: 'Có thể xem TripMate trước khi tải app không?', answer: 'Có. Mở bản xem thử trên trình duyệt để làm quen với giao diện và cách tổ chức chuyến đi.' },
+  { question: 'Lịch trình chung lưu được những gì?', answer: 'Mỗi chặng có thể ghi giờ hẹn, điểm đến và ghi chú để cả nhóm cùng theo dõi.' },
   { question: 'TripMate chia tiền cho cả nhóm như thế nào?', answer: 'Mỗi khoản ghi rõ người đã thanh toán và những ai cùng chia. Cả nhóm có thể xem số tiền còn cần thanh toán.' },
   { question: 'TripMate có bán tour hay nhận đặt phòng không?', answer: 'TripMate giúp bạn tổ chức chuyến đi tự túc. Bạn tự đặt dịch vụ với nhà cung cấp và lưu thông tin đặt chỗ trong chuyến đi.' },
 ];
@@ -56,7 +56,6 @@ export default function LandingPage() {
           </nav>
           <div className="travel-header-actions">
             <ThemeToggle className="travel-theme" variant="consumer" />
-            <Link className="travel-button travel-button-small" href="/preview">Xem thử <ArrowRight aria-hidden="true" size={15} /></Link>
             <details className="travel-mobile-menu">
               <summary aria-label="Menu TripMate"><Menu aria-hidden="true" size={20} /></summary>
               <nav aria-label="Điều hướng mobile">
@@ -73,7 +72,7 @@ export default function LandingPage() {
             <div className="travel-hero-copy">
               <h1 id="travel-title"><span>Cùng hội</span><span>lên đường.</span></h1>
               <p className="travel-intro">Lên lịch, chia tiền và giữ ảnh chung cho chuyến đi cùng bạn bè.</p>
-              <Link className="travel-button travel-hero-cta" href="/preview">Mở bản xem thử <ArrowRight aria-hidden="true" size={18} /></Link>
+              <a className="travel-button travel-hero-cta" href="#story">Xem lịch trình Đà Lạt <ArrowRight aria-hidden="true" size={18} /></a>
             </div>
             <div className="travel-hero-scene">
               <div className="travel-hero-contours" aria-hidden="true" />
@@ -100,7 +99,7 @@ export default function LandingPage() {
             </div>
             <figcaption><span>Đà Lạt, Lâm Đồng</span><a href="https://www.pexels.com/photo/scenic-pine-tree-forest-in-dalat-vietnam-35731564/">Ảnh Quang Vuong</a></figcaption>
           </figure>
-          <div className="travel-story-content">
+          <div className="travel-story-content" data-travel-reveal="">
             <p className="travel-kicker">Chuyến đi mẫu</p>
             <h2 id="story-title">Ba ngày ở Đà Lạt</h2>
             <p className="travel-section-intro">Một lịch trình cuối tuần để cả nhóm cùng xem trước khi lên đường.</p>
@@ -117,34 +116,28 @@ export default function LandingPage() {
                 </div>
               ))}
             </dl>
-            <Link className="travel-text-link" href="/preview">Khám phá bản xem thử <ArrowRight aria-hidden="true" size={16} /></Link>
           </div>
         </section>
 
-        <section className="travel-faq-band" id="faq" aria-labelledby="faq-title" data-travel-motion="">
-          <div className="travel-wrap travel-faq">
-            <div>
-              <h2 id="faq-title">Trước khi lên đường</h2>
-              <div className="travel-questions">
-                {questions.map(({ question, answer }, index) => (
-                  <details key={question} name="tripmate-faq" open={index === 0}>
-                    <summary>{question} <ChevronDown aria-hidden="true" size={18} /></summary>
-                    <p>{answer}</p>
-                  </details>
-                ))}
-              </div>
-            </div>
-            <div className="travel-faq-art">
-              <Image src="/tripmate/brand/ill_travelers.svg" alt="" width={923} height={659} unoptimized />
+        <section className="travel-faq-band" id="faq" aria-labelledby="faq-title">
+          <div className="travel-wrap travel-faq" data-travel-reveal="">
+            <h2 id="faq-title">Trước khi lên đường</h2>
+            <div className="travel-questions">
+              {questions.map(({ question, answer }, index) => (
+                <details key={question} name="tripmate-faq" open={index === 0}>
+                  <summary>{question} <ChevronDown aria-hidden="true" size={18} /></summary>
+                  <p>{answer}</p>
+                </details>
+              ))}
             </div>
           </div>
         </section>
 
         <section className="travel-bottom" aria-labelledby="next-trip-title" data-travel-motion="">
-          <div className="travel-wrap travel-bottom-inner">
+          <div className="travel-wrap travel-bottom-inner" data-travel-reveal="">
             <div>
               <h2 id="next-trip-title">Chuyến sau đi đâu?</h2>
-              <Link className="travel-button travel-button-primary" href="/preview">Thử TripMate <ArrowRight aria-hidden="true" size={18} /></Link>
+              <a className="travel-button travel-button-primary" href="#story">Xem lịch trình mẫu <ArrowRight aria-hidden="true" size={18} /></a>
             </div>
             <Image src="/tripmate/brand/ill_road.svg" width={888} height={623} alt="" unoptimized />
           </div>
