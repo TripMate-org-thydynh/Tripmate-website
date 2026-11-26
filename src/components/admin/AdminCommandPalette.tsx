@@ -22,6 +22,7 @@ import {
   PlusCircle,
   Activity,
   Target,
+  Smartphone,
 } from 'lucide-react';
 
 interface PaletteItem {
@@ -46,6 +47,7 @@ export function AdminCommandPalette({ isOpen, onClose }: AdminCommandPaletteProp
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isDark, setIsDark] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -187,6 +189,16 @@ export function AdminCommandPalette({ isOpen, onClose }: AdminCommandPaletteProp
       keywords: ['configs', 'cau hinh', 'settings', 'flags', 'api', 'keys'],
     },
 
+    {
+      id: 'nav-app-policy',
+      title: 'Phiên bản & bảo trì',
+      subtitle: 'Cập nhật ứng dụng và quản lý bảo trì theo kênh',
+      category: 'Trang Điều Hướng',
+      icon: Smartphone,
+      href: '/admin/app-policy',
+      keywords: ['app', 'update', 'maintenance', 'phien ban', 'bao tri'],
+    },
+
     // Quick Actions
     {
       id: 'act-new-trip',
@@ -229,14 +241,18 @@ export function AdminCommandPalette({ isOpen, onClose }: AdminCommandPaletteProp
   });
 
   useEffect(() => {
-    if (isOpen) {
-      setQuery('');
-      setSelectedIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 50);
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    const dialog = dialogRef.current;
+    if (!dialog || !isOpen) return;
+    setQuery('');
+    setSelectedIndex(0);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    if (!dialog.open) dialog.showModal();
+    inputRef.current?.focus();
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      if (dialog.open) dialog.close();
+    };
   }, [isOpen]);
 
   useEffect(() => {
@@ -253,6 +269,20 @@ export function AdminCommandPalette({ isOpen, onClose }: AdminCommandPaletteProp
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Tab') {
+      const controls = [...e.currentTarget.querySelectorAll<HTMLElement>('input, button:not([disabled])')];
+      const first = controls[0];
+      const last = controls.at(-1);
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last?.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first?.focus();
+      }
+      return;
+    }
+    if (e.target !== inputRef.current) return;
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setSelectedIndex((prev) => (prev + 1) % (filteredItems.length || 1));
@@ -264,31 +294,26 @@ export function AdminCommandPalette({ isOpen, onClose }: AdminCommandPaletteProp
       if (filteredItems[selectedIndex]) {
         handleSelect(filteredItems[selectedIndex]);
       }
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onClose();
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4"
-      role="dialog"
-      aria-modal="true"
+    <dialog
+      ref={dialogRef}
+      aria-label="Tìm kiếm nhanh"
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      onKeyDown={handleKeyDown}
+      className="fixed inset-0 mx-auto my-16 w-[calc(100%-2rem)] max-w-xl max-h-[calc(100dvh-8rem)] overflow-visible bg-transparent p-0 text-[var(--admin-text-primary)] backdrop:bg-[#070B16]/70 backdrop:backdrop-blur-xs sm:my-24"
     >
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-[#070B16]/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-150"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
       {/* Palette Modal */}
       <div
         className="relative w-full max-w-xl rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] shadow-2xl overflow-hidden flex flex-col z-10 animate-in fade-in zoom-in-95 duration-150"
-        onKeyDown={handleKeyDown}
       >
         {/* Search Bar Input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 dark:border-[#1E293B]">
@@ -296,6 +321,7 @@ export function AdminCommandPalette({ isOpen, onClose }: AdminCommandPaletteProp
           <input
             ref={inputRef}
             type="text"
+            aria-label="Tìm trang và thao tác"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Tìm kiếm trang, thao tác nhanh, module quản trị..."
@@ -304,15 +330,14 @@ export function AdminCommandPalette({ isOpen, onClose }: AdminCommandPaletteProp
           {query && (
             <button
               type="button"
+              aria-label="Xóa nội dung tìm kiếm"
               onClick={() => setQuery('')}
               className="p-1 rounded-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
-          <kbd className="text-[10px] px-1.5 py-0.5 rounded-sm bg-slate-100 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B] text-slate-500 font-mono select-none">
-            ESC
-          </kbd>
+          <button type="button" onClick={onClose} aria-label="Đóng tìm kiếm" className="rounded-md px-2 py-1 text-xs text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">Esc</button>
         </div>
 
         {/* Results List */}
@@ -404,6 +429,6 @@ export function AdminCommandPalette({ isOpen, onClose }: AdminCommandPaletteProp
           <span className="text-[10px] text-slate-500">TripMate Admin Command Center</span>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

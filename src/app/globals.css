@@ -257,3 +257,18 @@ body {
   }
 }
 
+
+.landing-shell section[id] {
+  scroll-margin-block-start: 5rem;
+}
+
+.landing-shell :where(a, button, summary):focus-visible {
+  outline: 2px solid #d97706;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-shell :where(a, button) {
+    transition: none;
+  }
+}

@@ -15,7 +15,15 @@ import {
   Users,
   MapPin,
   Clock,
+  Menu,
 } from 'lucide-react';
+
+const sections = [
+  ['problems', 'Thực trạng'],
+  ['features', 'Tính năng'],
+  ['story', 'Trải nghiệm'],
+  ['faq', 'Hỏi đáp'],
+] as const;
 
 const painPoints = [
   {
@@ -62,9 +70,10 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-[#FAF8F2] text-[#141210] dark:bg-[#121110] dark:text-[#FAF8F2] font-quicksand antialiased selection:bg-[#F59E0B]/30">
+    <div className="landing-shell min-h-dvh bg-[#FAF8F2] text-[#141210] dark:bg-[#121110] dark:text-[#FAF8F2] font-quicksand antialiased selection:bg-[#F59E0B]/30">
+      <a href="#landing-main" className="sr-only z-60 focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:rounded-lg focus:bg-[#F59E0B] focus:px-4 focus:py-2 focus:text-[#141210]">Đến nội dung chính</a>
       {/* NAVIGATION */}
-      <header className="sticky top-0 z-50 w-full h-16 border-b-2 border-neutral-900 dark:border-neutral-100 bg-[#FAF8F2]/90 dark:bg-[#121110]/90 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full h-16 border-b border-neutral-200 dark:border-neutral-800 bg-[#FAF8F2]/95 dark:bg-[#121110]/95 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 h-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
@@ -75,60 +84,57 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-neutral-700 dark:text-neutral-300">
-            <a href="#problems" className="hover:text-[#F59E0B] dark:hover:text-[#F59E0B] transition-colors">
-              Thực trạng
-            </a>
-            <a href="#features" className="hover:text-[#F59E0B] dark:hover:text-[#F59E0B] transition-colors">
-              Tính năng
-            </a>
-            <a href="#story" className="hover:text-[#F59E0B] dark:hover:text-[#F59E0B] transition-colors">
-              Trải nghiệm
-            </a>
-            <a href="#faq" className="hover:text-[#F59E0B] dark:hover:text-[#F59E0B] transition-colors">
-              Hỏi đáp
-            </a>
+          <nav aria-label="Điều hướng TripMate" className="hidden md:flex items-center gap-7 text-sm font-bold text-neutral-700 dark:text-neutral-300">
+            {sections.map(([id, label]) => (
+              <a key={id} href={'#' + id} className="rounded-sm hover:text-amber-700 dark:hover:text-[#F59E0B]">{label}</a>
+            ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
             <Link
               href="/preview"
-              className="inline-flex items-center justify-center px-4 py-2 text-xs sm:text-sm font-extrabold rounded-xl border-2 border-neutral-900 dark:border-neutral-100 bg-[#F59E0B] text-neutral-950 shadow-[3px_3px_0px_0px_#141210] dark:shadow-[3px_3px_0px_0px_#F5F5F4] hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#141210] dark:active:shadow-[1px_1px_0px_0px_#F5F5F4] transition-all"
+              className="inline-flex items-center justify-center px-4 py-2 text-xs sm:text-sm font-extrabold rounded-xl border-2 border-neutral-900 dark:border-neutral-100 bg-[#F59E0B] text-neutral-950 shadow-sm hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#141210] dark:active:shadow-[1px_1px_0px_0px_#F5F5F4] transition-all"
             >
               Thử bản web
             </Link>
+            <details className="relative md:hidden">
+              <summary aria-label="Menu TripMate" className="grid size-9 cursor-pointer list-none place-items-center rounded-lg border border-neutral-200 dark:border-neutral-700">
+                <Menu size={18} aria-hidden="true" />
+              </summary>
+              <nav aria-label="Điều hướng TripMate" className="absolute right-0 top-full mt-2 grid w-44 gap-1 rounded-xl border border-neutral-200 bg-[#FAF8F2] p-2 text-sm font-bold shadow-lg dark:border-neutral-800 dark:bg-[#1C1A18]">
+                {sections.map(([id, label]) => (
+                  <a key={id} href={'#' + id} onClick={(event) => event.currentTarget.closest('details')?.removeAttribute('open')}
+                    className="rounded-md px-3 py-2 hover:bg-amber-500/15">{label}</a>
+                ))}
+              </nav>
+            </details>
           </div>
         </div>
       </header>
 
-      {/* SECTION 1: HERO (SPLIT 2-COL GRID) */}
-      <section className="pt-8 pb-14 md:pt-14 md:pb-20 border-b-2 border-neutral-900 dark:border-neutral-100">
+      <main id="landing-main" tabIndex={-1}>
+      <section className="border-b border-neutral-200 bg-gradient-to-br from-[#F59E0B]/12 to-transparent py-12 md:py-20 dark:border-neutral-800">
         <div className="max-w-6xl mx-auto px-5 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-center">
-            {/* Left: Text Content (Exactly 4 blocks: Eyebrow, Title, Description, CTA) */}
-            <div className="md:col-span-7 flex flex-col gap-4">
-              {/* Block 1: Eyebrow */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border-2 border-neutral-900 dark:border-neutral-100 bg-[#F59E0B]/20 text-neutral-900 dark:text-white text-xs font-extrabold w-fit shadow-[2px_2px_0px_0px_#141210] dark:shadow-[2px_2px_0px_0px_#F5F5F4]">
+            <div className="md:col-span-7 flex flex-col gap-5">
+              <div className="inline-flex w-fit items-center gap-2 text-sm font-bold text-amber-800 dark:text-[#F59E0B]">
                 <Users className="w-3.5 h-3.5 text-[#F59E0B]" />
                 <span>Ứng dụng du lịch nhóm</span>
               </div>
 
-              {/* Block 2: Title (Max 2 lines) */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-neutral-950 dark:text-white leading-[1.18]">
+              <h1 className="max-w-xl text-4xl leading-[1.1] font-black tracking-tight text-balance text-neutral-950 sm:text-5xl xl:text-6xl dark:text-white">
                 Du lịch cùng bạn bè, thảnh thơi và rõ ràng
               </h1>
 
-              {/* Block 3: Description (19 words, max 20 words) */}
               <p className="text-base sm:text-lg font-medium text-neutral-700 dark:text-neutral-300 leading-relaxed max-w-xl">
                 Lên lịch trình chung, tự động chia tiền sòng phẳng và lưu trọn kỷ niệm cho cả nhóm bạn.
               </p>
 
-              {/* Block 4: CTA Button */}
               <div className="flex items-center gap-4 pt-2">
                 <Link
                   href="/preview"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm sm:text-base font-black rounded-xl border-2 border-neutral-900 dark:border-neutral-100 bg-[#F59E0B] text-neutral-950 shadow-[4px_4px_0px_0px_#141210] dark:shadow-[4px_4px_0px_0px_#F5F5F4] hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#141210] dark:active:shadow-[1px_1px_0px_0px_#F5F5F4] transition-all"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm sm:text-base font-black rounded-xl border-2 border-neutral-900 dark:border-neutral-100 bg-[#F59E0B] text-neutral-950 shadow-sm hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_0px_#141210] dark:active:shadow-[1px_1px_0px_0px_#F5F5F4] transition-all"
                 >
                   <span>Thử bản web</span>
                   <ArrowUpRight className="w-4 h-4" />
@@ -136,9 +142,8 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right: Real Photo with tactile brutalist frame */}
             <div className="md:col-span-5">
-              <div className="relative rounded-2xl border-2 border-neutral-900 dark:border-neutral-100 bg-white dark:bg-[#1C1A18] p-2 sm:p-3 shadow-[6px_6px_0px_0px_#141210] dark:shadow-[6px_6px_0px_0px_#F5F5F4]">
+              <div className="relative rounded-2xl border border-neutral-200 bg-white p-2 shadow-lg shadow-amber-950/10 sm:p-3 dark:border-neutral-800 dark:bg-[#1C1A18]">
                 <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-neutral-900/20 dark:border-neutral-100/20">
                   <Image
                     src="https://picsum.photos/seed/tripmate-friends/800/600"
@@ -163,7 +168,7 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 2: PAIN POINTS (HORIZONTAL SCROLL TRACK) */}
-      <section id="problems" className="py-14 md:py-20 border-b-2 border-neutral-900 dark:border-neutral-100">
+      <section id="problems" className="py-14 md:py-20 border-b border-neutral-200 dark:border-neutral-800">
         <div className="max-w-6xl mx-auto px-5 sm:px-6">
           <div className="max-w-2xl mb-8 md:mb-10">
             <h2 className="text-2xl sm:text-3xl font-black text-neutral-950 dark:text-white tracking-tight">
@@ -174,14 +179,13 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Horizontal scrollable track with snap points */}
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-5 sm:gap-6 pb-4 pt-1 -mx-5 px-5 sm:-mx-6 sm:px-6 no-scrollbar">
-            {painPoints.map((item, idx) => {
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {painPoints.map((item) => {
               const Icon = item.icon;
               return (
                 <div
-                  key={idx}
-                  className="snap-start shrink-0 w-[290px] sm:w-[340px] md:w-[360px] p-6 rounded-2xl border-2 border-neutral-900 dark:border-neutral-100 bg-white dark:bg-[#1C1A18] shadow-[4px_4px_0px_0px_#141210] dark:shadow-[4px_4px_0px_0px_#F5F5F4] flex flex-col justify-between"
+                  key={item.title}
+                  className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-[#1C1A18]"
                 >
                   <div>
                     <div className="w-12 h-12 rounded-xl border-2 border-neutral-900 dark:border-neutral-100 bg-[#F59E0B]/20 flex items-center justify-center mb-5 text-[#F59E0B]">
@@ -202,7 +206,7 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 3: FEATURES (ASYMMETRIC BENTO GRID - 4 CELLS) */}
-      <section id="features" className="py-16 md:py-24 border-b-2 border-neutral-900 dark:border-neutral-100 bg-[#F5F2E9] dark:bg-[#161412]">
+      <section id="features" className="py-16 md:py-24 border-b border-neutral-200 dark:border-neutral-800 bg-[#F5F2E9] dark:bg-[#161412]">
         <div className="max-w-6xl mx-auto px-5 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-neutral-950 dark:text-white tracking-tight">
@@ -216,7 +220,7 @@ export default function LandingPage() {
           {/* Asymmetric Bento: Row 1 (7:5), Row 2 (5:7) */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Cell 1: Split bill & payment with real photo (Col span 7) */}
-            <div className="md:col-span-7 rounded-2xl border-2 border-neutral-900 dark:border-neutral-100 bg-white dark:bg-[#1C1A18] p-6 shadow-[5px_5px_0px_0px_#141210] dark:shadow-[5px_5px_0px_0px_#F5F5F4] flex flex-col justify-between overflow-hidden">
+            <div className="md:col-span-7 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#1C1A18] p-6 shadow-sm flex flex-col justify-between overflow-hidden">
               <div className="mb-5">
                 <div className="w-10 h-10 rounded-xl border-2 border-neutral-900 dark:border-neutral-100 bg-[#F59E0B] flex items-center justify-center mb-4 text-neutral-950">
                   <Receipt className="w-5 h-5" />
@@ -240,7 +244,7 @@ export default function LandingPage() {
             </div>
 
             {/* Cell 2: Itinerary planning (Col span 5) */}
-            <div className="md:col-span-5 rounded-2xl border-2 border-neutral-900 dark:border-neutral-100 bg-white dark:bg-[#1C1A18] p-6 shadow-[5px_5px_0px_0px_#141210] dark:shadow-[5px_5px_0px_0px_#F5F5F4] flex flex-col justify-between overflow-hidden">
+            <div className="md:col-span-5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#1C1A18] p-6 shadow-sm flex flex-col justify-between overflow-hidden">
               <div className="mb-5">
                 <div className="w-10 h-10 rounded-xl border-2 border-neutral-900 dark:border-neutral-100 bg-[#F59E0B]/20 flex items-center justify-center mb-4 text-[#F59E0B]">
                   <Calendar className="w-5 h-5" />
@@ -264,7 +268,7 @@ export default function LandingPage() {
             </div>
 
             {/* Cell 3: Luggage check (Col span 5) */}
-            <div className="md:col-span-5 rounded-2xl border-2 border-neutral-900 dark:border-neutral-100 bg-white dark:bg-[#1C1A18] p-6 shadow-[5px_5px_0px_0px_#141210] dark:shadow-[5px_5px_0px_0px_#F5F5F4] flex flex-col justify-between overflow-hidden">
+            <div className="md:col-span-5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#1C1A18] p-6 shadow-sm flex flex-col justify-between overflow-hidden">
               <div className="mb-5">
                 <div className="w-10 h-10 rounded-xl border-2 border-neutral-900 dark:border-neutral-100 bg-[#F59E0B]/20 flex items-center justify-center mb-4 text-[#F59E0B]">
                   <Luggage className="w-5 h-5" />
@@ -288,7 +292,7 @@ export default function LandingPage() {
             </div>
 
             {/* Cell 4: Moments & Memories with real photo (Col span 7) */}
-            <div className="md:col-span-7 rounded-2xl border-2 border-neutral-900 dark:border-neutral-100 bg-white dark:bg-[#1C1A18] p-6 shadow-[5px_5px_0px_0px_#141210] dark:shadow-[5px_5px_0px_0px_#F5F5F4] flex flex-col justify-between overflow-hidden">
+            <div className="md:col-span-7 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#1C1A18] p-6 shadow-sm flex flex-col justify-between overflow-hidden">
               <div className="mb-5">
                 <div className="w-10 h-10 rounded-xl border-2 border-neutral-900 dark:border-neutral-100 bg-[#F59E0B] flex items-center justify-center mb-4 text-neutral-950">
                   <Camera className="w-5 h-5" />
@@ -315,12 +319,12 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 4: REAL TRIP STORY (ZIGZAG 2-COL) */}
-      <section id="story" className="py-16 md:py-24 border-b-2 border-neutral-900 dark:border-neutral-100">
+      <section id="story" className="py-16 md:py-24 border-b border-neutral-200 dark:border-neutral-800">
         <div className="max-w-6xl mx-auto px-5 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
             {/* Left Col: Real Photo */}
             <div className="md:col-span-6">
-              <div className="relative rounded-2xl border-2 border-neutral-900 dark:border-neutral-100 bg-white dark:bg-[#1C1A18] p-2.5 sm:p-3 shadow-[6px_6px_0px_0px_#141210] dark:shadow-[6px_6px_0px_0px_#F5F5F4]">
+              <div className="relative rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#1C1A18] p-2.5 sm:p-3 shadow-[6px_6px_0px_0px_#141210] dark:shadow-[6px_6px_0px_0px_#F5F5F4]">
                 <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-neutral-900/20 dark:border-neutral-100/20">
                   <Image
                     src="https://picsum.photos/seed/vietnam-dalat-roadtrip/800/600"
@@ -368,7 +372,7 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 5: FAQ (SINGLE COLUMN CENTERED ACCORDION) */}
-      <section id="faq" className="py-16 md:py-20 border-b-2 border-neutral-900 dark:border-neutral-100 bg-[#F5F2E9] dark:bg-[#161412]">
+      <section id="faq" className="py-16 md:py-20 border-b border-neutral-200 dark:border-neutral-800 bg-[#F5F2E9] dark:bg-[#161412]">
         <div className="max-w-3xl mx-auto px-5 sm:px-6">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-black text-neutral-950 dark:text-white tracking-tight">
@@ -385,11 +389,13 @@ export default function LandingPage() {
               return (
                 <div
                   key={idx}
-                  className="rounded-2xl border-2 border-neutral-900 dark:border-neutral-100 bg-white dark:bg-[#1C1A18] shadow-[3px_3px_0px_0px_#141210] dark:shadow-[3px_3px_0px_0px_#F5F5F4] overflow-hidden"
+                  className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#1C1A18] shadow-sm overflow-hidden"
                 >
                   <button
                     type="button"
                     onClick={() => toggleFaq(idx)}
+                    aria-expanded={isOpen}
+                    aria-controls={'faq-answer-' + idx}
                     className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-neutral-950 dark:text-white cursor-pointer"
                   >
                     <span>{faq.question}</span>
@@ -399,11 +405,9 @@ export default function LandingPage() {
                       }`}
                     />
                   </button>
-                  {isOpen && (
-                    <div className="px-5 pb-5 pt-1 text-sm font-medium text-neutral-600 dark:text-neutral-300 leading-relaxed border-t border-neutral-200 dark:border-neutral-800">
+                  <div id={'faq-answer-' + idx} hidden={!isOpen} className="px-5 pb-5 pt-2 text-sm font-medium text-neutral-600 dark:text-neutral-300 leading-relaxed border-t border-neutral-200 dark:border-neutral-800">
                       {faq.answer}
-                    </div>
-                  )}
+                  </div>
                 </div>
               );
             })}
@@ -441,8 +445,10 @@ export default function LandingPage() {
         </div>
       </section>
 
+      </main>
+
       {/* FOOTER */}
-      <footer className="border-t-2 border-neutral-900 dark:border-neutral-100 bg-[#FAF8F2] dark:bg-[#121110] py-8">
+      <footer className="border-t border-neutral-200 dark:border-neutral-800 bg-[#FAF8F2] dark:bg-[#121110] py-8">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/" className="text-xl font-black lowercase text-neutral-900 dark:text-white">
             trip<span className="text-[#F59E0B]">.</span>mate

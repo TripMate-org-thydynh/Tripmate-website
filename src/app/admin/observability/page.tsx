@@ -1,638 +1,209 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import {
-  getObservabilityOverviewAction,
-  getObservabilityTimeseriesAction,
-  getObservabilityRoutesAction,
-} from '@/app/actions';
-import {
-  Activity,
-  Zap,
-  AlertTriangle,
-  Clock,
-  Timer,
-  RefreshCw,
-  Info,
-  Layers,
-  ArrowUpDown,
-} from 'lucide-react';
-import ErrorState from '@/components/ErrorState';
-import {
-  AdminCard,
-  AdminCardTitle,
-  AdminCardDescription,
-} from '@/components/admin/AdminCard';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { Activity, AlertTriangle, Gauge, RefreshCw, Timer, X } from 'lucide-react';
 import { AdminButton } from '@/components/admin/AdminButton';
 import { AdminBadge } from '@/components/admin/AdminBadge';
+import { AdminCard } from '@/components/admin/AdminCard';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { AdminStatCard } from '@/components/admin/AdminStatCard';
-import { AdminSwitch } from '@/components/admin/AdminSwitch';
-import { AdminTooltip } from '@/components/admin/AdminTooltip';
 import { AdminLineChart } from '@/components/admin/charts/AdminLineChart';
-import {
-  AdminTable,
-  AdminTableHeader,
-  AdminTableHead,
-  AdminTableBody,
-  AdminTableRow,
-  AdminTableCell,
-  AdminTableSkeleton,
-  AdminTableEmpty,
-} from '@/components/admin/AdminTable';
+import { getDashboard } from './actions';
+import type { DashboardSnapshot, RouteFilter, RouteSort } from './types';
 
-export interface ObservabilityOverview {
-  rangeMinutes: number;
-  totalRequests: number;
-  rps: number;
-  errorRatePercent: number;
-  clientErrorRatePercent: number;
-  p50Ms: number;
-  p95Ms: number;
-  p99Ms: number;
-  avgLatencyMs: number;
-  maxLatencyMs: number;
-}
-
-export interface ObservabilityTimeseriesPoint {
-  ts: string;
-  requests: number;
-  errors5xx: number;
-  errors4xx: number;
-  errorRatePercent: number;
-  p95Ms: number;
-  avgLatencyMs: number;
-}
-
-export interface ObservabilityRouteMetric {
-  route: string;
-  method: string;
-  requests: number;
-  errors5xx: number;
-  errors4xx: number;
-  errorRatePercent: number;
-  p95Ms: number;
-  avgLatencyMs: number;
-  maxLatencyMs: number;
-}
-
-interface TimeRangeOption {
-  id: string;
-  label: string;
-  rangeMinutes: number;
-  stepMinutes: number;
-}
-
-const TIME_RANGES: TimeRangeOption[] = [
-  { id: '15m', label: '15 phút', rangeMinutes: 15, stepMinutes: 1 },
-  { id: '1h', label: '1 giờ', rangeMinutes: 60, stepMinutes: 1 },
-  { id: '6h', label: '6 giờ', rangeMinutes: 360, stepMinutes: 5 },
-  { id: '24h', label: '24 giờ', rangeMinutes: 1440, stepMinutes: 15 },
-  { id: '7d', label: '7 ngày', rangeMinutes: 10080, stepMinutes: 60 },
+const ranges = [
+  { label: '15 phút', minutes: 15, step: 1 },
+  { label: '1 giờ', minutes: 60, step: 1 },
+  { label: '6 giờ', minutes: 360, step: 5 },
+  { label: '24 giờ', minutes: 1440, step: 15 },
+  { label: '7 ngày', minutes: 10080, step: 60 },
 ];
+const number = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 });
+const clock = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+const chartTime = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' });
+const chartDate = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+const failureTime = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', dateStyle: 'short', timeStyle: 'medium' });
+const head = 'whitespace-nowrap px-4 py-3 text-left text-xs font-semibold';
+const cell = 'whitespace-nowrap px-4 py-3 text-sm';
+const focus = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500';
 
-function formatTs(ts: string, rangeMinutes: number): string {
-  try {
-    const d = new Date(ts);
-    if (isNaN(d.getTime())) return ts;
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-
-    if (rangeMinutes <= 360) {
-      return `${hh}:${mm}`;
-    }
-    if (rangeMinutes <= 1440) {
-      return `${hh}:${mm}`;
-    }
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    return `${day}/${month} ${hh}:${mm}`;
-  } catch {
-    return ts;
-  }
-}
-
-function getMethodBadge(method: string) {
-  const m = (method || '').toUpperCase();
-  switch (m) {
-    case 'GET':
-      return (
-        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950/40 dark:text-[#38BDF8] dark:border-sky-800/60">
-          GET
-        </span>
-      );
-    case 'POST':
-      return (
-        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-[#22C55E] dark:border-emerald-800/60">
-          POST
-        </span>
-      );
-    case 'PUT':
-      return (
-        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-[#F59E0B] dark:border-amber-800/60">
-          PUT
-        </span>
-      );
-    case 'PATCH':
-      return (
-        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/60">
-          PATCH
-        </span>
-      );
-    case 'DELETE':
-      return (
-        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-[#EF4444] dark:border-rose-800/60">
-          DELETE
-        </span>
-      );
-    default:
-      return (
-        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
-          {m}
-        </span>
-      );
-  }
-}
+type LoadState = { key: string; pending: boolean; data?: DashboardSnapshot; dataKey?: string; error?: string };
 
 export default function ObservabilityDashboardPage() {
-  const [selectedRange, setSelectedRange] = useState<TimeRangeOption>(TIME_RANGES[1]); // Mặc định 1 giờ
-  const [sortBy, setSortBy] = useState<'requests' | 'errors' | 'latency'>('requests');
+  const [range, setRange] = useState(ranges[1]);
+  const [sort, setSort] = useState<RouteSort>('requests');
+  const [endpoint, setEndpoint] = useState<RouteFilter | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
-
-  const [overview, setOverview] = useState<ObservabilityOverview | null>(null);
-  const [timeseries, setTimeseries] = useState<ObservabilityTimeseriesPoint[]>([]);
-  const [routes, setRoutes] = useState<ObservabilityRouteMetric[]>([]);
-
-  const [loading, setLoading] = useState(true);
-  const [routesLoading, setRoutesLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
-
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const fetchData = useCallback(
-    async (isBackground = false) => {
-      if (!isBackground) {
-        setLoading(true);
-        setError(null);
-      }
-
-      try {
-        const [overviewRes, timeseriesRes, routesRes] = await Promise.all([
-          getObservabilityOverviewAction(selectedRange.rangeMinutes),
-          getObservabilityTimeseriesAction(
-            selectedRange.rangeMinutes,
-            selectedRange.stepMinutes
-          ),
-          getObservabilityRoutesAction(selectedRange.rangeMinutes, 20, sortBy),
-        ]);
-
-        if (overviewRes.success && overviewRes.data) {
-          setOverview(overviewRes.data);
-        } else if (!isBackground) {
-          setError(overviewRes.error || 'Không thể tải số liệu tổng quan');
-        }
-
-        if (timeseriesRes.success && timeseriesRes.data) {
-          setTimeseries(timeseriesRes.data);
-        }
-
-        if (routesRes.success && routesRes.data) {
-          setRoutes(routesRes.data);
-        }
-
-        setLastRefreshedAt(new Date());
-      } catch (err: any) {
-        if (!isBackground) {
-          setError(err.message || 'Lỗi kết nối khi tải dữ liệu giám sát');
-        }
-      } finally {
-        if (!isBackground) {
-          setLoading(false);
-        }
-      }
-    },
-    [selectedRange, sortBy]
-  );
-
-  // Chỉ tải lại routes khi đổi sortBy mà không cần fetch lại toàn bộ
-  const handleSortChange = async (newSort: 'requests' | 'errors' | 'latency') => {
-    setSortBy(newSort);
-    setRoutesLoading(true);
-    const res = await getObservabilityRoutesAction(
-      selectedRange.rangeMinutes,
-      20,
-      newSort
-    );
-    if (res.success && res.data) {
-      setRoutes(res.data);
-    }
-    setRoutesLoading(false);
-  };
+  const [refresh, setRefresh] = useState(0);
+  const [state, setState] = useState<LoadState>({ key: '', pending: true });
+  const key = JSON.stringify([range.minutes, sort, endpoint?.method, endpoint?.route]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    let active = true;
+    let running = false;
 
-  // Quản lý chu kỳ làm mới tự động 30 giây
-  useEffect(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+    async function load() {
+      if (running) return;
+      running = true;
+      setState((previous) => ({ ...previous, key, pending: true, error: undefined }));
+      const result = await getDashboard(range.minutes, range.step, sort, endpoint)
+        .catch(() => ({ error: 'Không thể kết nối tới hệ thống giám sát.' }));
+      running = false;
+      if (!active) return;
+      setState((previous) => 'data' in result
+        ? { key, pending: false, data: result.data, dataKey: key }
+        : { ...previous, key, pending: false, error: result.error });
     }
 
-    if (autoRefresh) {
-      intervalRef.current = setInterval(() => {
-        fetchData(true);
-      }, 30000);
-    }
-
+    void load();
+    const interval = autoRefresh ? window.setInterval(() => {
+      if (!document.hidden) void load();
+    }, 30_000) : undefined;
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+      active = false;
+      if (interval !== undefined) window.clearInterval(interval);
     };
-  }, [autoRefresh, fetchData]);
+  }, [key, endpoint, range, sort, autoRefresh, refresh]);
 
-  // Chuẩn bị dữ liệu cho biểu đồ lưu lượng
-  const trafficChartData = timeseries.map((pt) => ({
-    label: formatTs(pt.ts, selectedRange.rangeMinutes),
-    value: pt.requests,
-    secondaryValue: pt.errors5xx,
-  }));
-
-  // Chuẩn bị dữ liệu cho biểu đồ độ trễ
-  const latencyChartData = timeseries.map((pt) => ({
-    label: formatTs(pt.ts, selectedRange.rangeMinutes),
-    value: pt.p95Ms,
-    secondaryValue: pt.avgLatencyMs,
-  }));
-
-  // Xác định biến thể màu sắc theo tỉ lệ lỗi 5xx
-  const errorRate = overview?.errorRatePercent ?? 0;
-  const errorRateVariant: 'danger' | 'warning' | 'success' =
-    errorRate > 5 ? 'danger' : errorRate > 1 ? 'warning' : 'success';
-  const errorRateColor =
-    errorRate > 5
-      ? 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/50'
-      : errorRate > 1
-      ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/50'
-      : 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/50';
+  const current = state.key === key ? state : undefined;
+  const snapshot = state.data;
+  const pending = current?.pending ?? true;
+  const stale = snapshot && state.dataKey !== key;
+  const total = snapshot?.overview.totalRequests ?? 0;
+  const points = total > 0 ? (snapshot?.timeseries ?? []).map((point) => ({
+    ...point,
+    label: ((snapshot?.overview.rangeMinutes ?? range.minutes) >= 1440 ? chartDate : chartTime).format(new Date(point.ts)),
+  })) : [];
+  const displayLatency = (ms: number) => total ? number.format(ms) + ' ms' : '—';
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Header trang */}
-      <AdminPageHeader
-        title="Metrics & Hiệu Năng Hệ Thống"
-        description="Giám sát độ ổn định, lưu lượng truy cập (RPS), tỉ lệ lỗi máy chủ (5xx) và độ trễ phản hồi của hệ thống theo thời gian thực."
-        badge={
-          <AdminBadge variant="brand" size="xs" dot pulse>
-            Trực tiếp
-          </AdminBadge>
-        }
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 pr-2 border-r border-slate-200 dark:border-[#1E293B]">
-            <AdminSwitch
-              checked={autoRefresh}
-              onChange={setAutoRefresh}
-              label="Tự động làm mới"
-              size="sm"
-            />
-          </div>
-
-          <AdminButton
-            variant="outline"
-            size="sm"
-            onClick={() => fetchData(false)}
-            loading={loading}
-            icon={<RefreshCw className="w-3.5 h-3.5" />}
-          >
-            Làm mới
-          </AdminButton>
-        </div>
-      </AdminPageHeader>
-
-      {/* Thanh điều khiển: Bộ chọn khoảng thời gian */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] shadow-xs">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-xs font-semibold text-slate-500 dark:text-[#94A3B8] mr-1 flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
-            Khoảng thời gian:
-          </span>
-          {TIME_RANGES.map((range) => {
-            const isActive = selectedRange.id === range.id;
-            return (
-              <button
-                key={range.id}
-                type="button"
-                onClick={() => setSelectedRange(range)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer select-none ${
-                  isActive
-                    ? 'bg-[#FFD84D] text-[#141210] font-semibold shadow-xs border border-amber-400/60 dark:bg-[#FFD84D] dark:text-[#141210]'
-                    : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 dark:bg-[#172238] dark:hover:bg-[#1E293B] dark:text-[#94A3B8] dark:border-[#1E293B]'
-                }`}
-              >
-                {range.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {lastRefreshedAt && (
-          <span className="text-[11px] text-slate-400 dark:text-[#64748B] self-end sm:self-auto">
-            Cập nhật lúc: {lastRefreshedAt.toLocaleTimeString('vi-VN')}
-          </span>
-        )}
+    <section aria-labelledby="observability-title" className="space-y-5">
+      <div id="observability-title">
+        <AdminPageHeader title="Observability" description="Theo dõi lưu lượng, lỗi API và độ trễ của TripMate."
+          actions={<>
+            <Link href="/admin/observability/slo" className={'rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 py-1.5 text-sm font-semibold ' + focus}>Mục tiêu SLO</Link>
+            <AdminButton type="button" variant="outline" icon={<RefreshCw className="size-4" />} disabled={pending} onClick={() => setRefresh((value) => value + 1)}>Làm mới</AdminButton>
+          </>}
+        />
       </div>
 
-      {error && !overview && !loading ? (
-        <ErrorState message={error} onRetry={() => fetchData(false)} />
-      ) : loading && !overview ? (
-        <div className="flex flex-col gap-6">
-          {/* Skeleton stat cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="h-28 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] animate-pulse p-4 shadow-xs"
-              />
-            ))}
-          </div>
-          {/* Skeleton charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="h-72 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] animate-pulse" />
-            <div className="h-72 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] animate-pulse" />
-          </div>
+      <AdminCard className="flex flex-wrap items-center justify-between gap-4">
+        <div role="group" aria-label="Khoảng thời gian" className="flex flex-wrap gap-1">
+          {ranges.map((option) => <button key={option.minutes} type="button" aria-pressed={range === option} onClick={() => setRange(option)}
+            className={'rounded-lg px-3 py-2 text-sm font-semibold outline-offset-2 hover:bg-[var(--admin-surface-hover)] aria-pressed:bg-[#FFD84D] aria-pressed:text-[#141210] ' + focus}>{option.label}</button>)}
         </div>
-      ) : (
-        <>
-          {/* Hàng thẻ số liệu thống kê */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <AdminStatCard
-              title="Tổng Request"
-              value={overview?.totalRequests ?? 0}
-              helper={`Trong ${selectedRange.label} qua`}
-              icon={Activity}
-              color="text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800/50"
-            />
-            <AdminStatCard
-              title="Lưu Lượng (RPS)"
-              value={overview?.rps ?? 0}
-              helper="Requests / giây"
-              icon={Zap}
-              color="text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/40 border-sky-200 dark:border-sky-800/50"
-            />
-            <AdminStatCard
-              title="Tỉ Lệ Lỗi 5xx"
-              value={`${overview?.errorRatePercent ?? 0}%`}
-              helper={
-                errorRate > 5
-                  ? 'Vượt ngưỡng cảnh báo (>5%)'
-                  : errorRate > 1
-                  ? 'Cần theo dõi sát (>1%)'
-                  : 'Hệ thống vận hành tốt (<1%)'
-              }
-              icon={AlertTriangle}
-              color={errorRateColor}
-              variant={errorRateVariant}
-            />
-            <AdminStatCard
-              title="Độ Trễ p95"
-              value={`${overview?.p95Ms ?? 0} ms`}
-              helper={`p50: ${overview?.p50Ms ?? 0}ms | TB: ${overview?.avgLatencyMs ?? 0}ms`}
-              icon={Clock}
-              color="text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800/50"
-            />
-            <AdminStatCard
-              title="Độ Trễ p99"
-              value={`${overview?.p99Ms ?? 0} ms`}
-              helper={`Cao nhất: ${overview?.maxLatencyMs ?? 0}ms`}
-              icon={Timer}
-              color="text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/50"
-            />
-          </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+          <label className="flex items-center gap-2"><input type="checkbox" checked={autoRefresh} onChange={(event) => setAutoRefresh(event.target.checked)} />Tự làm mới</label>
+          <span className="text-[var(--admin-text-secondary)]" role="status">
+            {pending ? 'Đang cập nhật…' : snapshot ? 'Cập nhật ' + clock.format(new Date(snapshot.asOf)) + ' (GMT+7)' : 'Chưa cập nhật'}
+          </span>
+        </div>
+      </AdminCard>
 
-          {/* Hàng 2 biểu đồ chuỗi thời gian */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Biểu đồ 1: Lưu lượng & Lỗi 5xx */}
-            <AdminCard>
-              <AdminLineChart
-                data={trafficChartData}
-                title="Lưu Lượng Truy Cập & Lỗi Hệ Thống"
-                subtitle={`Phân bổ số lượng request và lỗi 5xx trong ${selectedRange.label}`}
-                primaryLabel="Requests"
-                primaryColor="#0284C7"
-                secondaryLabel="Lỗi 5xx"
-                secondaryColor="#EF4444"
-                height={240}
-              />
+      {endpoint && <div className="flex flex-wrap items-center gap-3 rounded-lg border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm">
+        <strong>Đang xem</strong><code className="break-all">{endpoint.method} {endpoint.route}</code>
+        <AdminButton type="button" variant="ghost" icon={<X className="size-3.5" />} onClick={() => setEndpoint(null)}>Bỏ lọc endpoint</AdminButton>
+      </div>}
+
+      {current?.error && <AdminCard role="alert" className="border-rose-400/40 text-rose-700 dark:text-rose-300">
+        {current.error} {snapshot && 'Dữ liệu bên dưới là từ lần cập nhật trước.'}
+      </AdminCard>}
+      {pending && stale && <p className="text-sm text-[var(--admin-text-secondary)]">Đang tải bộ lọc mới. Số liệu bên dưới vẫn là kết quả trước.</p>}
+      {!snapshot && pending && <AdminCard><p className="text-sm text-[var(--admin-text-secondary)]">Đang tải dữ liệu giám sát…</p></AdminCard>}
+
+      {snapshot && <>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <AdminStatCard title="Lượt gọi API" value={number.format(total)} description={number.format(snapshot.overview.rps) + ' lượt/giây trung bình'} icon={<Activity className="size-4" />} />
+          <AdminStatCard title="Tỷ lệ lỗi 5xx" value={total ? number.format(snapshot.overview.errorRatePercent) + '%' : '—'} icon={<AlertTriangle className="size-4" />} />
+          <AdminStatCard title="Độ trễ p95" value={displayLatency(snapshot.overview.p95Ms)} icon={<Timer className="size-4" />} />
+          <AdminStatCard title="Độ trễ p99" value={displayLatency(snapshot.overview.p99Ms)} description={total ? 'Tối đa ' + displayLatency(snapshot.overview.maxLatencyMs) : undefined} icon={<Gauge className="size-4" />} />
+        </div>
+
+        {total === 0 ? <AdminCard><p className="text-sm">Không có lưu lượng API trong khoảng thời gian đã chọn.</p></AdminCard> :
+          <div className="grid gap-4 xl:grid-cols-2">
+            <AdminCard className="min-w-0">
+              <AdminLineChart title="Lưu lượng API" data={points.map(({ label, requests, errors5xx }) => ({ label, value: requests, secondaryValue: errors5xx }))}
+                primaryLabel="Lượt gọi" secondaryLabel="Lỗi 5xx" secondaryColor="#E11D48" />
             </AdminCard>
-
-            {/* Biểu đồ 2: Độ trễ phản hồi */}
-            <AdminCard>
-              <AdminLineChart
-                data={latencyChartData}
-                title="Độ Trễ Phản Hồi (Latency)"
-                subtitle="Độ trễ phân vị p95 và độ trễ trung bình tính bằng mili-giây"
-                primaryLabel="p95 Latency"
-                primaryColor="#F59E0B"
-                secondaryLabel="Latency TB"
-                secondaryColor="#10B981"
-                valueSuffix="ms"
-                height={240}
-              />
+            <AdminCard className="min-w-0">
+              <AdminLineChart title="Độ trễ theo thời gian" data={points.map(({ label, p95Ms, p99Ms }) => ({ label, value: p95Ms, secondaryValue: p99Ms }))}
+                primaryLabel="p95" secondaryLabel="p99" valueSuffix=" ms" />
             </AdminCard>
+          </div>}
+
+        <AdminCard className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div><h2 className="text-base font-bold">Mục tiêu chất lượng (SLO)</h2><p className="text-sm text-[var(--admin-text-secondary)]">Đánh giá theo cửa sổ cấu hình của từng mục tiêu.</p></div>
+            <Link href="/admin/observability/slo" className="rounded text-sm font-semibold underline underline-offset-4">Quản lý SLO</Link>
           </div>
+          {snapshot.slo.length === 0 ? <p className="text-sm text-[var(--admin-text-secondary)]">Chưa cấu hình mục tiêu SLO.</p> :
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {snapshot.slo.slice(0, 3).map((slo) => <div key={slo.id} className="space-y-2 rounded-lg border border-[var(--admin-border)] p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-sm font-semibold">{slo.name}</h3>
+                  <AdminBadge variant={slo.currentSliPercent === null ? 'neutral' : slo.isMeetingObjective ? 'success' : 'danger'}>
+                    {slo.currentSliPercent === null ? 'Chưa có dữ liệu' : slo.isMeetingObjective ? 'Đạt' : 'Dưới mục tiêu'}
+                  </AdminBadge>
+                </div>
+                <p className="text-sm">{slo.currentSliPercent === null ? '—' : number.format(slo.currentSliPercent) + '%'} / {number.format(slo.objective)}% · {slo.windowDays} ngày</p>
+                {slo.currentSliPercent !== null && <p className="text-xs text-[var(--admin-text-secondary)]">Ngân sách lỗi còn {number.format(slo.errorBudgetRemainingPercent)}% · Burn rate {number.format(slo.burnRate)}×</p>}
+              </div>)}
+            </div>}
+        </AdminCard>
 
-          {/* Bảng hiệu năng từng tuyến đường (Route Breakdown) */}
-          <AdminCard noPadding className="overflow-hidden">
-            <div className="p-5 border-b border-slate-100 dark:border-[#1E293B] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <AdminCardTitle>
-                  <Layers className="w-4 h-4 text-amber-500" />
-                  Hiệu Năng Tuyến Đường (Route Performance)
-                </AdminCardTitle>
-                <AdminCardDescription>
-                  Thống kê chi tiết số lượt gọi, lỗi và độ trễ của 20 tuyến đường hàng đầu
-                </AdminCardDescription>
-              </div>
+        <AdminCard noPadding>
+          <div className="flex flex-wrap items-center justify-between gap-3 p-5">
+            <div><h2 className="text-base font-bold">Hiệu năng endpoint</h2><p className="text-sm text-[var(--admin-text-secondary)]">Chọn một endpoint để xem lưu lượng và lỗi riêng.</p></div>
+            <label className="flex items-center gap-2 text-sm">Sắp xếp
+              <select value={sort} onChange={(event) => setSort(event.target.value as RouteSort)} className={'rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] p-2 ' + focus}>
+                <option value="requests">Lượt gọi</option><option value="errors">Lỗi 5xx</option><option value="latency">Độ trễ p95</option>
+              </select>
+            </label>
+          </div>
+          {snapshot.routes.length === 0 ? <p className="px-5 pb-5 text-sm text-[var(--admin-text-secondary)]">Chưa ghi nhận endpoint nào.</p> :
+            <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Bảng hiệu năng endpoint">
+              <table className="w-full border-collapse">
+                <thead className="bg-[var(--admin-surface-hover)]"><tr>
+                  {['Endpoint', 'Lượt gọi', 'Lỗi 5xx', 'Tỷ lệ lỗi', 'p95', 'Tối đa'].map((label) => <th key={label} scope="col" className={head}>{label}</th>)}
+                </tr></thead>
+                <tbody className="divide-y divide-[var(--admin-border)]">{snapshot.routes.map((route) => <tr key={route.method + ' ' + route.route}>
+                  <td className={cell}><button type="button" aria-pressed={endpoint?.route === route.route && endpoint.method === route.method}
+                    onClick={() => setEndpoint({ method: route.method, route: route.route })}
+                    className={'inline-flex items-center gap-2 rounded p-1 font-mono text-xs hover:underline aria-pressed:bg-amber-500/15 ' + focus}>
+                    <AdminBadge variant="neutral">{route.method}</AdminBadge>{route.route}
+                  </button></td>
+                  <td className={cell}>{number.format(route.requests)}</td>
+                  <td className={cell}>{number.format(route.errors5xx)}</td>
+                  <td className={cell}>{number.format(route.errorRatePercent)}%</td>
+                  <td className={cell}>{number.format(route.p95Ms)} ms</td>
+                  <td className={cell}>{number.format(route.maxLatencyMs)} ms</td>
+                </tr>)}</tbody>
+              </table>
+            </div>}
+        </AdminCard>
 
-              {/* Bộ lọc sắp xếp */}
-              <div className="flex items-center gap-1.5 self-start sm:self-auto bg-slate-100 dark:bg-[#172238] p-1 rounded-lg border border-slate-200/80 dark:border-[#1E293B]">
-                <span className="text-[11px] font-medium text-slate-500 dark:text-[#94A3B8] px-2 flex items-center gap-1">
-                  <ArrowUpDown className="w-3 h-3" />
-                  Sắp xếp:
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleSortChange('requests')}
-                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-150 cursor-pointer ${
-                    sortBy === 'requests'
-                      ? 'bg-white dark:bg-[#111827] text-slate-900 dark:text-[#F8FAFC] shadow-xs'
-                      : 'text-slate-500 hover:text-slate-900 dark:text-[#94A3B8] dark:hover:text-[#F8FAFC]'
-                  }`}
-                >
-                  Lưu lượng
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSortChange('errors')}
-                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-150 cursor-pointer ${
-                    sortBy === 'errors'
-                      ? 'bg-white dark:bg-[#111827] text-slate-900 dark:text-[#F8FAFC] shadow-xs'
-                      : 'text-slate-500 hover:text-slate-900 dark:text-[#94A3B8] dark:hover:text-[#F8FAFC]'
-                  }`}
-                >
-                  Lỗi 5xx
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSortChange('latency')}
-                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-150 cursor-pointer ${
-                    sortBy === 'latency'
-                      ? 'bg-white dark:bg-[#111827] text-slate-900 dark:text-[#F8FAFC] shadow-xs'
-                      : 'text-slate-500 hover:text-slate-900 dark:text-[#94A3B8] dark:hover:text-[#F8FAFC]'
-                  }`}
-                >
-                  Độ trễ p95
-                </button>
-              </div>
-            </div>
-
-            <AdminTable>
-              <AdminTableHeader>
-                <AdminTableRow>
-                  <AdminTableHead width="30%">Tuyến đường (Route)</AdminTableHead>
-                  <AdminTableHead width="10%">Phương thức</AdminTableHead>
-                  <AdminTableHead align="right" width="10%">Requests</AdminTableHead>
-                  <AdminTableHead align="right" width="10%">Lỗi 5xx</AdminTableHead>
-                  <AdminTableHead align="right" width="12%">Tỉ lệ lỗi</AdminTableHead>
-                  <AdminTableHead align="right" width="10%">p95 (ms)</AdminTableHead>
-                  <AdminTableHead align="right" width="10%">Trung bình</AdminTableHead>
-                  <AdminTableHead align="right" width="8%">Max</AdminTableHead>
-                </AdminTableRow>
-              </AdminTableHeader>
-
-              {routesLoading ? (
-                <AdminTableSkeleton columns={8} rows={6} />
-              ) : routes.length === 0 ? (
-                <AdminTableEmpty
-                  colSpan={8}
-                  message="Chưa có dữ liệu đo trong khoảng này"
-                />
-              ) : (
-                <AdminTableBody>
-                  {routes.map((r, idx) => {
-                    const isUnknown = r.route === 'unknown';
-                    const routeErrorRate = r.errorRatePercent;
-                    const isHighError = routeErrorRate > 5;
-                    const isMediumError = routeErrorRate > 1;
-
-                    return (
-                      <AdminTableRow key={`${r.route}-${r.method}-${idx}`}>
-                        {/* Cột Route kèm giải thích unknown */}
-                        <AdminTableCell>
-                          <div className="flex items-center gap-2">
-                            {isUnknown ? (
-                              <div className="flex items-center gap-2">
-                                <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
-                                  unknown
-                                </span>
-                                <AdminTooltip
-                                  position="top"
-                                  content="Gom các request không khớp route nào (HTTP 404 hoặc bị chặn trước khi vào controller)"
-                                >
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 dark:bg-[#172238] dark:text-[#94A3B8] border border-slate-200 dark:border-[#1E293B] cursor-help">
-                                    <Info className="w-3 h-3 text-amber-500" />
-                                    404 / Middleware
-                                  </span>
-                                </AdminTooltip>
-                              </div>
-                            ) : (
-                              <span className="font-mono text-xs text-slate-800 dark:text-[#F8FAFC] break-all">
-                                {r.route}
-                              </span>
-                            )}
-                          </div>
-                        </AdminTableCell>
-
-                        {/* Cột Method */}
-                        <AdminTableCell>
-                          {getMethodBadge(r.method)}
-                        </AdminTableCell>
-
-                        {/* Requests */}
-                        <AdminTableCell align="right" mono>
-                          <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">
-                            {r.requests.toLocaleString('vi-VN')}
-                          </span>
-                        </AdminTableCell>
-
-                        {/* Errors 5xx */}
-                        <AdminTableCell align="right" mono>
-                          <span
-                            className={
-                              r.errors5xx > 0
-                                ? 'font-semibold text-rose-600 dark:text-rose-400'
-                                : 'text-slate-400 dark:text-slate-600'
-                            }
-                          >
-                            {r.errors5xx.toLocaleString('vi-VN')}
-                          </span>
-                        </AdminTableCell>
-
-                        {/* Error Rate */}
-                        <AdminTableCell align="right">
-                          <span
-                            className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono font-medium ${
-                              isHighError
-                                ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-[#EF4444]'
-                                : isMediumError
-                                ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-[#F59E0B]'
-                                : 'text-slate-600 dark:text-slate-400'
-                            }`}
-                          >
-                            {r.errorRatePercent}%
-                          </span>
-                        </AdminTableCell>
-
-                        {/* p95 */}
-                        <AdminTableCell align="right" mono>
-                          <span
-                            className={
-                              r.p95Ms > 1000
-                                ? 'font-semibold text-amber-600 dark:text-amber-400'
-                                : 'text-slate-700 dark:text-[#F8FAFC]'
-                            }
-                          >
-                            {r.p95Ms.toLocaleString('vi-VN')} ms
-                          </span>
-                        </AdminTableCell>
-
-                        {/* Avg Latency */}
-                        <AdminTableCell align="right" mono>
-                          <span className="text-slate-600 dark:text-[#94A3B8]">
-                            {r.avgLatencyMs.toLocaleString('vi-VN')} ms
-                          </span>
-                        </AdminTableCell>
-
-                        {/* Max Latency */}
-                        <AdminTableCell align="right" mono>
-                          <span className="text-slate-500 dark:text-[#64748B]">
-                            {r.maxLatencyMs.toLocaleString('vi-VN')} ms
-                          </span>
-                        </AdminTableCell>
-                      </AdminTableRow>
-                    );
-                  })}
-                </AdminTableBody>
-              )}
-            </AdminTable>
-          </AdminCard>
-        </>
-      )}
-    </div>
+        <AdminCard noPadding>
+          <div className="p-5"><h2 className="text-base font-bold">Lỗi 5xx gần đây</h2>
+            <p className="text-sm text-[var(--admin-text-secondary)]">Tối đa 50 mẫu trong khoảng đã chọn, lưu tối đa 7 ngày.</p>
+          </div>
+          {snapshot.failures.length === 0 ? <p className="px-5 pb-5 text-sm text-[var(--admin-text-secondary)]">Không có mẫu lỗi trong khoảng này.</p> :
+            <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Bảng lỗi 5xx gần đây">
+              <table className="w-full border-collapse">
+                <thead className="bg-[var(--admin-surface-hover)]"><tr>
+                  {['Thời gian', 'Endpoint', 'Status', 'Độ trễ', 'Request ID'].map((label) => <th key={label} scope="col" className={head}>{label}</th>)}
+                </tr></thead>
+                <tbody className="divide-y divide-[var(--admin-border)]">{snapshot.failures.map((failure) => <tr key={failure.id}>
+                  <td className={cell}><time dateTime={failure.occurredAt}>{failureTime.format(new Date(failure.occurredAt))}</time></td>
+                  <td className={cell}><code className="text-xs">{failure.method} {failure.route}</code></td>
+                  <td className={cell}><AdminBadge variant="danger">{failure.statusCode}</AdminBadge></td>
+                  <td className={cell}>{number.format(failure.durationMs)} ms</td>
+                  <td className={cell}><code className="text-xs select-all">{failure.id}</code></td>
+                </tr>)}</tbody>
+              </table>
+            </div>}
+        </AdminCard>
+      </>}
+    </section>
   );
 }
