@@ -42,7 +42,6 @@ npm run dev
 
 Mở trình duyệt truy cập:
 - Trang chủ Marketing: [http://localhost:3000](http://localhost:3000) (hoặc port khác như `3001` nếu bị trùng)
-- Trang xem thử tính năng: `http://localhost:3001/preview`
 - Trang Admin: `http://localhost:3001/admin`
 
 ---
@@ -65,7 +64,6 @@ TripMate_web/
 │   │   ├── globals.css          # Cấu hình Tailwind v4 và các biến theme
 │   │   ├── layout.tsx           # Layout dùng font Quicksand & chống chớp theme
 │   │   ├── page.tsx             # Landing Page giới thiệu app
-│   │   ├── preview/             # Giao diện xem thử các tính năng demo
 │   │   ├── admin/
 │   │   │   ├── login/           # Trang đăng nhập Admin
 │   │   │   ├── layout.tsx       # Bố cục Sidebar Admin và Guard xác thực
