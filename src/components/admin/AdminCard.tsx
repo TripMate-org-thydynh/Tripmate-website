@@ -16,8 +16,8 @@ export function AdminCard({
 }: AdminCardProps) {
   return (
     <div
-      className={`bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] rounded-xl shadow-xs transition-colors duration-150 ${
-        noPadding ? '' : 'p-5'
+      className={`min-w-0 max-w-full bg-[var(--admin-surface)] border border-[var(--admin-border)] rounded-xl transition-colors duration-150 ${
+        noPadding ? '' : 'p-4 sm:p-5'
       } ${className}`}
       {...props}
     >

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { logoutAdmin } from '@/app/actions';
 import ThemeToggle from '@/components/ThemeToggle';
+import { TripMateMark } from '@/components/TripMateMark';
 import { AdminCommandPalette } from '@/components/admin/AdminCommandPalette';
 import { AdminHealthPopover } from '@/components/admin/AdminHealthPopover';
 import { AdminNotificationDropdown } from '@/components/admin/AdminNotificationDropdown';
@@ -47,7 +48,7 @@ const toolbarButton = 'inline-flex h-9 items-center justify-center gap-2 rounded
 function Brand({ collapsed = false, onClick }: { collapsed?: boolean; onClick?: () => void }) {
   return (
     <Link href="/admin" aria-label="TripMate Dashboard" onClick={onClick} className={'flex w-fit items-center gap-3 rounded-lg ' + focus}>
-      <span aria-hidden="true" className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#FFD84D] text-xs font-black text-[#141210]">TM</span>
+      <TripMateMark size={30} />
       {!collapsed && <span className="whitespace-nowrap text-base font-extrabold tracking-tight">TripMate<span className="ml-1.5 text-xs font-medium text-[var(--admin-text-secondary)]">Admin</span></span>}
     </Link>
   );
@@ -62,7 +63,7 @@ function Navigation({ pathname, collapsed = false, onNavigate }: { pathname: str
           {group.links.map(({ title, href, icon: Icon }) => (
             <Link key={href} href={href} onClick={onNavigate}
               aria-current={pathname === href ? 'page' : undefined} aria-label={collapsed ? title : undefined} title={collapsed ? title : undefined}
-              className={'flex min-h-9 items-center gap-2.5 rounded-lg text-sm font-medium text-[var(--admin-text-secondary)] hover:bg-[var(--admin-surface-hover)] aria-[current=page]:bg-amber-500/15 aria-[current=page]:text-[var(--admin-text-primary)] aria-[current=page]:font-bold ' + focus + (collapsed ? ' justify-center px-1' : ' px-2.5')}>
+              className={'flex min-h-9 items-center gap-2.5 rounded-md text-sm font-medium text-[var(--admin-text-secondary)] hover:bg-[var(--admin-surface-hover)] aria-[current=page]:bg-[var(--admin-accent-bg)] aria-[current=page]:text-[var(--admin-accent-ink)] aria-[current=page]:font-semibold ' + focus + (collapsed ? ' justify-center px-1' : ' px-2.5')}>
               <Icon className="size-4 shrink-0" aria-hidden="true" />
               {!collapsed && <span className="truncate">{title}</span>}
             </Link>
@@ -117,7 +118,7 @@ export function AdminShell({ children, adminName }: { children: ReactNode; admin
   const initials = adminName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
 
   return (
-    <div className="min-h-dvh bg-[var(--admin-bg)] text-[var(--admin-text-primary)] md:flex">
+    <div className="tripmate-admin min-h-dvh bg-[var(--admin-bg)] text-[var(--admin-text-primary)] md:flex">
       <a href="#admin-main" className="sr-only z-60 focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:rounded-lg focus:bg-[#FFD84D] focus:px-4 focus:py-2 focus:text-[#141210]">Đến nội dung chính</a>
 
       <aside className={'sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-[var(--admin-border)] bg-[var(--admin-sidebar)] md:flex ' + (collapsed ? 'w-16' : 'w-60')}>

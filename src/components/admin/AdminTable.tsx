@@ -11,8 +11,8 @@ interface AdminTableProps {
 
 export function AdminTable({ children, className = '', density = 'compact' }: AdminTableProps) {
   return (
-    <div className={`w-full overflow-hidden border border-slate-200 dark:border-[#1E293B] rounded-xl bg-white dark:bg-[#111827] shadow-xs ${className}`}>
-      <div className="w-full overflow-x-auto">
+    <div className={`w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] ${className}`}>
+      <div className="w-full overflow-x-auto" role="region" aria-label="Dữ liệu bảng" tabIndex={0}>
         <table className={`w-full text-left text-[13px] border-collapse ${density === 'comfortable' ? 'table-comfortable' : 'table-compact'}`}>
           {children}
         </table>

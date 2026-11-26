@@ -1,339 +1,161 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Activity, CalendarDays, Camera, Compass, RefreshCw, Users, Wallet } from 'lucide-react';
 import { getStatsAction } from '@/app/actions';
-import {
-  Users,
-  Compass,
-  DollarSign,
-  Camera,
-  CalendarDays,
-  Activity,
-  RefreshCw,
-  Sparkles,
-  Flame,
-} from 'lucide-react';
 import ErrorState from '@/components/ErrorState';
-import { AdminCard, AdminCardHeader, AdminCardTitle, AdminCardDescription } from '@/components/admin/AdminCard';
 import { AdminButton } from '@/components/admin/AdminButton';
 import { AdminBadge } from '@/components/admin/AdminBadge';
+import { AdminCard } from '@/components/admin/AdminCard';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { AdminStatCard } from '@/components/admin/AdminStatCard';
-import { AdminLineChart } from '@/components/admin/charts/AdminLineChart';
 import { AdminDonutChart } from '@/components/admin/charts/AdminDonutChart';
+import { AdminLineChart } from '@/components/admin/charts/AdminLineChart';
 
-interface StatsData {
+interface Stats {
   totalUsers: number;
   totalTrips: number;
   totalExpenses: number;
   totalMoments: number;
   totalReservations: number;
   activeUsers: number;
-  northStar?: {
-    activeSquads7Days: number;
-    definition: string;
-  };
-  expenseCategories?: Array<{
-    category: string;
-    totalAmount: number;
-    count: number;
-  }>;
-  activityTrend?: Array<{
-    date: string;
-    count: number;
-  }>;
-  recentActivities: Array<{
+  northStar?: { activeSquads7Days: number; definition: string };
+  expenseCategories?: { category: string; totalAmount: number }[];
+  activityTrend?: { date: string; count: number }[];
+  recentActivities: {
     id: string;
     type: string;
     description: string;
     createdAt: string;
-    user: { id: string; name: string; avatarUrl: string | null };
-    trip: { id: string; name: string };
-  }>;
+    user?: { name: string | null };
+    trip?: { name: string | null };
+  }[];
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
-  FOOD: '#F59E0B', // Amber
-  TRANSPORT: '#38BDF8', // Cyan-sky
-  ACCOMMODATION: '#EAB308', // Amber Brand
-  ENTERTAINMENT: '#EC4899', // Pink
-  ACTIVITIES: '#22C55E', // Emerald
-  SHOPPING: '#F97316', // Orange
-  OTHER: '#64748B', // Slate
+const metrics = [
+  { field: 'totalUsers', label: 'Thành viên', Icon: Users },
+  { field: 'totalTrips', label: 'Chuyến đi', Icon: Compass },
+  { field: 'activeUsers', label: 'Thành viên hoạt động', Icon: Activity },
+  { field: 'totalExpenses', label: 'Khoản chi', Icon: Wallet },
+  { field: 'totalMoments', label: 'Khoảnh khắc', Icon: Camera },
+  { field: 'totalReservations', label: 'Đặt chỗ', Icon: CalendarDays },
+] as const;
+
+const categories: Record<string, { label: string; color: string }> = {
+  FOOD: { label: 'Ăn uống', color: '#b4543a' },
+  TRANSPORT: { label: 'Di chuyển', color: '#416d64' },
+  ACCOMMODATION: { label: 'Chỗ ở', color: '#a67b35' },
+  ENTERTAINMENT: { label: 'Giải trí', color: '#735c73' },
+  ACTIVITIES: { label: 'Tham quan', color: '#738353' },
+  SHOPPING: { label: 'Mua sắm', color: '#576e88' },
+  OTHER: { label: 'Khác', color: '#777066' },
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  FOOD: 'Ăn uống',
-  TRANSPORT: 'Di chuyển',
-  ACCOMMODATION: 'Khách sạn / Chỗ ở',
-  ENTERTAINMENT: 'Giải trí & Bar',
-  ACTIVITIES: 'Vé tham quan / Tour',
-  SHOPPING: 'Mua sắm & Quà',
-  OTHER: 'Chi tiêu khác',
-};
+const numbers = new Intl.NumberFormat('vi-VN');
+const time = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', dateStyle: 'short', timeStyle: 'short' });
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<StatsData | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchStats = async () => {
+  async function fetchStats() {
     setLoading(true);
     setError(null);
-    const res = await getStatsAction();
-    if (res.success && res.data) {
-      setStats(res.data.data || res.data);
-    } else {
-      setError(res.error || 'Không thể lấy dữ liệu thống kê');
+    try {
+      const result = await getStatsAction();
+      if (result.success && result.data) setStats(result.data);
+      else setError(result.error || 'Không tải được số liệu tổng quan.');
+    } catch {
+      setError('Không thể kết nối tới hệ thống.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
+  useEffect(() => { void fetchStats(); }, []);
 
-  const cardItems = stats
-    ? [
-        {
-          title: 'Tổng thành viên',
-          value: stats.totalUsers,
-          icon: Users,
-          color: 'text-amber-600 dark:text-amber-400 bg-amber-500/10',
-          helper: 'Tài khoản đăng ký',
-        },
-        {
-          title: 'Chuyến đi đã tạo',
-          value: stats.totalTrips,
-          icon: Compass,
-          color: 'text-[#38BDF8] bg-[#38BDF8]/10',
-          helper: 'Hành trình nhóm',
-        },
-        {
-          title: 'Thành viên hoạt động',
-          value: stats.activeUsers,
-          icon: Sparkles,
-          color: 'text-[#22C55E] bg-[#22C55E]/10',
-          helper: 'Tương tác gần đây',
-        },
-        {
-          title: 'Khoản chi tiêu',
-          value: stats.totalExpenses,
-          icon: DollarSign,
-          color: 'text-[#F59E0B] bg-[#F59E0B]/10',
-          helper: 'Giao dịch chia tiền',
-        },
-        {
-          title: 'Khoảnh khắc Moments',
-          value: stats.totalMoments,
-          icon: Camera,
-          color: 'text-pink-600 dark:text-pink-400 bg-pink-500/10',
-          helper: 'Ảnh & kỷ niệm',
-        },
-        {
-          title: 'Phiếu đặt chỗ (AI)',
-          value: stats.totalReservations,
-          icon: CalendarDays,
-          color: 'text-amber-600 dark:text-amber-400 bg-amber-500/10',
-          helper: 'Vé máy bay & khách sạn',
-        },
-      ]
-    : [];
+  const period = stats?.activityTrend?.map(({ date, count }) => ({
+    label: date.includes('-') ? date.split('-').slice(1).join('/') : date,
+    value: count,
+  })) ?? [];
 
-  const donutData =
-    stats?.expenseCategories?.map((c) => ({
-      label: CATEGORY_LABELS[c.category] || c.category,
-      value: c.totalAmount,
-      color: CATEGORY_COLORS[c.category] || '#64748B',
-    })) || [];
-
-  const lineChartData =
-    stats?.activityTrend?.map((t) => ({
-      label: t.date.includes('-')
-        ? t.date.split('-').slice(1).join('/')
-        : t.date,
-      value: t.count,
-    })) || [];
+  const expenses = (stats?.expenseCategories ?? []).map(({ category, totalAmount }) => ({
+    label: categories[category]?.label ?? category,
+    color: categories[category]?.color ?? categories.OTHER.color,
+    value: totalAmount,
+  }));
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Page Header */}
-      <AdminPageHeader
-        title="Tổng quan Hệ thống"
-        description="Chỉ số vận hành cốt lõi và hành vi người dùng cập nhật theo thời gian thực."
-      >
-        <AdminButton
-          variant="outline"
-          size="sm"
-          onClick={fetchStats}
-          loading={loading}
-          icon={<RefreshCw className="w-3.5 h-3.5" />}
-        >
-          Làm mới
-        </AdminButton>
+    <div className="space-y-6">
+      <AdminPageHeader title="Tổng quan" description="Hoạt động của thành viên, chuyến đi và chi phí trên TripMate.">
+        <AdminButton variant="outline" onClick={fetchStats} loading={loading} icon={<RefreshCw size={16} aria-hidden="true" />}>Làm mới</AdminButton>
       </AdminPageHeader>
 
-      {error && !stats && !loading ? (
-        <ErrorState message={error} onRetry={fetchStats} />
-      ) : loading && !stats ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              className="h-24 rounded-xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1E293B] animate-pulse p-4 shadow-xs"
-            />
-          ))}
+      {error && !stats ? <ErrorState message={error} onRetry={fetchStats} /> : null}
+      {loading && !stats ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Đang tải số liệu" aria-busy="true">
+          {metrics.map(({ field }) => <AdminCard key={field} className="h-26 animate-pulse motion-reduce:animate-none">{null}</AdminCard>)}
         </div>
-      ) : (
-        <>
-          {/* North Star Metric Card */}
-          <AdminCard className="bg-[#0D1424] text-white border-[#1E293B] shadow-sm relative overflow-hidden">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-              <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
-                  <Flame className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-semibold uppercase tracking-wider">
-                      North Star Metric
-                    </span>
-                    <span className="text-[11px] text-[#94A3B8]">
-                      Chỉ số quan trọng nhất
-                    </span>
-                  </div>
-                  <h2 className="text-lg md:text-xl font-bold tracking-tight text-white">
-                    Active Squads: {stats?.northStar?.activeSquads7Days ?? 0} Nhóm Hoạt Động
-                  </h2>
-                  <p className="text-xs text-[#94A3B8] mt-1 max-w-xl leading-relaxed">
-                    {stats?.northStar?.definition ||
-                      'Số nhóm có ≥3 thành viên cùng tương tác trong 7 ngày gần nhất.'}
-                  </p>
-                </div>
-              </div>
+      ) : null}
 
-              <div className="px-4 py-3 rounded-lg bg-white/5 backdrop-blur-xs border border-white/10 shrink-0 text-center w-full md:w-auto">
-                <span className="text-[10px] uppercase font-semibold text-[#94A3B8] block">
-                  Mục tiêu Q3/2026
-                </span>
-                <span className="text-lg font-bold text-amber-300 block">
-                  20+ Squads
-                </span>
-                <div className="w-full md:w-32 bg-white/10 h-1.5 rounded-full mt-2 overflow-hidden">
-                  <div
-                    className="bg-amber-400 h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${Math.min(
-                        100,
-                        ((stats?.northStar?.activeSquads7Days ?? 0) / 20) * 100
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
+      {stats && <>
+        {error && <p role="status" className="text-sm text-[var(--admin-accent-ink)]">{error} Đang hiển thị dữ liệu của lần tải trước.</p>}
+        {stats.northStar && (
+          <section className="grid items-center gap-4 rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-hover)] px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:px-6" aria-labelledby="active-groups">
+            <div className="min-w-0">
+              <h2 id="active-groups" className="text-base font-semibold">Nhóm hoạt động trong 7 ngày</h2>
+              <p className="mt-1 max-w-prose text-sm text-[var(--admin-text-secondary)]">{stats.northStar.definition}</p>
+            </div>
+            <p className="text-[clamp(1.9rem,5vw,2.7rem)] font-semibold leading-tight tabular-nums text-[var(--admin-accent-ink)]">
+              {numbers.format(stats.northStar.activeSquads7Days)}
+            </p>
+          </section>
+        )}
+
+        <section className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,152px),1fr))]" aria-label="Chỉ số vận hành">
+          {metrics.map(({ field, label, Icon }) => (
+            <AdminStatCard key={field} title={label} value={stats[field]} icon={Icon} />
+          ))}
+        </section>
+
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+          <AdminCard>
+            <h2 className="text-base font-semibold">Hoạt động trong 30 ngày</h2>
+            <div className="mt-4">
+              <AdminLineChart data={period} primaryColor="var(--admin-primary)" primaryLabel="Tương tác" valueSuffix=" lượt" />
             </div>
           </AdminCard>
-
-          {/* KPI Metrics Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5">
-            {cardItems.map((item, idx) => (
-              <AdminStatCard
-                key={idx}
-                title={item.title}
-                value={item.value}
-                helper={item.helper}
-                icon={item.icon}
-                color={item.color}
-              />
-            ))}
-          </div>
-
-          {/* Interactive Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* 30-Day Activity Trend Chart (2 Cols) */}
-            <AdminCard className="lg:col-span-2">
-              <AdminLineChart
-                data={lineChartData}
-                title="Xu hướng Hoạt động Hệ thống"
-                subtitle="Lượt tương tác và thao tác trong 30 ngày qua"
-                primaryColor="#F59E0B"
-                primaryLabel="Tương tác"
-                valueSuffix=" lượt"
-                height={220}
-              />
-            </AdminCard>
-
-            {/* Expense Categories Donut (1 Col) */}
-            <AdminCard>
-              <AdminDonutChart
-                data={donutData}
-                title="Cơ cấu Chi tiêu Du lịch"
-                subtitle="Tỷ trọng chi tiêu theo từng hạng mục"
-                totalLabel="Tổng chi tiêu"
-                valueSuffix=" đ"
-              />
-            </AdminCard>
-          </div>
-
-          {/* Recent Activity Stream */}
           <AdminCard>
-            <AdminCardHeader>
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                  <Activity className="w-4 h-4" />
-                </div>
-                <div>
-                  <AdminCardTitle>Nhật ký Hoạt động Mới nhất</AdminCardTitle>
-                  <AdminCardDescription>
-                    Ghi nhận tự động các hành động của thành viên trong chuyến đi
-                  </AdminCardDescription>
-                </div>
-              </div>
-              <AdminBadge variant="neutral">
-                {stats?.recentActivities.length ?? 0} sự kiện
-              </AdminBadge>
-            </AdminCardHeader>
-
-            {stats?.recentActivities.length === 0 ? (
-              <p className="text-xs text-[#94A3B8] text-center py-8">
-                Chưa có hoạt động nào được ghi nhận.
-              </p>
-            ) : (
-              <div className="divide-y divide-[#E2E8F0] dark:divide-[#1E293B]">
-                {stats?.recentActivities.map((act) => (
-                  <div
-                    key={act.id}
-                    className="py-3 flex items-start justify-between gap-4 first:pt-0 last:pb-0"
-                  >
-                    <div className="flex items-start gap-3 min-w-0">
-                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-[#1E293B] text-[#0F172A] dark:text-[#F8FAFC] font-semibold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                        {act.user?.name ? act.user.name.charAt(0).toUpperCase() : 'U'}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs text-[#475569] dark:text-[#94A3B8] leading-normal">
-                          <span className="font-semibold text-[#0F172A] dark:text-[#F8FAFC] mr-1">
-                            {act.user?.name || 'Thành viên'}
-                          </span>
-                          {act.description} trong chuyến đi{' '}
-                          <span className="font-medium text-amber-700 dark:text-amber-300">
-                            {act.trip?.name || 'Chuyến đi'}
-                          </span>
-                        </p>
-                        <span className="text-[11px] text-[#94A3B8] dark:text-[#64748B] mt-0.5 block">
-                          {new Date(act.createdAt).toLocaleString('vi-VN')}
-                        </span>
-                      </div>
-                    </div>
-                    <AdminBadge variant="neutral" size="xs">
-                      {act.type || 'Activity'}
-                    </AdminBadge>
-                  </div>
-                ))}
-              </div>
-            )}
+            <h2 className="text-base font-semibold">Chi tiêu theo danh mục</h2>
+            <div className="mt-4">
+              <AdminDonutChart data={expenses} totalLabel="Tổng chi tiêu" valueSuffix=" ₫" size={158} />
+            </div>
           </AdminCard>
-        </>
-      )}
+        </div>
+
+        <AdminCard>
+          <h2 className="text-base font-semibold">Hoạt động gần đây</h2>
+          {stats.recentActivities.length === 0 ? (
+            <p className="mt-3 text-sm text-[var(--admin-text-secondary)]">Chưa có hoạt động nào.</p>
+          ) : (
+            <ul className="mt-2 divide-y divide-[var(--admin-border)]">
+              {stats.recentActivities.map((entry) => (
+                <li key={entry.id} className="grid gap-2 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+                  <div className="min-w-0">
+                    <p className="text-sm leading-relaxed">
+                      <strong>{entry.user?.name ?? 'Thành viên'}</strong> {entry.description}
+                      {entry.trip?.name && <> · <span className="text-[var(--admin-accent-ink)]">{entry.trip.name}</span></>}
+                    </p>
+                    <time dateTime={entry.createdAt} className="mt-1 block text-xs text-[var(--admin-text-secondary)]">{time.format(new Date(entry.createdAt))}</time>
+                  </div>
+                  <AdminBadge className="max-w-full justify-self-start break-all" variant="neutral" size="xs">{entry.type}</AdminBadge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </AdminCard>
+      </>}
     </div>
   );
 }

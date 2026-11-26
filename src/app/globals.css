@@ -26,16 +26,19 @@
     --radius: 1.25rem;            /* 20px — ds-radius-card */
 
     /* Production Admin Tokens (Light) */
-    --admin-bg: #F8FAFC;
-    --admin-sidebar: #FFFFFF;
-    --admin-surface: #FFFFFF;
-    --admin-surface-hover: #F1F5F9;
-    --admin-border: #E2E8F0;
-    --admin-primary: #D97706;
-    --admin-primary-hover: #B45309;
-    --admin-text-primary: #0F172A;
-    --admin-text-secondary: #475569;
-    --admin-text-muted: #94A3B8;
+    --admin-bg: #f6f3ed;
+    --admin-sidebar: #fbf8f3;
+    --admin-surface: #fffdf9;
+    --admin-surface-hover: #f2ece3;
+    --admin-border: #e4dcd0;
+    --admin-primary: #a34731;
+    --admin-primary-hover: #883824;
+    --admin-accent-ink: #812f1c;
+    --admin-accent-bg: #f3e2d8;
+    --admin-action-text: #fff9f1;
+    --admin-text-primary: #28251f;
+    --admin-text-secondary: #59544b;
+    --admin-text-muted: #6c655a;
     --admin-success: #16A34A;
     --admin-warning: #D97706;
     --admin-danger: #DC2626;
@@ -64,16 +67,19 @@
     --ring: #FFD84D;
 
     /* Production Admin Tokens (Dark - #070B16 Palette) */
-    --admin-bg: #070B16;
-    --admin-sidebar: #0D1424;
-    --admin-surface: #111827;
-    --admin-surface-hover: #172238;
-    --admin-border: #1E293B;
-    --admin-primary: #FFD84D;
-    --admin-primary-hover: #FACC15;
-    --admin-text-primary: #F8FAFC;
-    --admin-text-secondary: #94A3B8;
-    --admin-text-muted: #64748B;
+    --admin-bg: #1e1c18;
+    --admin-sidebar: #26221d;
+    --admin-surface: #2b2620;
+    --admin-surface-hover: #362e26;
+    --admin-border: #4b4035;
+    --admin-primary: #f1ae94;
+    --admin-primary-hover: #fac5b1;
+    --admin-accent-ink: #fac5b1;
+    --admin-accent-bg: #482e25;
+    --admin-action-text: #302018;
+    --admin-text-primary: #f7eee2;
+    --admin-text-secondary: #cfc2b0;
+    --admin-text-muted: #b5a692;
     --admin-success: #22C55E;
     --admin-warning: #F59E0B;
     --admin-danger: #EF4444;
@@ -258,17 +264,29 @@ body {
 }
 
 
-.landing-shell section[id] {
-  scroll-margin-block-start: 5rem;
+.tripmate-admin {
+  font-family: var(--font-tripmate-ui), sans-serif;
+  line-height: 1.5;
 }
 
-.landing-shell :where(a, button, summary):focus-visible {
-  outline: 2px solid #d97706;
-  outline-offset: 3px;
+.tripmate-admin :where(h1, h2, h3, h4, p, dd, td, code) {
+  overflow-wrap: anywhere;
+}
+
+.tripmate-admin :where(input, textarea, select) {
+  max-width: 100%;
+}
+
+.tripmate-admin .admin-donut {
+  container-type: inline-size;
+}
+
+@container (min-width: 390px) {
+  .tripmate-admin .admin-donut-layout {
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .landing-shell :where(a, button) {
-    transition: none;
-  }
+  html { scroll-behavior: auto !important; }
 }

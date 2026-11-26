@@ -26,7 +26,7 @@ export interface AdminStatCardProps {
 
 const VARIANT_STYLES: Record<string, string> = {
   default: 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
-  brand: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800/50',
+  brand: 'text-[var(--admin-accent-ink)] bg-[var(--admin-accent-bg)] border-transparent',
   success: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-800/50',
   warning: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border-amber-100 dark:border-amber-800/50',
   danger: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border-rose-100 dark:border-rose-800/50',
@@ -61,15 +61,15 @@ export function AdminStatCard({
   return (
     <div
       onClick={onClick}
-      className={`p-4 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] shadow-xs flex flex-col justify-between gap-3 transition-colors duration-150 ${
+      className={`min-w-0 max-w-full p-3.5 rounded-xl bg-[var(--admin-surface)] border border-[var(--admin-border)] flex flex-col justify-between gap-2 transition-colors duration-150 ${
         onClick ? 'cursor-pointer hover:border-slate-300 dark:hover:border-slate-700' : ''
       } ${className}`}
     >
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-medium text-slate-500 dark:text-[#94A3B8] truncate">
+      <div className="flex min-w-0 items-start justify-between gap-2">
+        <span className="min-w-0 break-words text-xs font-medium leading-relaxed text-[var(--admin-text-secondary)]">
           {title}
         </span>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex max-w-[48%] shrink-0 flex-wrap justify-end gap-1.5">
           {badgeLabel && (
             <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-[#172238] text-slate-600 dark:text-slate-300">
               {badgeLabel}
@@ -83,21 +83,21 @@ export function AdminStatCard({
         </div>
       </div>
 
-      <div>
-        <div className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-slate-900 dark:text-[#F8FAFC]">
+      <div className="@container">
+        <div className="break-words text-[clamp(1rem,14cqi,1.65rem)] font-semibold leading-snug tracking-tight tabular-nums text-[var(--admin-text-primary)]">
           {typeof value === 'number' ? value.toLocaleString('vi-VN') : value}
         </div>
         
-        <div className="flex items-center justify-between mt-1 text-[11px]">
+        <div className="mt-1 flex flex-wrap items-center justify-between gap-1 text-xs">
           {subtitle && (
-            <span className="text-slate-400 dark:text-[#64748B] truncate">
+            <span className="min-w-0 break-words text-[var(--admin-text-muted)]">
               {subtitle}
             </span>
           )}
 
           {trend && (
             <div
-              className={`flex items-center gap-1 shrink-0 font-medium ${
+              className={`flex min-w-0 items-center gap-1 break-words font-medium ${
                 trend.isUp
                   ? 'text-emerald-600 dark:text-[#22C55E]'
                   : 'text-rose-600 dark:text-[#EF4444]'

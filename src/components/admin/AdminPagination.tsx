@@ -31,10 +31,10 @@ export function AdminPagination({
 
   return (
     <div
-      className={`flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 bg-white dark:bg-[#111827] border-t border-slate-200 dark:border-[#1E293B] text-xs text-slate-600 dark:text-[#94A3B8] ${className}`}
+      className={`flex min-w-0 flex-wrap items-center justify-between gap-3 border-t border-[var(--admin-border)] bg-[var(--admin-surface)] px-3 py-3 text-xs text-[var(--admin-text-secondary)] sm:px-4 ${className}`}
     >
       {/* Summary Info & Limit Selector */}
-      <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+      <div className="flex min-w-0 flex-wrap items-center gap-2.5">
         <span>
           Hiển thị{' '}
           <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">
@@ -63,7 +63,7 @@ export function AdminPagination({
       </div>
 
       {/* Page Navigation Controls */}
-      <div className="flex items-center gap-1.5 self-end sm:self-auto">
+      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
         <span className="text-slate-500 dark:text-[#64748B] text-xs mr-2">
           Trang <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{page}</span> /{' '}
           <span className="font-semibold text-slate-900 dark:text-[#F8FAFC]">{Math.max(1, totalPages)}</span>

@@ -29,6 +29,8 @@ const DEFAULT_PALETTE = [
   '#64748B', // Muted Slate
 ];
 
+const compactNumber = new Intl.NumberFormat('vi-VN', { notation: 'compact', maximumFractionDigits: 1 });
+
 export function AdminDonutChart({
   data,
   title,
@@ -77,7 +79,7 @@ export function AdminDonutChart({
   }
 
   return (
-    <div className={`w-full flex flex-col gap-4 ${className}`}>
+    <div className={`admin-donut flex w-full min-w-0 flex-col gap-4 ${className}`}>
       {(title || subtitle) && (
         <div>
           {title && (
@@ -93,14 +95,14 @@ export function AdminDonutChart({
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+      <div className="admin-donut-layout grid min-w-0 items-center justify-items-center gap-4">
         {/* SVG Donut Circle */}
-        <div className="relative shrink-0" style={{ width: size, height: size }}>
+        <div className="relative aspect-square max-w-full" style={{ width: size }}>
           <svg
             width={size}
             height={size}
             viewBox={`0 0 ${size} ${size}`}
-            className="transform -rotate-90 overflow-visible"
+            className="h-full w-full -rotate-90 overflow-visible"
           >
             {processedSegments.map((item, idx) => {
               const strokeDasharray = `${item.percent * circumference} ${circumference}`;
@@ -127,15 +129,15 @@ export function AdminDonutChart({
           </svg>
 
           {/* Center Info Text */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-2 pointer-events-none">
-            <span className="text-[10px] text-[#94A3B8] dark:text-[#64748B] uppercase tracking-wider line-clamp-1">
+          <div className="pointer-events-none absolute inset-[19%] flex min-w-0 flex-col items-center justify-center text-center">
+            <span className="line-clamp-2 max-w-full break-words text-[10px] text-[var(--admin-text-secondary)]">
               {hoveredIdx !== null ? data[hoveredIdx].label : totalLabel}
             </span>
-            <span className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC]">
+            <span className="text-xs font-semibold text-[var(--admin-text-primary)]">
               {valuePrefix}
               {hoveredIdx !== null
-                ? data[hoveredIdx].value.toLocaleString('vi-VN')
-                : total.toLocaleString('vi-VN')}
+                ? compactNumber.format(data[hoveredIdx].value)
+                : compactNumber.format(total)}
               {valueSuffix}
             </span>
             {hoveredIdx !== null && (
@@ -147,7 +149,7 @@ export function AdminDonutChart({
         </div>
 
         {/* Legend List */}
-        <div className="flex flex-col gap-2 w-full max-w-xs text-xs">
+        <div className="flex w-full min-w-0 max-w-sm flex-col gap-1.5 text-xs">
           {processedSegments.map((item, idx) => {
             const percent = (item.percent * 100).toFixed(1);
             const isHovered = hoveredIdx === idx;
@@ -157,7 +159,7 @@ export function AdminDonutChart({
                 key={idx}
                 onMouseEnter={() => setHoveredIdx(idx)}
                 onMouseLeave={() => setHoveredIdx(null)}
-                className={`flex items-center justify-between p-1.5 rounded-md transition-colors cursor-pointer ${
+                className={`flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 rounded-md p-1.5 transition-colors cursor-pointer ${
                   isHovered
                     ? 'bg-slate-100 dark:bg-[#172238]'
                     : 'hover:bg-slate-50 dark:hover:bg-[#172238]/50'
@@ -168,12 +170,12 @@ export function AdminDonutChart({
                     className="w-2.5 h-2.5 rounded-sm shrink-0"
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className="text-slate-700 dark:text-slate-300 truncate text-[11px] font-medium">
+                  <span className="min-w-0 break-words text-[11px] font-medium text-[var(--admin-text-primary)]">
                     {item.label}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 shrink-0 text-slate-500 dark:text-slate-400 text-[11px]">
-                  <span>
+                <div className="flex min-w-0 flex-wrap items-center gap-x-2 text-[11px] tabular-nums text-[var(--admin-text-secondary)]">
+                  <span className="min-w-0 break-all">
                     {valuePrefix}
                     {item.value.toLocaleString('vi-VN')}
                     {valueSuffix}

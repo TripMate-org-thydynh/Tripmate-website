@@ -260,15 +260,15 @@ export function AdminLineChart({
         {/* Hover Floating Tooltip */}
         {hoveredIndex !== null && data[hoveredIndex] && (
           <div
-            className="absolute top-2 z-20 pointer-events-none transform -translate-x-1/2 bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-[11px] font-medium py-1 px-2.5 rounded-md shadow-md"
+            className="pointer-events-none absolute top-2 z-20 max-w-[min(12rem,100%)] rounded-md border border-[var(--admin-border)] bg-[var(--admin-sidebar)] px-2.5 py-1 text-[11px] font-medium text-[var(--admin-text-primary)] shadow-md"
             style={{
-              left: `${(getX(hoveredIndex) / width) * 100}%`,
+              left: `clamp(0px, calc(${(getX(hoveredIndex) / width) * 100}% - 5rem), max(0px, 100% - 12rem))`,
             }}
           >
             <span className="opacity-75 block text-[9px] mb-0.5">
               {data[hoveredIndex].label}
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 break-words">
               <span className="font-bold">
                 {valuePrefix}
                 {data[hoveredIndex].value.toLocaleString('vi-VN')}

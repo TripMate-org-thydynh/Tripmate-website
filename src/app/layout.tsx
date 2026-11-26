@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Quicksand } from 'next/font/google';
+import { Be_Vietnam_Pro, Quicksand } from 'next/font/google';
 import './tokens.css';
 import './globals.css';
 
@@ -7,6 +7,12 @@ const quicksand = Quicksand({
   subsets: ['latin', 'vietnamese'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-quicksand',
+});
+
+const tripmateUi = Be_Vietnam_Pro({
+  subsets: ['latin', 'vietnamese'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-tripmate-ui',
 });
 
 export const metadata: Metadata = {
@@ -34,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className={`${quicksand.variable} scroll-smooth`} suppressHydrationWarning>
+    <html lang="vi" className={`${quicksand.variable} ${tripmateUi.variable} motion-safe:scroll-smooth`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

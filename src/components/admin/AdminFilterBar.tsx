@@ -27,19 +27,19 @@ export function AdminFilterBar({
 }: AdminFilterBarProps) {
   return (
     <div
-      className={`p-3.5 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 ${className}`}
+      className={`min-w-0 max-w-full rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] p-3.5 flex flex-wrap items-center justify-between gap-3 ${className}`}
     >
       {tabs ? (
-        <div className="flex-1 overflow-x-auto min-w-0">
+        <div className="min-w-0 max-w-full basis-48 flex-1 overflow-x-auto py-0.5">
           {tabs}
         </div>
       ) : null}
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 ml-auto w-full md:w-auto">
+      <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2.5">
         {onSearchChange !== undefined && (
           <form
             onSubmit={onSearchSubmit ? onSearchSubmit : (e) => e.preventDefault()}
-            className="w-full sm:w-64"
+            className="w-full max-w-full sm:w-64"
           >
             <AdminInput
               value={search ?? ''}
@@ -51,7 +51,7 @@ export function AdminFilterBar({
         )}
 
         {(customFilters || children) && (
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
             {customFilters || children}
           </div>
         )}
