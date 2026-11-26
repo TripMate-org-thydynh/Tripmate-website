@@ -26,7 +26,7 @@ export function TravelMotion() {
       for (const { scene, bounds } of measurements) {
         const progress = scene.dataset.travelMotion === 'hero'
           ? window.scrollY / Math.min(450, viewport * .5)
-          : (viewport - bounds.top) / (bounds.height + viewport * .55);
+          : (viewport - bounds.top - 20) / Math.min(235, Math.max(140, bounds.height * .75));
         const clamped = Math.max(0, Math.min(1, progress));
         const value = clamped.toFixed(3);
         if (scene.style.getPropertyValue('--scene-progress') !== value) {

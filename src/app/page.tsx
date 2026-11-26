@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowDown, ArrowRight, ChevronDown, MapPin, Menu } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, ChevronDown, MapPin, Menu } from 'lucide-react';
 import { TripJourney } from '@/components/landing/TripJourney';
 import { TravelMotion } from '@/components/landing/TravelMotion';
+import { TravelAlbum } from '@/components/landing/TravelAlbum';
 import { TripMateMark } from '@/components/TripMateMark';
 import ThemeToggle from '@/components/ThemeToggle';
 import './landing.css';
@@ -21,9 +22,16 @@ export const metadata: Metadata = {
 };
 
 const sections = [
+  { id: 'album', label: 'Album' },
   { id: 'features', label: 'Tính năng' },
   { id: 'story', label: 'Chuyến đi mẫu' },
   { id: 'faq', label: 'Hỏi đáp' },
+];
+
+const socialLinks = [
+  { label: 'Facebook', href: 'https://www.facebook.com/' },
+  { label: 'Zalo', href: 'https://zalo.me/' },
+  { label: 'Instagram', href: 'https://www.instagram.com/' },
 ];
 
 const days = [
@@ -45,7 +53,7 @@ export default function LandingPage() {
     <div className="tripmate-landing">
       <TravelMotion />
       <a className="travel-skip" href="#landing-main">Đến nội dung chính</a>
-      <header className="travel-header">
+      <header className="travel-header" id="tripmate-top">
         <div className="travel-wrap travel-header-inner">
           <Link href="/" className="travel-wordmark" aria-label="Trang chủ TripMate">
             <TripMateMark size={32} />
@@ -84,22 +92,17 @@ export default function LandingPage() {
               <Image className="travel-squad" src="/tripmate/brand/ill_squad.svg" alt="Bốn người bạn cùng chụp ảnh trong chuyến đi" width={513} height={720} preload unoptimized />
             </div>
             <div className="travel-hero-links">
-              <a className="travel-scroll-link" href="#features"><span><ArrowDown aria-hidden="true" size={18} /></span> Khám phá TripMate</a>
+              <a className="travel-scroll-link" href="#album"><span><ArrowDown aria-hidden="true" size={18} /></span> Khám phá TripMate</a>
               <a className="travel-destination-link" href="#story"><MapPin aria-hidden="true" size={17} /> Đà Lạt, Lâm Đồng <ArrowRight aria-hidden="true" size={14} /></a>
             </div>
           </div>
         </section>
 
+        <TravelAlbum />
         <TripJourney />
 
-        <section className="travel-story" id="story" aria-labelledby="story-title" data-travel-motion="">
-          <figure className="travel-photo">
-            <div className="travel-photo-frame">
-              <Image src="/tripmate/da-lat/pine-forest.jpg" alt="Nắng chiếu qua những hàng thông ở Đà Lạt" fill sizes="(max-width: 810px) 100vw, 72vw" />
-            </div>
-            <figcaption><span>Đà Lạt, Lâm Đồng</span><a href="https://www.pexels.com/photo/scenic-pine-tree-forest-in-dalat-vietnam-35731564/">Ảnh Quang Vuong</a></figcaption>
-          </figure>
-          <div className="travel-story-content" data-travel-reveal="">
+        <section className="travel-story" id="story" aria-labelledby="story-title">
+          <div className="travel-wrap travel-story-content" data-travel-reveal="">
             <p className="travel-kicker">Chuyến đi mẫu</p>
             <h2 id="story-title">Ba ngày ở Đà Lạt</h2>
             <p className="travel-section-intro">Một lịch trình cuối tuần để cả nhóm cùng xem trước khi lên đường.</p>
@@ -133,7 +136,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="travel-bottom" aria-labelledby="next-trip-title" data-travel-motion="">
+        <section className="travel-bottom" aria-labelledby="next-trip-title">
           <div className="travel-wrap travel-bottom-inner" data-travel-reveal="">
             <div>
               <h2 id="next-trip-title">Chuyến sau đi đâu?</h2>
@@ -145,9 +148,39 @@ export default function LandingPage() {
       </main>
 
       <footer className="travel-footer">
-        <div className="travel-wrap travel-footer-inner">
-          <Link href="/" className="travel-wordmark" aria-label="Trang chủ TripMate"><TripMateMark size={28} /><span>TripMate</span></Link>
-          <Link href="/admin/login">Trang quản trị</Link>
+        <div className="travel-wrap">
+          <div className="travel-footer-main">
+            <div className="travel-footer-brand">
+              <Link href="/" className="travel-wordmark" aria-label="Trang chủ TripMate">
+                <TripMateMark size={34} />
+                <span>TripMate</span>
+              </Link>
+              <p>Dành cho những chuyến đi tự túc cùng bạn bè.</p>
+            </div>
+            <nav aria-labelledby="footer-explore">
+              <h2 id="footer-explore">Khám phá</h2>
+              <ul className="travel-footer-links">
+                {sections.map(({ id, label }) => <li key={id}><a href={'#' + id}>{label}</a></li>)}
+              </ul>
+            </nav>
+            <nav aria-labelledby="footer-social" aria-describedby="footer-social-note">
+              <h2 id="footer-social">Mạng xã hội</h2>
+              <ul className="travel-footer-links travel-footer-social">
+                {socialLinks.map(({ label, href }) => (
+                  <li key={label}>
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                      {label}<ArrowUpRight size={15} aria-hidden="true" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p className="travel-footer-note" id="footer-social-note">Liên kết mẫu · mở tab mới</p>
+            </nav>
+          </div>
+          <div className="travel-footer-meta">
+            <small>© TripMate</small>
+            <a href="#tripmate-top">Về đầu trang <ArrowUp size={16} aria-hidden="true" /></a>
+          </div>
         </div>
       </footer>
     </div>
