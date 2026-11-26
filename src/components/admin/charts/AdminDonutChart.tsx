@@ -72,7 +72,7 @@ export function AdminDonutChart({
 
   if (!data || data.length === 0 || total === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-48 text-slate-400 dark:text-slate-500 text-xs">
+      <div className="flex flex-col items-center justify-center h-48 text-admin-text-muted text-xs">
         Chưa có dữ liệu danh mục
       </div>
     );
@@ -83,12 +83,12 @@ export function AdminDonutChart({
       {(title || subtitle) && (
         <div>
           {title && (
-            <h4 className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+            <h4 className="text-xs font-semibold text-admin-text-primary">
               {title}
             </h4>
           )}
           {subtitle && (
-            <p className="text-[11px] text-[#475569] dark:text-[#94A3B8] mt-0.5">
+            <p className="text-[11px] text-admin-text-secondary dark:text-admin-text-muted mt-0.5">
               {subtitle}
             </p>
           )}
@@ -130,10 +130,10 @@ export function AdminDonutChart({
 
           {/* Center Info Text */}
           <div className="pointer-events-none absolute inset-[19%] flex min-w-0 flex-col items-center justify-center text-center">
-            <span className="line-clamp-2 max-w-full break-words text-[10px] text-[var(--admin-text-secondary)]">
+            <span className="line-clamp-2 max-w-full break-words text-[10px] text-admin-text-secondary">
               {hoveredIdx !== null ? data[hoveredIdx].label : totalLabel}
             </span>
-            <span className="text-xs font-semibold text-[var(--admin-text-primary)]">
+            <span className="text-xs font-semibold text-admin-text-primary">
               {valuePrefix}
               {hoveredIdx !== null
                 ? compactNumber.format(data[hoveredIdx].value)
@@ -159,28 +159,28 @@ export function AdminDonutChart({
                 key={idx}
                 onMouseEnter={() => setHoveredIdx(idx)}
                 onMouseLeave={() => setHoveredIdx(null)}
-                className={`flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 rounded-md p-1.5 transition-colors cursor-pointer ${
+                className={`flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 p-1.5 transition-colors cursor-pointer ${
                   isHovered
-                    ? 'bg-slate-100 dark:bg-[#172238]'
-                    : 'hover:bg-slate-50 dark:hover:bg-[#172238]/50'
+                    ? 'bg-admin-surface-hover'
+                    : 'hover:bg-admin-bg dark:hover:bg-admin-surface-hover/50'
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <span
-                    className="w-2.5 h-2.5 rounded-sm shrink-0"
+                    className="w-2.5 h-2.5 shrink-0"
                     style={{ backgroundColor: item.color }}
                   />
-                  <span className="min-w-0 break-words text-[11px] font-medium text-[var(--admin-text-primary)]">
+                  <span className="min-w-0 break-words text-[11px] font-medium text-admin-text-primary">
                     {item.label}
                   </span>
                 </div>
-                <div className="flex min-w-0 flex-wrap items-center gap-x-2 text-[11px] tabular-nums text-[var(--admin-text-secondary)]">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-2 text-[11px] tabular-nums text-admin-text-secondary">
                   <span className="min-w-0 break-all">
                     {valuePrefix}
                     {item.value.toLocaleString('vi-VN')}
                     {valueSuffix}
                   </span>
-                  <span className="w-9 text-right font-semibold text-slate-800 dark:text-slate-200">
+                  <span className="w-9 text-right font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                     {percent}%
                   </span>
                 </div>

@@ -26,19 +26,19 @@
     --radius: 1.25rem;            /* 20px — ds-radius-card */
 
     /* Production Admin Tokens (Light) */
-    --admin-bg: #f6f3ed;
-    --admin-sidebar: #fbf8f3;
-    --admin-surface: #fffdf9;
-    --admin-surface-hover: #f2ece3;
-    --admin-border: #e4dcd0;
-    --admin-primary: #a34731;
-    --admin-primary-hover: #883824;
-    --admin-accent-ink: #812f1c;
-    --admin-accent-bg: #f3e2d8;
-    --admin-action-text: #fff9f1;
-    --admin-text-primary: #28251f;
-    --admin-text-secondary: #59544b;
-    --admin-text-muted: #6c655a;
+    --admin-bg: #f5f6f8;
+    --admin-sidebar: #edf0f3;
+    --admin-surface: #ffffff;
+    --admin-surface-hover: #e9edf2;
+    --admin-border: #dbe1e8;
+    --admin-primary: #a14632;
+    --admin-primary-hover: #873722;
+    --admin-accent-ink: #8b3626;
+    --admin-accent-bg: #f5e7e2;
+    --admin-action-text: #ffffff;
+    --admin-text-primary: #191f29;
+    --admin-text-secondary: #454f60;
+    --admin-text-muted: #5d697b;
     --admin-success: #16A34A;
     --admin-warning: #D97706;
     --admin-danger: #DC2626;
@@ -67,19 +67,19 @@
     --ring: #FFD84D;
 
     /* Production Admin Tokens (Dark - #070B16 Palette) */
-    --admin-bg: #1e1c18;
-    --admin-sidebar: #26221d;
-    --admin-surface: #2b2620;
-    --admin-surface-hover: #362e26;
-    --admin-border: #4b4035;
+    --admin-bg: #141921;
+    --admin-sidebar: #191f29;
+    --admin-surface: #1e2530;
+    --admin-surface-hover: #283341;
+    --admin-border: #354254;
     --admin-primary: #f1ae94;
     --admin-primary-hover: #fac5b1;
     --admin-accent-ink: #fac5b1;
-    --admin-accent-bg: #482e25;
-    --admin-action-text: #302018;
-    --admin-text-primary: #f7eee2;
-    --admin-text-secondary: #cfc2b0;
-    --admin-text-muted: #b5a692;
+    --admin-accent-bg: #493027;
+    --admin-action-text: #2c1b16;
+    --admin-text-primary: #f1f4f8;
+    --admin-text-secondary: #c0cad8;
+    --admin-text-muted: #a4b1c2;
     --admin-success: #22C55E;
     --admin-warning: #F59E0B;
     --admin-danger: #EF4444;
@@ -267,6 +267,61 @@ body {
 .tripmate-admin {
   font-family: var(--font-tripmate-ui), sans-serif;
   line-height: 1.5;
+  color-scheme: light;
+}
+
+.dark .tripmate-admin {
+  color-scheme: dark;
+}
+
+.tripmate-admin :where(a, button, summary, input, select, textarea, [tabindex="0"]):focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .admin-toolbar-control {
+    display: inline-flex;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding-inline: .625rem;
+    color: var(--admin-text-secondary);
+    cursor: pointer;
+    transition: background-color 150ms, color 150ms;
+  }
+
+  .admin-toolbar-control:hover,
+  .admin-toolbar-control[aria-expanded="true"] {
+    background: var(--admin-surface-hover);
+    color: var(--admin-text-primary);
+  }
+}
+
+.admin-nav-link[aria-current="page"] {
+  box-shadow: inset 2px 0 var(--admin-primary);
+}
+
+.admin-field {
+  border: 0;
+  border-bottom: 1px solid var(--admin-border);
+  background: var(--admin-bg);
+  color: var(--admin-text-primary);
+  transition: background-color 150ms, border-color 150ms;
+}
+
+.admin-field:hover:not(:disabled) {
+  background: var(--admin-surface-hover);
+}
+
+.admin-field::placeholder {
+  color: var(--admin-text-muted);
+}
+
+.admin-field[aria-invalid="true"] {
+  border-color: var(--admin-danger);
 }
 
 .tripmate-admin :where(h1, h2, h3, h4, p, dd, td, code) {

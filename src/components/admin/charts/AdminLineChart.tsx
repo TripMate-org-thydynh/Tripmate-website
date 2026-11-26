@@ -29,8 +29,8 @@ export function AdminLineChart({
   height = 220,
   valuePrefix = '',
   valueSuffix = '',
-  primaryColor = '#F59E0B', // Amber brand
-  secondaryColor = '#38BDF8', // Cyan-sky
+  primaryColor = 'var(--admin-primary)',
+  secondaryColor = 'var(--admin-info)',
   primaryLabel = 'Số liệu',
   secondaryLabel,
   className = '',
@@ -41,7 +41,7 @@ export function AdminLineChart({
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-48 text-slate-400 dark:text-slate-500 text-xs">
+      <div className="flex flex-col items-center justify-center h-48 text-admin-text-muted text-xs">
         Chưa có dữ liệu biểu đồ
       </div>
     );
@@ -57,7 +57,11 @@ export function AdminLineChart({
     d.secondaryValue !== undefined ? d.secondaryValue : 0,
   ]);
   const maxValue = Math.max(...allValues, 1);
-  const roundedMax = Math.ceil(maxValue * 1.15);
+  const stepEstimate = maxValue / 4;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(stepEstimate)));
+  const interval = Math.max(1, (stepEstimate / magnitude <= 2 ? 2 : stepEstimate / magnitude <= 5 ? 5 : 10) * magnitude);
+  const tickCount = Math.ceil(maxValue / interval);
+  const roundedMax = tickCount * interval;
 
   const getX = (index: number) => {
     if (data.length === 1) return padding.left + chartWidth / 2;
@@ -86,10 +90,8 @@ export function AdminLineChart({
       .join(' ');
   }
 
-  const yTicks = [0, 0.25, 0.5, 0.75, 1].map((pct) => ({
-    val: Math.round(roundedMax * pct),
-    y: padding.top + chartHeight - pct * chartHeight,
-  }));
+  const axisNumber = new Intl.NumberFormat('vi-VN', { notation: 'compact', maximumFractionDigits: 1 });
+  const yTicks = Array.from({ length: tickCount + 1 }, (_, index) => index * interval);
 
   return (
     <div className={`w-full flex flex-col gap-3 ${className}`}>
@@ -97,21 +99,21 @@ export function AdminLineChart({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             {title && (
-              <h4 className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+              <h4 className="text-xs font-semibold text-admin-text-primary">
                 {title}
               </h4>
             )}
             {subtitle && (
-              <p className="text-[11px] text-[#475569] dark:text-[#94A3B8]">
+              <p className="text-[11px] text-admin-text-secondary dark:text-admin-text-muted">
                 {subtitle}
               </p>
             )}
           </div>
 
-          <div className="flex items-center gap-4 text-[11px] text-[#475569] dark:text-[#94A3B8]">
+          <div className="flex items-center gap-4 text-[11px] text-admin-text-secondary dark:text-admin-text-muted">
             <div className="flex items-center gap-1.5">
               <span
-                className="w-2.5 h-2.5 rounded-sm"
+                className="w-2.5 h-2.5 "
                 style={{ backgroundColor: primaryColor }}
               />
               <span>{primaryLabel}</span>
@@ -119,7 +121,7 @@ export function AdminLineChart({
             {secondaryLabel && (
               <div className="flex items-center gap-1.5">
                 <span
-                  className="w-2.5 h-2.5 rounded-sm"
+                  className="w-2.5 h-2.5 "
                   style={{ backgroundColor: secondaryColor }}
                 />
                 <span>{secondaryLabel}</span>
@@ -132,6 +134,8 @@ export function AdminLineChart({
       {/* Responsive SVG Container */}
       <div className="relative w-full overflow-hidden">
         <svg
+          role="img"
+          aria-label={title || primaryLabel}
           viewBox={`0 0 ${width} ${height}`}
           className="w-full h-auto overflow-visible"
         >
@@ -143,24 +147,24 @@ export function AdminLineChart({
           </defs>
 
           {/* Grid lines */}
-          {yTicks.map((tick, idx) => (
-            <g key={idx}>
+          {yTicks.map((tick) => (
+            <g key={tick}>
               <line
                 x1={padding.left}
-                y1={tick.y}
+                y1={getY(tick)}
                 x2={width - padding.right}
-                y2={tick.y}
-                className="stroke-slate-200 dark:stroke-[#1E293B]"
+                y2={getY(tick)}
+                className="stroke-admin-border"
                 strokeDasharray="3 3"
                 strokeWidth="1"
               />
               <text
                 x={padding.left - 8}
-                y={tick.y + 3}
+                y={getY(tick) + 3}
                 textAnchor="end"
-                className="text-[10px] fill-[#94A3B8] dark:fill-[#64748B]"
+                className="fill-admin-text-muted text-[10px] tabular-nums"
               >
-                {tick.val}
+                {axisNumber.format(tick)}
               </text>
             </g>
           ))}
@@ -223,7 +227,7 @@ export function AdminLineChart({
                   cx={cx}
                   cy={cy}
                   r={isHovered ? 4.5 : 2.5}
-                  fill="#ffffff"
+                  fill="var(--admin-surface)"
                   stroke={primaryColor}
                   strokeWidth="2"
                   className="transition-all duration-150"
@@ -238,7 +242,7 @@ export function AdminLineChart({
                     x={cx}
                     y={height - 10}
                     textAnchor="middle"
-                    className="text-[10px] fill-slate-400 dark:fill-slate-500"
+                    className="fill-admin-text-muted text-[10px] tabular-nums"
                   >
                     {d.label}
                   </text>
@@ -260,7 +264,7 @@ export function AdminLineChart({
         {/* Hover Floating Tooltip */}
         {hoveredIndex !== null && data[hoveredIndex] && (
           <div
-            className="pointer-events-none absolute top-2 z-20 max-w-[min(12rem,100%)] rounded-md border border-[var(--admin-border)] bg-[var(--admin-sidebar)] px-2.5 py-1 text-[11px] font-medium text-[var(--admin-text-primary)] shadow-md"
+            className="pointer-events-none absolute top-2 z-20 max-w-[min(12rem,100%)] bg-admin-sidebar px-2.5 py-1 text-[11px] font-medium text-admin-text-primary shadow-md"
             style={{
               left: `clamp(0px, calc(${(getX(hoveredIndex) / width) * 100}% - 5rem), max(0px, 100% - 12rem))`,
             }}

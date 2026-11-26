@@ -371,7 +371,7 @@ export default function AdminPackingPage() {
         searchPlaceholder="Tìm theo tên đồ dùng, chuyến đi..."
         customFilters={
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">Danh mục:</span>
+            <span className="text-xs text-admin-text-muted whitespace-nowrap">Danh mục:</span>
             <AdminSelect
               value={catFilter}
               onChange={(e) => {
@@ -438,8 +438,8 @@ export default function AdminPackingPage() {
                         <span
                           className={`font-semibold text-xs transition-colors ${
                             item.isPacked
-                              ? 'line-through text-slate-400 dark:text-slate-500'
-                              : 'text-slate-900 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400'
+                              ? 'line-through text-admin-text-muted'
+                              : 'text-admin-text-primary group-hover:text-amber-600 dark:group-hover:text-amber-400'
                           }`}
                         >
                           {item.name}
@@ -456,14 +456,14 @@ export default function AdminPackingPage() {
 
                     {/* Quantity */}
                     <AdminTableCell align="center">
-                      <span className="font-semibold text-slate-800 dark:text-slate-200 text-xs">
+                      <span className="font-semibold text-admin-text-primary dark:text-admin-text-secondary text-xs">
                         x{item.quantity}
                       </span>
                     </AdminTableCell>
 
                     {/* Added By */}
                     <AdminTableCell>
-                      <span className="text-slate-600 dark:text-slate-400 text-xs">
+                      <span className="text-admin-text-secondary dark:text-admin-text-muted text-xs">
                         {item.user?.name || item.user?.email || 'Thành viên'}
                       </span>
                     </AdminTableCell>
@@ -487,7 +487,7 @@ export default function AdminPackingPage() {
                         actions={[
                           {
                             label: 'Xem chi tiết',
-                            icon: <Eye className="w-3.5 h-3.5 text-slate-400" />,
+                            icon: <Eye className="w-3.5 h-3.5 text-admin-text-muted" />,
                             onClick: () => setViewingItem(item),
                           },
                           {
@@ -583,8 +583,8 @@ export default function AdminPackingPage() {
         {viewingItem && (
           <div className="flex flex-col gap-5">
             <div className="grid grid-cols-2 gap-3.5">
-              <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B]">
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+              <div className="p-3.5 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-semibold text-admin-text-muted uppercase tracking-wider block mb-1">
                   Danh mục
                 </span>
                 <AdminBadge variant={CATEGORY_CONFIG[viewingItem.category]?.variant || 'neutral'} size="xs">
@@ -592,8 +592,8 @@ export default function AdminPackingPage() {
                 </AdminBadge>
               </div>
 
-              <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B]">
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+              <div className="p-3.5 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-semibold text-admin-text-muted uppercase tracking-wider block mb-1">
                   Trạng thái
                 </span>
                 <AdminBadge variant={viewingItem.isPacked ? 'success' : 'neutral'} dot size="xs">
@@ -601,18 +601,18 @@ export default function AdminPackingPage() {
                 </AdminBadge>
               </div>
 
-              <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B]">
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+              <div className="p-3.5 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-semibold text-admin-text-muted uppercase tracking-wider block mb-1">
                   Số lượng
                 </span>
-                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                <span className="text-xs font-bold text-admin-text-primary flex items-center gap-1.5">
                   <Package className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   {viewingItem.quantity} cái / chiếc
                 </span>
               </div>
 
-              <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B]">
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+              <div className="p-3.5 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-semibold text-admin-text-muted uppercase tracking-wider block mb-1">
                   Chuyến đi
                 </span>
                 <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1.5 truncate">
@@ -622,14 +622,14 @@ export default function AdminPackingPage() {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-lg border border-slate-200 dark:border-[#1E293B] bg-slate-50 dark:bg-[#0D1424]">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+            <div className="p-3.5 border-admin-border bg-admin-bg">
+              <span className="text-[10px] font-semibold text-admin-text-muted uppercase tracking-wider block mb-1">
                 Người chịu trách nhiệm / Thêm món
               </span>
-              <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+              <p className="text-xs font-semibold text-admin-text-primary">
                 {viewingItem.user?.name || 'Thành viên'}
               </p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{viewingItem.user?.email || 'N/A'}</p>
+              <p className="text-[11px] text-admin-text-muted mt-0.5">{viewingItem.user?.email || 'N/A'}</p>
             </div>
           </div>
         )}
@@ -704,7 +704,7 @@ export default function AdminPackingPage() {
             </AdminSelect>
           </div>
 
-          <div className="flex justify-end gap-2.5 pt-4 mt-2 border-t border-slate-100 dark:border-[#1E293B]">
+          <div className="flex justify-end gap-2.5 pt-4 mt-2 border-t border-admin-border">
             <AdminButton
               type="button"
               variant="outline"

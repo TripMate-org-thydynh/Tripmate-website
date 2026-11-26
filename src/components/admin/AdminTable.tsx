@@ -11,8 +11,8 @@ interface AdminTableProps {
 
 export function AdminTable({ children, className = '', density = 'compact' }: AdminTableProps) {
   return (
-    <div className={`w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] ${className}`}>
-      <div className="w-full overflow-x-auto" role="region" aria-label="Dữ liệu bảng" tabIndex={0}>
+    <div className={`w-full min-w-0 max-w-full bg-admin-surface ${className}`}>
+      <div className="w-full overflow-x-auto focus-visible:-outline-offset-2" role="region" aria-label="Dữ liệu bảng" tabIndex={0}>
         <table className={`w-full text-left text-[13px] border-collapse ${density === 'comfortable' ? 'table-comfortable' : 'table-compact'}`}>
           {children}
         </table>
@@ -32,7 +32,7 @@ export function AdminTableHeader({
 }) {
   return (
     <thead
-      className={`bg-slate-50/90 dark:bg-[#0D1424] border-b border-slate-200 dark:border-[#1E293B] text-slate-600 dark:text-[#94A3B8] font-semibold uppercase tracking-wider text-[11px] ${
+      className={`border-b border-admin-border bg-admin-sidebar text-xs font-semibold text-admin-text-secondary ${
         sticky ? 'sticky top-0 z-10 backdrop-blur-xs' : ''
       } ${className}`}
     >
@@ -55,10 +55,10 @@ export function AdminTableRow({
   return (
     <tr
       onClick={onClick}
-      className={`border-b border-slate-100 dark:border-[#1E293B] last:border-0 transition-colors duration-100 ${
+      className={`border-b border-admin-border/70 transition-colors duration-100 last:border-0 ${
         selected
-          ? 'bg-amber-500/10 dark:bg-amber-500/15'
-          : 'hover:bg-slate-50/70 dark:hover:bg-[#172238]'
+          ? 'bg-[var(--admin-accent-bg)]'
+          : 'hover:bg-admin-bg'
       } ${onClick ? 'cursor-pointer' : ''} ${className}`}
     >
       {children}
@@ -94,29 +94,18 @@ export function AdminTableHead({
   return (
     <th
       style={width ? { width } : undefined}
-      className={`py-2.5 px-3.5 text-[11px] font-semibold text-slate-600 dark:text-[#94A3B8] select-none ${alignClass} ${
-        sortable ? 'cursor-pointer hover:text-slate-900 dark:hover:text-[#F8FAFC]' : ''
-      } ${className}`}
-      onClick={sortable ? onSort : undefined}
+      scope="col"
+      aria-sort={sortable && sortDirection ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}
+      className={`px-4 py-3 text-xs font-semibold text-admin-text-secondary ${alignClass} ${className}`}
     >
-      <div
-        className={`inline-flex items-center gap-1.5 ${
-          align === 'right' ? 'justify-end' : align === 'center' ? 'justify-center' : 'justify-start'
-        }`}
-      >
-        <span>{children}</span>
-        {sortable && (
-          <span className="text-slate-400 dark:text-[#64748B]">
-            {sortDirection === 'asc' ? (
-              <ArrowUp className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-            ) : sortDirection === 'desc' ? (
-              <ArrowDown className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-            ) : (
-              <ArrowUpDown className="w-3 h-3 opacity-60" />
-            )}
-          </span>
-        )}
-      </div>
+      {sortable ? (
+        <button type="button" onClick={onSort} className="inline-flex cursor-pointer items-center gap-1.5 hover:text-admin-text-primary">
+          {children}
+          {sortDirection === 'asc' ? <ArrowUp className="size-3.5 text-admin-primary" aria-hidden="true" />
+            : sortDirection === 'desc' ? <ArrowDown className="size-3.5 text-admin-primary" aria-hidden="true" />
+              : <ArrowUpDown className="size-3.5 text-admin-text-muted" aria-hidden="true" />}
+        </button>
+      ) : children}
     </th>
   );
 }
@@ -145,7 +134,7 @@ export function AdminTableCell({
   return (
     <td
       colSpan={colSpan}
-      className={`py-2.5 px-3.5 text-[13px] text-slate-800 dark:text-[#F8FAFC] align-middle ${
+      className={`px-4 py-3 text-[13px] text-admin-text-primary align-middle ${
         mono ? 'font-mono tabular-nums' : ''
       } ${alignClass} ${className}`}
     >
@@ -166,12 +155,12 @@ export function AdminTableSkeleton({
       {Array.from({ length: rows }).map((_, rIdx) => (
         <tr
           key={rIdx}
-          className="border-b border-slate-100 dark:border-[#1E293B] last:border-0"
+          className="border-b border-admin-border/70 last:border-0"
         >
           {Array.from({ length: columns }).map((_, cIdx) => (
-            <td key={cIdx} className="py-2.5 px-3.5">
+            <td key={cIdx} className="px-4 py-3">
               <div
-                className="h-4 rounded-md bg-slate-200 dark:bg-[#172238] animate-pulse"
+                className="h-4 bg-admin-surface-hover motion-safe:animate-pulse"
                 style={{
                   width: `${60 + ((rIdx + cIdx) % 4) * 10}%`,
                   maxWidth: '140px',
@@ -199,10 +188,10 @@ export function AdminTableEmpty({
       <tr>
         <td colSpan={colSpan} className="py-12 px-4 text-center">
           <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
-            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#172238] flex items-center justify-center text-slate-400 dark:text-[#64748B] mb-1">
-              <Inbox className="w-5 h-5" />
+            <div className="mb-1 grid size-10 place-items-center bg-admin-bg text-admin-text-muted">
+              <Inbox className="size-5" aria-hidden="true" />
             </div>
-            <p className="text-xs font-medium text-slate-600 dark:text-[#94A3B8]">
+            <p className="text-sm font-medium text-admin-text-secondary">
               {message}
             </p>
             {action && <div className="mt-2">{action}</div>}

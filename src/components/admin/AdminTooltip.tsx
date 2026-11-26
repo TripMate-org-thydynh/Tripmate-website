@@ -38,9 +38,9 @@ export function AdminTooltip({
           role="tooltip"
           className={`
             absolute z-50 pointer-events-none whitespace-nowrap
-            px-2 py-1 rounded text-[11px] font-medium leading-normal
+            px-2 py-1 text-[11px] font-medium leading-normal
             bg-slate-900 text-slate-100 dark:bg-[#1E293B] dark:text-[#F8FAFC]
-            border border-slate-800 dark:border-[#334155] shadow-md
+            border border-admin-border shadow-md
             animate-in fade-in-50 zoom-in-95 duration-100
             ${positionClasses[position]}
           `}

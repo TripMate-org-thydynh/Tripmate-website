@@ -357,7 +357,7 @@ export default function AdminJournalPage() {
         searchPlaceholder="Tìm theo tiêu đề, tác giả, chuyến đi..."
         customFilters={
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">Tâm trạng:</span>
+            <span className="text-xs text-admin-text-muted whitespace-nowrap">Tâm trạng:</span>
             <AdminSelect
               value={moodFilter}
               onChange={(e) => {
@@ -409,10 +409,10 @@ export default function AdminJournalPage() {
                         className="flex flex-col gap-0.5 cursor-pointer group max-w-sm"
                         onClick={() => setReadingEntry(j)}
                       >
-                        <h4 className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate text-xs">
+                        <h4 className="font-semibold text-admin-text-primary group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate text-xs">
                           {j.title || 'Nhật ký không đề'}
                         </h4>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                        <p className="text-[11px] text-admin-text-muted truncate">
                           {j.body}
                         </p>
                       </div>
@@ -428,8 +428,8 @@ export default function AdminJournalPage() {
 
                     {/* Entry Date */}
                     <AdminTableCell>
-                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      <div className="flex items-center gap-1.5 text-admin-text-muted text-xs whitespace-nowrap">
+                        <Calendar className="w-3.5 h-3.5 text-admin-text-muted" />
                         <span>{new Date(j.entryDate).toLocaleDateString('vi-VN')}</span>
                       </div>
                     </AdminTableCell>
@@ -437,8 +437,8 @@ export default function AdminJournalPage() {
                     {/* Author */}
                     <AdminTableCell>
                       <div className="flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
+                        <User className="w-3.5 h-3.5 text-admin-text-muted" />
+                        <span className="text-xs font-medium text-admin-text-primary dark:text-admin-text-secondary">
                           {j.author?.name || j.author?.email || 'Thành viên'}
                         </span>
                       </div>
@@ -463,7 +463,7 @@ export default function AdminJournalPage() {
                         actions={[
                           {
                             label: 'Đọc chi tiết',
-                            icon: <Eye className="w-3.5 h-3.5 text-slate-400" />,
+                            icon: <Eye className="w-3.5 h-3.5 text-admin-text-muted" />,
                             onClick: () => setReadingEntry(j),
                           },
                           {
@@ -557,9 +557,9 @@ export default function AdminJournalPage() {
       >
         {readingEntry && (
           <div className="flex flex-col gap-5">
-            <div className="flex items-center justify-between p-3.5 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B]">
+            <div className="flex items-center justify-between p-3.5 bg-admin-bg border-admin-border">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 dark:text-slate-400">Tâm trạng ghi chép:</span>
+                <span className="text-xs text-admin-text-muted">Tâm trạng ghi chép:</span>
                 <AdminBadge variant={MOOD_CONFIG[readingEntry.mood]?.variant || 'neutral'} size="xs">
                   <span className="mr-1">{MOOD_CONFIG[readingEntry.mood]?.emoji}</span>
                   {MOOD_CONFIG[readingEntry.mood]?.label || readingEntry.mood}
@@ -572,10 +572,10 @@ export default function AdminJournalPage() {
             </div>
 
             <div>
-              <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 block mb-2">
+              <span className="text-xs font-semibold text-admin-text-primary block mb-2">
                 Nội dung câu chuyện
               </span>
-              <div className="p-4 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#070B16] text-xs leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-wrap font-sans">
+              <div className="p-4 border-admin-border bg-admin-bg/50 dark:bg-[#070B16] text-xs leading-relaxed text-admin-text-primary dark:text-admin-text-secondary whitespace-pre-wrap font-sans">
                 {readingEntry.body}
               </div>
             </div>
@@ -660,7 +660,7 @@ export default function AdminJournalPage() {
             required
           />
 
-          <div className="flex justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-[#1E293B]">
+          <div className="flex justify-end gap-2.5 pt-4 border-t border-admin-border">
             <AdminButton
               type="button"
               variant="outline"

@@ -23,7 +23,7 @@ export default async function AppPolicyPage({ searchParams }: { searchParams: Pr
         {channels.map(([key, label]) => (
           <Link key={key} href={key === 'default' ? '/admin/app-policy' : '/admin/app-policy?channel=' + key}
             aria-current={key === channel ? 'page' : undefined}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium focus-visible:outline-2 dark:border-slate-700 aria-[current=page]:border-yellow-400 aria-[current=page]:bg-[#FFD84D] aria-[current=page]:text-[#141210]">
+            className="px-3 py-2 text-sm font-medium text-admin-text-secondary transition-colors hover:bg-admin-surface-hover aria-[current=page]:bg-[var(--admin-accent-bg)] aria-[current=page]:text-[var(--admin-accent-ink)] aria-[current=page]:font-semibold">
             {label}
           </Link>
         ))}

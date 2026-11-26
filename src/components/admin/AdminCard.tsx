@@ -16,8 +16,8 @@ export function AdminCard({
 }: AdminCardProps) {
   return (
     <div
-      className={`min-w-0 max-w-full bg-[var(--admin-surface)] border border-[var(--admin-border)] rounded-xl transition-colors duration-150 ${
-        noPadding ? '' : 'p-4 sm:p-5'
+      className={`min-w-0 max-w-full bg-admin-surface ${
+        noPadding ? '' : 'p-4 sm:p-6'
       } ${className}`}
       {...props}
     >
@@ -35,7 +35,7 @@ export function AdminCardHeader({
 }) {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100 dark:border-[#1E293B] ${className}`}
+      className={`mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center ${className}`}
     >
       {children}
     </div>
@@ -51,7 +51,7 @@ export function AdminCardTitle({
 }) {
   return (
     <h3
-      className={`text-sm font-semibold text-slate-900 dark:text-[#F8FAFC] tracking-tight flex items-center gap-2 ${className}`}
+      className={`flex items-center gap-2 text-base font-semibold tracking-tight text-admin-text-primary ${className}`}
     >
       {children}
     </h3>
@@ -67,7 +67,7 @@ export function AdminCardDescription({
 }) {
   return (
     <p
-      className={`text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5 leading-normal ${className}`}
+      className={`mt-1 text-sm leading-relaxed text-admin-text-muted ${className}`}
     >
       {children}
     </p>
@@ -81,7 +81,7 @@ export function AdminCardContent({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <div className={`text-slate-800 dark:text-[#F8FAFC] ${className}`}>{children}</div>;
+  return <div className={`text-admin-text-primary ${className}`}>{children}</div>;
 }
 
 export function AdminCardFooter({
@@ -93,7 +93,7 @@ export function AdminCardFooter({
 }) {
   return (
     <div
-      className={`pt-3.5 mt-4 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between text-xs text-slate-500 dark:text-[#94A3B8] ${className}`}
+      className={`mt-4 flex items-center justify-between gap-3 border-t border-admin-border pt-3.5 text-xs text-admin-text-muted ${className}`}
     >
       {children}
     </div>

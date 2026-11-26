@@ -317,7 +317,7 @@ export default function AdminSubscriptionsPage() {
         searchPlaceholder="Tìm theo email, tên thành viên..."
       >
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[#475569] dark:text-[#94A3B8] whitespace-nowrap">Loại gói:</span>
+          <span className="text-xs text-admin-text-secondary dark:text-admin-text-muted whitespace-nowrap">Loại gói:</span>
           <AdminSelect
             value={planFilter}
             onChange={(e) => {
@@ -365,14 +365,14 @@ export default function AdminSubscriptionsPage() {
                         className="flex items-center gap-3 cursor-pointer group"
                         onClick={() => handleOpenDetail(sub)}
                       >
-                        <div className="w-8 h-8 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold text-xs flex items-center justify-center shrink-0 border border-amber-500/30">
+                        <div className="w-8 h-8 bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold text-xs flex items-center justify-center shrink-0 border-amber-500/30">
                           {sub.user?.name ? sub.user.name.substring(0, 2).toUpperCase() : 'US'}
                         </div>
                         <div className="min-w-0">
-                          <h4 className="font-semibold text-[#0F172A] dark:text-[#F8FAFC] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate">
+                          <h4 className="font-semibold text-admin-text-primary group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate">
                             {sub.user?.name || 'Thành viên'}
                           </h4>
-                          <p className="text-[11px] text-[#475569] dark:text-[#94A3B8] truncate">
+                          <p className="text-[11px] text-admin-text-secondary dark:text-admin-text-muted truncate">
                             {sub.user?.email}
                           </p>
                         </div>
@@ -417,7 +417,7 @@ export default function AdminSubscriptionsPage() {
 
                     {/* Provider */}
                     <AdminTableCell>
-                      <span className="font-mono text-xs text-slate-600 dark:text-slate-400 uppercase">
+                      <span className="font-mono text-xs text-admin-text-secondary dark:text-admin-text-muted uppercase">
                         {sub.provider}
                       </span>
                     </AdminTableCell>
@@ -425,14 +425,14 @@ export default function AdminSubscriptionsPage() {
                     {/* Period & Remaining */}
                     <AdminTableCell>
                       <div className="flex flex-col text-[11px]">
-                        <span className="text-slate-700 dark:text-slate-300 font-medium">
+                        <span className="text-admin-text-secondary font-medium">
                           {formatDate(sub.currentPeriodStart)} - {formatDate(sub.currentPeriodEnd)}
                         </span>
                         <span
                           className={`mt-0.5 font-medium ${
                             sub.isExpiringSoon
                               ? 'text-amber-600 dark:text-amber-400'
-                              : 'text-slate-400 dark:text-slate-500'
+                              : 'text-admin-text-muted'
                           }`}
                         >
                           {sub.remainingText}
@@ -451,7 +451,7 @@ export default function AdminSubscriptionsPage() {
                         actions={[
                           {
                             label: 'Xem chi tiết',
-                            icon: <Eye className="w-3.5 h-3.5 text-slate-400" />,
+                            icon: <Eye className="w-3.5 h-3.5 text-admin-text-muted" />,
                             onClick: () => handleOpenDetail(sub),
                           },
                           {
@@ -552,8 +552,8 @@ export default function AdminSubscriptionsPage() {
           <div className="flex flex-col gap-6">
             {/* Metadata Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Loại gói
                 </span>
                 <AdminBadge variant={detailModalItem.plan === 'SQUAD' ? 'primary' : 'success'}>
@@ -561,8 +561,8 @@ export default function AdminSubscriptionsPage() {
                 </AdminBadge>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Trạng thái
                 </span>
                 <AdminBadge variant={detailModalItem.isEffectiveActive ? 'success' : 'neutral'} dot>
@@ -570,38 +570,38 @@ export default function AdminSubscriptionsPage() {
                 </AdminBadge>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Ghế Squad
                 </span>
-                <span className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+                <span className="text-xs font-semibold text-admin-text-primary">
                   {detailModalItem.usedSeatsCount} / {detailModalItem.seats} ghế
                 </span>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Kỳ bắt đầu
                 </span>
-                <span className="text-xs text-[#475569] dark:text-[#94A3B8]">
+                <span className="text-xs text-admin-text-secondary dark:text-admin-text-muted">
                   {formatDate(detailModalItem.currentPeriodStart)}
                 </span>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Kỳ kết thúc
                 </span>
-                <span className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+                <span className="text-xs font-semibold text-admin-text-primary">
                   {formatDate(detailModalItem.currentPeriodEnd)}
                 </span>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Cổng thanh toán
                 </span>
-                <span className="font-mono text-xs text-[#0F172A] dark:text-[#F8FAFC] uppercase">
+                <span className="font-mono text-xs text-admin-text-primary uppercase">
                   {detailModalItem.provider}
                 </span>
               </div>
@@ -610,31 +610,31 @@ export default function AdminSubscriptionsPage() {
             {/* Squad Seats List (If SQUAD plan) */}
             {detailModalItem.plan === 'SQUAD' && (
               <div>
-                <h4 className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] mb-2 flex items-center gap-1.5">
+                <h4 className="text-xs font-semibold text-admin-text-primary mb-2 flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   Danh sách Ghế Squad ({detailModalItem.squadSeats?.length || 0})
                 </h4>
 
                 {!detailModalItem.squadSeats || detailModalItem.squadSeats.length === 0 ? (
-                  <p className="text-xs text-[#94A3B8] py-3 text-center bg-slate-50 dark:bg-[#0D1424] rounded-lg">
+                  <p className="text-xs text-admin-text-muted py-3 text-center bg-admin-bg ">
                     Chưa có thành viên nào nhận ghế trong nhóm.
                   </p>
                 ) : (
-                  <div className="divide-y divide-[#E2E8F0] dark:divide-[#1E293B] border border-[#E2E8F0] dark:border-[#1E293B] rounded-lg overflow-hidden">
+                  <div className="divide-y divide-admin-border border border-admin-border overflow-hidden">
                     {detailModalItem.squadSeats.map((seat) => (
                       <div
                         key={seat.id}
-                        className="p-3 flex items-center justify-between text-xs bg-white dark:bg-[#111827]"
+                        className="p-3 flex items-center justify-between text-xs bg-admin-surface"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-[#0D1424] text-[#0F172A] dark:text-[#F8FAFC] font-bold text-[10px] flex items-center justify-center shrink-0">
+                          <div className="w-6 h-6 bg-admin-surface-hover dark:bg-admin-bg text-admin-text-primary font-bold text-[10px] flex items-center justify-center shrink-0">
                             {seat.user?.name ? seat.user.name.charAt(0) : 'U'}
                           </div>
                           <div className="min-w-0">
-                            <span className="font-medium text-[#0F172A] dark:text-[#F8FAFC] block truncate">
+                            <span className="font-medium text-admin-text-primary block truncate">
                               {seat.user?.name || 'Thành viên'}
                             </span>
-                            <span className="text-[10px] text-[#475569] dark:text-[#94A3B8] truncate block">
+                            <span className="text-[10px] text-admin-text-secondary dark:text-admin-text-muted truncate block">
                               {seat.user?.email || 'n/a'}
                             </span>
                           </div>
@@ -650,7 +650,7 @@ export default function AdminSubscriptionsPage() {
                               Đang dùng
                             </AdminBadge>
                           )}
-                          <span className="text-[10px] text-[#94A3B8] dark:text-[#64748B] block mt-0.5">
+                          <span className="text-[10px] text-admin-text-muted block mt-0.5">
                             Cấp: {formatDate(seat.grantedAt)}
                           </span>
                         </div>
@@ -663,13 +663,13 @@ export default function AdminSubscriptionsPage() {
 
             {/* Audit Logs Timeline */}
             <div>
-              <h4 className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] mb-2 flex items-center gap-1.5">
-                <History className="w-3.5 h-3.5 text-[#94A3B8]" />
+              <h4 className="text-xs font-semibold text-admin-text-primary mb-2 flex items-center gap-1.5">
+                <History className="w-3.5 h-3.5 text-admin-text-muted" />
                 Lịch sử can thiệp Quản trị ({detailModalItem.auditLogs?.length || 0})
               </h4>
 
               {!detailModalItem.auditLogs || detailModalItem.auditLogs.length === 0 ? (
-                <p className="text-xs text-[#94A3B8] py-3 text-center bg-slate-50 dark:bg-[#0D1424] rounded-lg">
+                <p className="text-xs text-admin-text-muted py-3 text-center bg-admin-bg ">
                   Chưa có lịch sử thao tác nào từ Admin.
                 </p>
               ) : (
@@ -677,21 +677,21 @@ export default function AdminSubscriptionsPage() {
                   {detailModalItem.auditLogs.map((log) => (
                     <div
                       key={log.id}
-                      className="p-3 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0D1424]/60 text-xs"
+                      className="p-3 border border-admin-border bg-admin-bg/50 dark:bg-admin-bg/60 text-xs"
                     >
                       <div className="flex items-center justify-between mb-1">
                         <AdminBadge variant="neutral" size="xs">
                           {log.action}
                         </AdminBadge>
-                        <span className="text-[10px] text-[#94A3B8] dark:text-[#64748B]">
+                        <span className="text-[10px] text-admin-text-muted">
                           {new Date(log.createdAt).toLocaleString('vi-VN')}
                         </span>
                       </div>
-                      <p className="text-[#0F172A] dark:text-[#F8FAFC] mt-1">
+                      <p className="text-admin-text-primary mt-1">
                         Lý do: <b>{log.reason}</b>
                       </p>
                       {log.admin && (
-                        <span className="text-[10px] text-[#475569] dark:text-[#94A3B8] block mt-0.5">
+                        <span className="text-[10px] text-admin-text-secondary dark:text-admin-text-muted block mt-0.5">
                           Admin thực hiện: {log.admin.name} ({log.admin.email})
                         </span>
                       )}
@@ -733,7 +733,7 @@ export default function AdminSubscriptionsPage() {
             required
           />
 
-          <div className="flex justify-end gap-2.5 pt-4 border-t border-[#E2E8F0] dark:border-[#1E293B]">
+          <div className="flex justify-end gap-2.5 pt-4 border-t border-admin-border">
             <AdminButton
               type="button"
               variant="outline"
@@ -763,7 +763,7 @@ export default function AdminSubscriptionsPage() {
         description={`Thu hồi quyền lợi của ${revokeModalItem?.user?.name || 'người dùng'}. Hành động này sẽ có hiệu lực ngay lập tức.`}
       >
         <div className="flex flex-col gap-4">
-          <div className="p-3 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/25 text-xs text-[#EF4444] flex items-start gap-2.5">
+          <div className="p-3 bg-[#EF4444]/10 border-[#EF4444]/25 text-xs text-[#EF4444] flex items-start gap-2.5">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
               Người dùng và tất cả thành viên trong nhóm sẽ mất quyền lợi gói ngay lập tức.
@@ -779,7 +779,7 @@ export default function AdminSubscriptionsPage() {
             required
           />
 
-          <div className="flex justify-end gap-2.5 pt-4 border-t border-[#E2E8F0] dark:border-[#1E293B]">
+          <div className="flex justify-end gap-2.5 pt-4 border-t border-admin-border">
             <AdminButton
               type="button"
               variant="outline"

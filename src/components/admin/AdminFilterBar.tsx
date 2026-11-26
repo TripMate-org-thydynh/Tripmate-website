@@ -27,7 +27,7 @@ export function AdminFilterBar({
 }: AdminFilterBarProps) {
   return (
     <div
-      className={`min-w-0 max-w-full rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] p-3.5 flex flex-wrap items-center justify-between gap-3 ${className}`}
+      className={`flex min-w-0 max-w-full flex-wrap items-center justify-between gap-3 bg-admin-surface px-4 py-3 ${className}`}
     >
       {tabs ? (
         <div className="min-w-0 max-w-full basis-48 flex-1 overflow-x-auto py-0.5">
@@ -35,7 +35,7 @@ export function AdminFilterBar({
         </div>
       ) : null}
 
-      <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2.5">
+      <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2.5 max-sm:w-full">
         {onSearchChange !== undefined && (
           <form
             onSubmit={onSearchSubmit ? onSearchSubmit : (e) => e.preventDefault()}
@@ -45,7 +45,8 @@ export function AdminFilterBar({
               value={search ?? ''}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder={searchPlaceholder}
-              leftIcon={<Search className="w-3.5 h-3.5 text-slate-400" />}
+              aria-label={searchPlaceholder}
+              leftIcon={<Search className="size-4" aria-hidden="true" />}
             />
           </form>
         )}

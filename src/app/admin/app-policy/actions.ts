@@ -21,6 +21,8 @@ export type PolicyOverview = {
 async function requestPolicy(endpoint: string, options?: RequestInit) {
   try {
     const response = await fetchWithAuth(endpoint, options);
+    if (response.status === 404) return { error: 'Phiên bản API đang chạy chưa hỗ trợ chính sách phát hành.' };
+    if (response.status >= 500) return { error: 'Máy chủ chưa xử lý được chính sách. Vui lòng thử lại.' };
     const body = await response.json();
     if (!response.ok) {
       const message = body.message;

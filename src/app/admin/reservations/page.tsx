@@ -338,7 +338,7 @@ export default function AdminReservationsPage() {
         searchPlaceholder="Tìm theo tiêu đề, mã vé, địa điểm..."
       >
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[#475569] dark:text-[#94A3B8] whitespace-nowrap">Loại dịch vụ:</span>
+          <span className="text-xs text-admin-text-secondary dark:text-admin-text-muted whitespace-nowrap">Loại dịch vụ:</span>
           <AdminSelect
             value={typeFilter}
             onChange={(e) => {
@@ -391,16 +391,16 @@ export default function AdminReservationsPage() {
                         className="flex flex-col gap-0.5 cursor-pointer group"
                         onClick={() => setViewItem(item)}
                       >
-                        <h4 className="font-semibold text-[#0F172A] dark:text-[#F8FAFC] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                        <h4 className="font-semibold text-admin-text-primary group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                           {item.title}
                         </h4>
                         {item.confirmationNumber ? (
-                          <span className="font-mono text-[10px] text-[#475569] dark:text-[#94A3B8] flex items-center gap-1">
+                          <span className="font-mono text-[10px] text-admin-text-secondary dark:text-admin-text-muted flex items-center gap-1">
                             <Hash className="w-2.5 h-2.5" />
                             {item.confirmationNumber}
                           </span>
                         ) : (
-                          <span className="text-[10px] text-[#94A3B8] dark:text-[#64748B]">Không có mã xác nhận</span>
+                          <span className="text-[10px] text-admin-text-muted">Không có mã xác nhận</span>
                         )}
                       </div>
                     </AdminTableCell>
@@ -417,15 +417,15 @@ export default function AdminReservationsPage() {
 
                     {/* Location */}
                     <AdminTableCell>
-                      <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 text-xs">
-                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <div className="flex items-center gap-1.5 text-admin-text-secondary dark:text-admin-text-muted text-xs">
+                        <MapPin className="w-3.5 h-3.5 text-admin-text-muted shrink-0" />
                         <span className="truncate max-w-xs">{item.location || 'Chưa có'}</span>
                       </div>
                     </AdminTableCell>
 
                     {/* Price */}
                     <AdminTableCell>
-                      <span className="font-semibold text-slate-900 dark:text-slate-100 text-xs">
+                      <span className="font-semibold text-admin-text-primary text-xs">
                         {item.price
                           ? `${item.price.toLocaleString('vi-VN')} đ`
                           : 'Miễn phí / Chưa rõ'}
@@ -434,7 +434,7 @@ export default function AdminReservationsPage() {
 
                     {/* Trip Name */}
                     <AdminTableCell>
-                      <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                      <span className="text-admin-text-secondary dark:text-admin-text-muted text-xs font-medium">
                         {item.trip?.name || 'n/a'}
                       </span>
                     </AdminTableCell>
@@ -450,7 +450,7 @@ export default function AdminReservationsPage() {
                         actions={[
                           {
                             label: 'Xem chi tiết',
-                            icon: <Eye className="w-3.5 h-3.5 text-slate-400" />,
+                            icon: <Eye className="w-3.5 h-3.5 text-admin-text-muted" />,
                             onClick: () => setViewItem(item),
                           },
                           {
@@ -540,8 +540,8 @@ export default function AdminReservationsPage() {
         {viewItem && (
           <div className="flex flex-col gap-6">
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Loại dịch vụ
                 </span>
                 <AdminBadge variant={TYPE_CONFIG[viewItem.type]?.variant || 'neutral'}>
@@ -549,28 +549,28 @@ export default function AdminReservationsPage() {
                 </AdminBadge>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Chi phí
                 </span>
-                <span className="text-xs font-bold text-[#0F172A] dark:text-[#F8FAFC] flex items-center gap-1">
-                  <CreditCard className="w-3.5 h-3.5 text-[#94A3B8]" />
+                <span className="text-xs font-bold text-admin-text-primary flex items-center gap-1">
+                  <CreditCard className="w-3.5 h-3.5 text-admin-text-muted" />
                   {viewItem.price ? `${viewItem.price.toLocaleString('vi-VN')} đ` : 'Miễn phí'}
                 </span>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Địa điểm
                 </span>
-                <span className="text-xs text-[#475569] dark:text-[#94A3B8] flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
+                <span className="text-xs text-admin-text-secondary dark:text-admin-text-muted flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-admin-text-muted shrink-0" />
                   {viewItem.location || 'Chưa cập nhật'}
                 </span>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Chuyến đi
                 </span>
                 <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1">
@@ -580,14 +580,14 @@ export default function AdminReservationsPage() {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#0D1424]">
-              <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+            <div className="p-3.5 border-admin-border bg-admin-surface dark:bg-admin-bg">
+              <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                 Người tạo phiếu
               </span>
-              <p className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+              <p className="text-xs font-semibold text-admin-text-primary">
                 {viewItem.user?.name || 'Thành viên'}
               </p>
-              <p className="text-[11px] text-[#475569] dark:text-[#94A3B8]">{viewItem.user?.email || 'n/a'}</p>
+              <p className="text-[11px] text-admin-text-secondary dark:text-admin-text-muted">{viewItem.user?.email || 'n/a'}</p>
             </div>
           </div>
         )}
@@ -676,7 +676,7 @@ export default function AdminReservationsPage() {
             </AdminSelect>
           </div>
 
-          <div className="flex justify-end gap-2.5 pt-4 mt-2 border-t border-[#E2E8F0] dark:border-[#1E293B]">
+          <div className="flex justify-end gap-2.5 pt-4 mt-2 border-t border-admin-border">
             <AdminButton
               type="button"
               variant="outline"

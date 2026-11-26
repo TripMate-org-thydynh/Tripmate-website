@@ -292,7 +292,7 @@ export default function SloDashboardPage() {
         label: '0x',
         desc: 'Chưa có sự kiện để tính',
         badgeVariant: 'neutral' as const,
-        colorClass: 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-[#172238]',
+        colorClass: 'text-admin-text-secondary dark:text-admin-text-muted bg-admin-surface-hover',
       };
     }
     if (burnRate <= 1) {
@@ -323,13 +323,8 @@ export default function SloDashboardPage() {
     <div className="flex flex-col gap-6">
       {/* Header trang */}
       <AdminPageHeader
-        title="SLO & Ngân Sách Lỗi (Error Budget)"
-        description="Quản lý cam kết mức dịch vụ (SLO), theo dõi tỷ lệ tiêu hao ngân sách lỗi (Error Budget) và tốc độ đốt (Burn Rate) theo chuẩn SRE."
-        badge={
-          <AdminBadge variant="brand" size="xs">
-            SRE Framework
-          </AdminBadge>
-        }
+        title="SLO và ngân sách lỗi"
+        description="Đặt mục tiêu độ sẵn sàng và độ trễ, rồi theo dõi ngân sách lỗi còn lại."
       >
         <div className="flex items-center gap-2">
           <AdminButton
@@ -354,14 +349,11 @@ export default function SloDashboardPage() {
       </AdminPageHeader>
 
       {/* Banner diễn giải chuẩn SRE */}
-      <div className="p-4 rounded-xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-800/40 flex items-start gap-3">
-        <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-        <div className="text-xs text-slate-700 dark:text-[#F8FAFC] leading-relaxed">
-          <span className="font-semibold text-amber-800 dark:text-amber-300">
-            Nguyên lý quản lý ngân sách lỗi (Google SRE Standard):
-          </span>{' '}
-          Mỗi mục tiêu SLO được cấp một ngân sách lỗi tương ứng với phần trăm không hoàn hảo cho phép (100% - Mục tiêu).
-          Lỗi client (4xx) không bị trừ vào ngân sách. Khi tốc độ đốt (Burn Rate) vượt quá 1x, hệ thống đang mất ngân sách nhanh hơn dự kiến.
+      <div className="flex items-start gap-3 bg-admin-sidebar p-4">
+        <Info className="mt-0.5 size-4 shrink-0 text-admin-text-muted" aria-hidden="true" />
+        <div className="text-xs text-admin-text-secondary dark:text-admin-text-primary leading-relaxed">
+          <span className="font-semibold">Ngân sách lỗi bằng 100% trừ mục tiêu.</span>{' '}
+          Lỗi 4xx không tính vào ngân sách. Tốc độ tiêu hao trên 1× cho thấy ngân sách đang giảm nhanh hơn dự kiến.
         </div>
       </div>
 
@@ -372,20 +364,20 @@ export default function SloDashboardPage() {
           {[1, 2].map((i) => (
             <div
               key={i}
-              className="h-80 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] animate-pulse p-6 shadow-xs"
+              className="h-80 bg-admin-surface p-6 motion-safe:animate-pulse"
             />
           ))}
         </div>
       ) : evaluations.length === 0 ? (
         <AdminCard className="text-center py-16">
           <div className="max-w-md mx-auto flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center">
+            <div className="grid size-12 place-items-center bg-[var(--admin-accent-bg)] text-[var(--admin-accent-ink)]">
               <Target className="w-6 h-6" />
             </div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-[#F8FAFC]">
+            <h3 className="text-sm font-semibold text-admin-text-primary">
               Chưa có mục tiêu SLO nào được cấu hình
             </h3>
-            <p className="text-xs text-slate-500 dark:text-[#94A3B8]">
+            <p className="text-xs text-admin-text-muted">
               Thiết lập mục tiêu độ tin cậy hệ thống (SLO) cho Độ sẵn sàng (Availability) hoặc Độ trễ (Latency) để bảo vệ trải nghiệm người dùng.
             </p>
             <AdminButton
@@ -413,7 +405,7 @@ export default function SloDashboardPage() {
                   <AdminCardHeader className="pb-3 mb-3">
                     <div className="flex items-start justify-between gap-3 w-full">
                       <div className="flex items-start gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
+                        <div className="w-9 h-9 bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 flex items-center justify-center shrink-0">
                           {item.sliType === 'AVAILABILITY' ? (
                             <ShieldCheck className="w-5 h-5" />
                           ) : (
@@ -425,18 +417,18 @@ export default function SloDashboardPage() {
                             {item.name}
                           </AdminCardTitle>
                           <AdminCardDescription className="flex items-center gap-2 mt-1 flex-wrap">
-                            <span className="font-mono font-medium text-slate-700 dark:text-slate-300">
+                            <span className="font-mono font-medium text-admin-text-secondary">
                               {item.key}
                             </span>
                             <span>•</span>
-                            <span className="inline-flex items-center gap-1 font-medium text-slate-600 dark:text-slate-400">
-                              <Clock className="w-3 h-3 text-slate-400" />
+                            <span className="inline-flex items-center gap-1 font-medium text-admin-text-secondary dark:text-admin-text-muted">
+                              <Clock className="w-3 h-3 text-admin-text-muted" />
                               {item.windowDays} ngày
                             </span>
                             {item.routePrefix && (
                               <>
                                 <span>•</span>
-                                <span className="font-mono text-slate-600 dark:text-[#94A3B8]">
+                                <span className="font-mono text-admin-text-secondary dark:text-admin-text-muted">
                                   prefix: {item.routePrefix}
                                 </span>
                               </>
@@ -450,7 +442,7 @@ export default function SloDashboardPage() {
                         <button
                           type="button"
                           onClick={() => handleOpenEditModal(item)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#172238] transition-colors cursor-pointer"
+                          className="p-1.5 text-admin-text-muted hover:text-admin-text-secondary hover:bg-admin-surface-hover transition-colors cursor-pointer"
                           title="Chỉnh sửa SLO"
                           aria-label="Chỉnh sửa mục tiêu SLO"
                         >
@@ -459,7 +451,7 @@ export default function SloDashboardPage() {
                         <button
                           type="button"
                           onClick={() => setDeletingSlo(item)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                          className="p-1.5 text-admin-text-muted hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                           title="Xoá SLO"
                           aria-label="Xoá mục tiêu SLO"
                         >
@@ -470,14 +462,14 @@ export default function SloDashboardPage() {
                   </AdminCardHeader>
 
                   {/* Thông số cốt lõi: SLI Thực Tế vs Mục Tiêu */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-[#0D1424] border border-slate-200/80 dark:border-[#1E293B] mb-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 bg-admin-bg border-admin-border/80 dark:border-admin-border mb-4">
                     {/* Loại SLI */}
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">
+                      <span className="text-[11px] text-admin-text-muted">
                         Loại chỉ số
                       </span>
-                      <div className="font-semibold text-xs text-slate-800 dark:text-[#F8FAFC] flex items-center gap-1.5 mt-0.5">
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-[#172238] border border-slate-200 dark:border-[#1E293B]">
+                      <div className="font-semibold text-xs text-admin-text-primary flex items-center gap-1.5 mt-0.5">
+                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-admin-surface dark:bg-admin-surface-hover border border-admin-border">
                           {item.sliType}
                         </span>
                         {item.sliType === 'LATENCY' && item.latencyThresholdMs && (
@@ -490,22 +482,22 @@ export default function SloDashboardPage() {
 
                     {/* Mục tiêu cam kết */}
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">
+                      <span className="text-[11px] text-admin-text-muted">
                         Mục tiêu cam kết
                       </span>
-                      <span className="text-sm font-bold font-mono text-slate-900 dark:text-[#F8FAFC]">
+                      <span className="text-sm font-bold font-mono text-admin-text-primary">
                         {item.objective}%
                       </span>
                     </div>
 
                     {/* SLI hiện tại + Huy hiệu */}
                     <div className="col-span-2 sm:col-span-1 flex flex-col gap-0.5">
-                      <span className="text-[11px] text-slate-500 dark:text-[#94A3B8]">
+                      <span className="text-[11px] text-admin-text-muted">
                         SLI hiện tại
                       </span>
                       <div className="flex items-center gap-2 mt-0.5">
                         {hasNoData ? (
-                          <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+                          <span className="text-xs font-medium text-admin-text-muted">
                             Chưa đủ dữ liệu
                           </span>
                         ) : (
@@ -540,13 +532,13 @@ export default function SloDashboardPage() {
                   {/* Thanh hiển thị Ngân Sách Lỗi (Error Budget) */}
                   <div className="flex flex-col gap-2 mb-4">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <span className="font-semibold text-admin-text-secondary flex items-center gap-1.5">
                         <span>Ngân sách lỗi (Error Budget)</span>
                         <AdminTooltip
                           position="top"
                           content="Phần trăm lỗi hệ thống được phép xảy ra mà không vi phạm cam kết SLO"
                         >
-                          <HelpCircle className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                          <HelpCircle className="w-3.5 h-3.5 text-admin-text-muted cursor-help" />
                         </AdminTooltip>
                       </span>
 
@@ -556,19 +548,19 @@ export default function SloDashboardPage() {
                     </div>
 
                     {/* Thanh tiến trình ngân sách */}
-                    <div className={`w-full h-3 rounded-full overflow-hidden ${budgetStyle.track} p-0.5`}>
+                    <div className={`w-full h-3 overflow-hidden ${budgetStyle.track} p-0.5`}>
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${budgetStyle.bg}`}
+                        className={`h-full transition-[width] duration-500 ${budgetStyle.bg}`}
                         style={{
                           width: `${Math.max(0, Math.min(100, hasNoData ? 100 : item.errorBudgetRemainingPercent))}%`,
                         }}
                       />
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-[#94A3B8]">
+                    <div className="flex items-center justify-between text-[11px] text-admin-text-muted">
                       <span>
                         Đã dùng:{' '}
-                        <strong className="text-slate-700 dark:text-slate-200 font-mono">
+                        <strong className="text-admin-text-secondary font-mono">
                           {item.errorBudgetConsumed.toLocaleString('vi-VN')}
                         </strong>{' '}
                         / {item.errorBudgetTotal.toLocaleString('vi-VN')} sự kiện
@@ -583,7 +575,7 @@ export default function SloDashboardPage() {
                   </div>
 
                   {/* Thẻ Burn Rate & Diễn giải */}
-                  <div className={`p-3 rounded-xl border flex items-center justify-between gap-3 ${burnInfo.colorClass}`}>
+                  <div className={`p-3 border flex items-center justify-between gap-3 ${burnInfo.colorClass}`}>
                     <div className="flex items-center gap-2">
                       <AdminTooltip
                         position="top"
@@ -606,7 +598,7 @@ export default function SloDashboardPage() {
                 </div>
 
                 {/* Footer thông tin sự kiện tốt / xấu */}
-                <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between text-[11px] text-slate-500 dark:text-[#94A3B8]">
+                <div className="pt-3 border-t border-admin-border flex items-center justify-between text-[11px] text-admin-text-muted">
                   <span>
                     Sự kiện đạt:{' '}
                     <strong className="text-emerald-600 dark:text-emerald-400 font-mono">
@@ -657,7 +649,7 @@ export default function SloDashboardPage() {
       >
         <form onSubmit={handleSubmitForm} className="flex flex-col gap-4">
           {formError && (
-            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
+            <div className="p-3 bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{formError}</span>
             </div>
@@ -708,7 +700,7 @@ export default function SloDashboardPage() {
 
           {/* Ngưỡng độ trễ ms — CHỈ HIỂN THỊ KHI sliType === LATENCY */}
           {formData.sliType === 'LATENCY' && (
-            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 flex flex-col gap-2">
+            <div className="p-3 bg-amber-500/10 border-amber-500/20 flex flex-col gap-2">
               <AdminInput
                 label="Ngưỡng độ trễ tối đa (ms)"
                 required
@@ -806,11 +798,11 @@ export default function SloDashboardPage() {
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
             <AlertTriangle className="w-6 h-6 shrink-0" />
-            <p className="text-xs font-semibold text-slate-900 dark:text-[#F8FAFC]">
+            <p className="text-xs font-semibold text-admin-text-primary">
               Bạn có chắc chắn muốn xoá mục tiêu SLO này không?
             </p>
           </div>
-          <p className="text-xs text-slate-600 dark:text-[#94A3B8] leading-relaxed">
+          <p className="text-xs text-admin-text-secondary dark:text-admin-text-muted leading-relaxed">
             Mục tiêu <strong>{deletingSlo?.name}</strong> (<code>{deletingSlo?.key}</code>) sẽ bị xoá vĩnh viễn khỏi hệ thống giám sát. Toàn bộ lịch sử ngân sách lỗi liên kết sẽ không còn được tính toán.
           </p>
         </div>

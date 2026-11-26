@@ -133,7 +133,7 @@ export default function AdminAiPage() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-24 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#1E293B] animate-pulse p-4 shadow-xs"
+              className="h-24 bg-admin-surface border border-admin-border animate-pulse p-4 "
             />
           ))}
         </div>
@@ -179,7 +179,7 @@ export default function AdminAiPage() {
             <AdminCard className="lg:col-span-6">
               <AdminCardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                  <div className="w-7 h-7 bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border-amber-500/20">
                     <BarChart2 className="w-4 h-4" />
                   </div>
                   <div>
@@ -190,7 +190,7 @@ export default function AdminAiPage() {
               </AdminCardHeader>
 
               {donutData.length === 0 ? (
-                <div className="py-12 flex flex-col items-center justify-center text-slate-400">
+                <div className="py-12 flex flex-col items-center justify-center text-admin-text-muted">
                   <Bot className="w-8 h-8 mb-2 opacity-40" />
                   <p className="text-xs">Chưa có dữ liệu biểu đồ AI.</p>
                 </div>
@@ -208,7 +208,7 @@ export default function AdminAiPage() {
             <AdminCard className="lg:col-span-6">
               <AdminCardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-800/50">
+                  <div className="w-7 h-7 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border-emerald-100 dark:border-emerald-800/50">
                     <Activity className="w-4 h-4" />
                   </div>
                   <div>
@@ -219,7 +219,7 @@ export default function AdminAiPage() {
               </AdminCardHeader>
 
               {Object.keys(data?.typeBreakdown || {}).length === 0 ? (
-                <div className="py-12 flex flex-col items-center justify-center text-slate-400">
+                <div className="py-12 flex flex-col items-center justify-center text-admin-text-muted">
                   <p className="text-xs">Chưa có dữ liệu phân loại tính năng AI.</p>
                 </div>
               ) : (
@@ -233,24 +233,24 @@ export default function AdminAiPage() {
                     return (
                       <div
                         key={type}
-                        className="p-3 rounded-lg border border-slate-100 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0D1424]/60 flex flex-col gap-2"
+                        className="p-3 border border-admin-border bg-admin-bg/50 dark:bg-admin-bg/60 flex flex-col gap-2"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 min-w-0">
                             <span
-                              className="w-2.5 h-2.5 rounded-xs shrink-0"
+                              className="w-2.5 h-2.5 shrink-0"
                               style={{ backgroundColor: color }}
                             />
-                            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                            <span className="text-xs font-semibold text-admin-text-primary dark:text-admin-text-secondary truncate">
                               {label}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">
+                            <span className="text-[10px] text-admin-text-muted font-mono hidden sm:inline">
                               ({type})
                             </span>
                           </div>
 
                           <div className="flex items-center gap-2 shrink-0">
-                            <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                            <span className="text-xs font-bold text-admin-text-primary">
                               {count.toLocaleString('vi-VN')}
                             </span>
                             <AdminBadge variant="neutral" size="xs">
@@ -260,9 +260,9 @@ export default function AdminAiPage() {
                         </div>
 
                         {/* Visual progress bar */}
-                        <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-[#1E293B] overflow-hidden">
+                        <div className="w-full h-1.5 bg-admin-surface-hover overflow-hidden">
                           <div
-                            className="h-full rounded-full transition-all duration-500"
+                            className="h-full transition-[width] duration-500"
                             style={{ width: `${percent}%`, backgroundColor: color }}
                           />
                         </div>
@@ -279,7 +279,7 @@ export default function AdminAiPage() {
             <AdminCardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                  <div className="w-7 h-7 bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border-amber-500/20">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
@@ -295,17 +295,17 @@ export default function AdminAiPage() {
                     placeholder="Tìm kiếm nội dung prompt, user..."
                     value={searchLog}
                     onChange={(e) => setSearchLog(e.target.value)}
-                    leftIcon={<Search className="w-3.5 h-3.5 text-slate-400" />}
+                    leftIcon={<Search className="w-3.5 h-3.5 text-admin-text-muted" />}
                   />
                 </div>
               </div>
             </AdminCardHeader>
 
             {filteredLogs.length === 0 ? (
-              <div className="py-12 flex flex-col items-center justify-center text-slate-400">
+              <div className="py-12 flex flex-col items-center justify-center text-admin-text-muted">
                 <AlertCircle className="w-8 h-8 mb-2 opacity-40" />
                 <p className="text-xs font-medium">Không tìm thấy yêu cầu AI nào</p>
-                <p className="text-[11px] text-slate-500 mt-0.5">
+                <p className="text-[11px] text-admin-text-muted mt-0.5">
                   {searchLog ? 'Thử tìm kiếm với từ khóa khác.' : 'Hệ thống chưa phát sinh bản ghi prompt nào.'}
                 </p>
               </div>
@@ -324,7 +324,7 @@ export default function AdminAiPage() {
                 <AdminTableBody>
                   {filteredLogs.map((log) => (
                     <AdminTableRow key={log.id}>
-                      <AdminTableCell className="text-xs text-slate-500 dark:text-slate-400 font-mono whitespace-nowrap">
+                      <AdminTableCell className="text-xs text-admin-text-muted font-mono whitespace-nowrap">
                         {new Date(log.createdAt).toLocaleString('vi-VN', {
                           month: 'numeric',
                           day: 'numeric',
@@ -336,10 +336,10 @@ export default function AdminAiPage() {
 
                       <AdminTableCell>
                         <div className="flex flex-col">
-                          <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
+                          <span className="text-xs font-medium text-admin-text-primary dark:text-admin-text-secondary">
                             {log.user?.name || 'Khách / Ẩn danh'}
                           </span>
-                          <span className="text-[11px] text-slate-400 truncate max-w-[140px]">
+                          <span className="text-[11px] text-admin-text-muted truncate max-w-[140px]">
                             {log.user?.email || 'N/A'}
                           </span>
                         </div>
@@ -363,7 +363,7 @@ export default function AdminAiPage() {
                       </AdminTableCell>
 
                       <AdminTableCell className="max-w-[280px]">
-                        <p className="text-xs text-slate-700 dark:text-slate-300 truncate font-mono">
+                        <p className="text-xs text-admin-text-secondary truncate font-mono">
                           {log.prompt}
                         </p>
                       </AdminTableCell>
@@ -412,15 +412,15 @@ export default function AdminAiPage() {
       >
         {selectedLog && (
           <div className="flex flex-col gap-5 text-xs">
-            <div className="grid grid-cols-2 gap-3 p-3.5 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-slate-200 dark:border-[#1E293B]">
+            <div className="grid grid-cols-2 gap-3 p-3.5 bg-admin-bg border-admin-border">
               <div>
-                <span className="text-[11px] text-slate-400 block">Thời gian tạo</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
+                <span className="text-[11px] text-admin-text-muted block">Thời gian tạo</span>
+                <span className="font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                   {new Date(selectedLog.createdAt).toLocaleString('vi-VN')}
                 </span>
               </div>
               <div>
-                <span className="text-[11px] text-slate-400 block">Trạng thái</span>
+                <span className="text-[11px] text-admin-text-muted block">Trạng thái</span>
                 <div className="mt-0.5">
                   <AdminBadge
                     variant={
@@ -437,31 +437,31 @@ export default function AdminAiPage() {
                 </div>
               </div>
               <div>
-                <span className="text-[11px] text-slate-400 block">Người dùng</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
+                <span className="text-[11px] text-admin-text-muted block">Người dùng</span>
+                <span className="font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                   {selectedLog.user?.name || 'Ẩn danh'} ({selectedLog.user?.email || 'N/A'})
                 </span>
               </div>
               <div>
-                <span className="text-[11px] text-slate-400 block">Module thực thi</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
+                <span className="text-[11px] text-admin-text-muted block">Module thực thi</span>
+                <span className="font-semibold text-admin-text-primary dark:text-admin-text-secondary">
                   {AI_FEATURE_LABELS[selectedLog.type] || selectedLog.type}
                 </span>
               </div>
             </div>
 
             <div>
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block mb-2">
+              <span className="text-xs font-bold text-admin-text-primary dark:text-admin-text-secondary block mb-2">
                 Nội dung Prompt gửi lên mô hình:
               </span>
-              <div className="p-3.5 rounded-lg bg-slate-100 dark:bg-[#070B16] border border-slate-200 dark:border-[#1E293B] font-mono text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap break-words max-h-72 overflow-y-auto leading-relaxed">
+              <div className="p-3.5 bg-admin-surface-hover dark:bg-[#070B16] border-admin-border font-mono text-xs text-admin-text-primary dark:text-admin-text-secondary whitespace-pre-wrap break-words max-h-72 overflow-y-auto leading-relaxed">
                 {selectedLog.prompt}
               </div>
             </div>
 
-            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-start gap-2.5">
+            <div className="p-3 bg-amber-500/10 border-amber-500/20 flex items-start gap-2.5">
               <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-              <div className="text-[11px] text-slate-600 dark:text-slate-300 leading-normal">
+              <div className="text-[11px] text-admin-text-secondary leading-normal">
                 Các bản ghi AI telemetry được lưu trữ phục vụ mục đích kiểm toán chất lượng đầu ra, phát hiện prompt injection và tối ưu hóa chi phí token.
               </div>
             </div>

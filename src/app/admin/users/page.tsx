@@ -293,8 +293,8 @@ export default function AdminUsersPage() {
         searchPlaceholder="Tìm theo email, tên, username..."
       >
         <div className="flex items-center gap-2">
-          <Filter className="w-3.5 h-3.5 text-[#94A3B8]" />
-          <span className="text-xs text-[#475569] dark:text-[#94A3B8] whitespace-nowrap">Vai trò:</span>
+          <Filter className="w-3.5 h-3.5 text-admin-text-muted" />
+          <span className="text-xs text-admin-text-secondary dark:text-admin-text-muted whitespace-nowrap">Vai trò:</span>
           <AdminSelect
             value={roleFilter}
             onChange={(e) => {
@@ -312,8 +312,8 @@ export default function AdminUsersPage() {
 
       {/* Floating Bulk Action Bar */}
       {selectedIds.length > 0 && (
-        <div className="bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 rounded-lg p-2.5 px-4 flex items-center justify-between text-xs animate-in fade-in slide-in-from-top-2 duration-150">
-          <span className="font-medium text-[#0F172A] dark:text-[#F8FAFC]">
+        <div className="bg-amber-500/10 dark:bg-amber-500/20 border-amber-500/30 p-2.5 px-4 flex items-center justify-between text-xs animate-in fade-in slide-in-from-top-2 duration-150">
+          <span className="font-medium text-admin-text-primary">
             Đã chọn <b className="text-amber-600 dark:text-amber-400">{selectedIds.length}</b> người dùng
           </span>
           <div className="flex items-center gap-2">
@@ -335,7 +335,7 @@ export default function AdminUsersPage() {
             </AdminButton>
             <button
               onClick={() => setSelectedIds([])}
-              className="text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] underline text-xs ml-2 cursor-pointer"
+              className="text-admin-text-muted hover:text-admin-text-primary underline text-xs ml-2 cursor-pointer"
             >
               Bỏ chọn
             </button>
@@ -398,14 +398,14 @@ export default function AdminUsersPage() {
                         className="flex items-center gap-3 cursor-pointer group"
                         onClick={() => setViewingUser(u)}
                       >
-                        <div className="w-8 h-8 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold text-xs flex items-center justify-center shrink-0 border border-amber-500/30">
+                        <div className="w-8 h-8 bg-amber-500/15 text-amber-700 dark:text-amber-300 font-semibold text-xs flex items-center justify-center shrink-0 border-amber-500/30">
                           {u.name ? u.name.substring(0, 2).toUpperCase() : 'US'}
                         </div>
                         <div className="min-w-0">
-                          <h4 className="font-semibold text-[#0F172A] dark:text-[#F8FAFC] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate">
+                          <h4 className="font-semibold text-admin-text-primary group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate">
                             {u.name || 'Chưa đặt tên'}
                           </h4>
-                          <p className="text-[11px] text-[#475569] dark:text-[#94A3B8] truncate">
+                          <p className="text-[11px] text-admin-text-secondary dark:text-admin-text-muted truncate">
                             {u.email}
                           </p>
                         </div>
@@ -414,7 +414,7 @@ export default function AdminUsersPage() {
 
                     {/* Username */}
                     <AdminTableCell>
-                      <span className="font-mono text-slate-600 dark:text-slate-400 text-[11px]">
+                      <span className="font-mono text-admin-text-secondary dark:text-admin-text-muted text-[11px]">
                         @{u.username || 'n/a'}
                       </span>
                     </AdminTableCell>
@@ -449,7 +449,7 @@ export default function AdminUsersPage() {
 
                     {/* Join Date */}
                     <AdminTableCell>
-                      <span className="text-slate-500 dark:text-slate-400 text-[11px]">
+                      <span className="text-admin-text-muted text-[11px]">
                         {new Date(u.createdAt).toLocaleDateString('vi-VN')}
                       </span>
                     </AdminTableCell>
@@ -465,7 +465,7 @@ export default function AdminUsersPage() {
                         actions={[
                           {
                             label: 'Xem chi tiết',
-                            icon: <Eye className="w-3.5 h-3.5 text-slate-400" />,
+                            icon: <Eye className="w-3.5 h-3.5 text-admin-text-muted" />,
                             onClick: () => setViewingUser(u),
                           },
                           {
@@ -552,17 +552,17 @@ export default function AdminUsersPage() {
         {viewingUser && (
           <div className="flex flex-col gap-6">
             {/* User Profile Header */}
-            <div className="flex items-center gap-4 pb-4 border-b border-[#E2E8F0] dark:border-[#1E293B]">
-              <div className="w-14 h-14 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold text-lg flex items-center justify-center border border-amber-500/30 shrink-0">
+            <div className="flex items-center gap-4 pb-4 border-b border-admin-border">
+              <div className="w-14 h-14 bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold text-lg flex items-center justify-center border-amber-500/30 shrink-0">
                 {viewingUser.name
                   ? viewingUser.name.substring(0, 2).toUpperCase()
                   : 'US'}
               </div>
               <div className="min-w-0">
-                <h3 className="text-base font-bold text-[#0F172A] dark:text-[#F8FAFC] truncate">
+                <h3 className="text-base font-bold text-admin-text-primary truncate">
                   {viewingUser.name || 'Chưa đặt tên'}
                 </h3>
-                <p className="text-xs text-[#475569] dark:text-[#94A3B8] truncate">{viewingUser.email}</p>
+                <p className="text-xs text-admin-text-secondary dark:text-admin-text-muted truncate">{viewingUser.email}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <AdminBadge variant={viewingUser.role === 'ADMIN' ? 'primary' : 'neutral'}>
                     {viewingUser.role}
@@ -582,51 +582,51 @@ export default function AdminUsersPage() {
 
             {/* User Metadata Grid */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   User ID
                 </span>
-                <span className="font-mono text-xs text-[#0F172A] dark:text-[#F8FAFC] break-all select-all">
+                <span className="font-mono text-xs text-admin-text-primary break-all select-all">
                   {viewingUser.id}
                 </span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Tên đăng nhập
                 </span>
-                <span className="font-mono text-xs text-[#0F172A] dark:text-[#F8FAFC]">
+                <span className="font-mono text-xs text-admin-text-primary">
                   @{viewingUser.username || 'n/a'}
                 </span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Ngày đăng ký
                 </span>
-                <span className="text-xs text-[#0F172A] dark:text-[#F8FAFC]">
+                <span className="text-xs text-admin-text-primary">
                   {new Date(viewingUser.createdAt).toLocaleString('vi-VN')}
                 </span>
               </div>
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0D1424] border border-[#E2E8F0] dark:border-[#1E293B]">
-                <span className="text-[10px] font-medium text-[#94A3B8] dark:text-[#64748B] uppercase block mb-1">
+              <div className="p-3 bg-admin-bg border-admin-border">
+                <span className="text-[10px] font-medium text-admin-text-muted uppercase block mb-1">
                   Trạng thái xoá
                 </span>
-                <span className="text-xs text-[#0F172A] dark:text-[#F8FAFC]">
+                <span className="text-xs text-admin-text-primary">
                   {viewingUser.deletedAt ? 'Đã xoá mềm' : 'Còn hiệu lực'}
                 </span>
               </div>
             </div>
 
             {/* Quick Actions in Drawer */}
-            <div className="flex flex-col gap-2 pt-4 border-t border-[#E2E8F0] dark:border-[#1E293B]">
-              <h4 className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] mb-1">
+            <div className="flex flex-col gap-2 pt-4 border-t border-admin-border">
+              <h4 className="text-xs font-semibold text-admin-text-primary mb-1">
                 Thao tác quản trị
               </h4>
-              <div className="flex items-center justify-between p-3 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-white dark:bg-[#0D1424]">
+              <div className="flex items-center justify-between p-3 border-admin-border bg-admin-surface dark:bg-admin-bg">
                 <div>
-                  <p className="text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC]">
+                  <p className="text-xs font-medium text-admin-text-primary">
                     Phân quyền vai trò
                   </p>
-                  <p className="text-[11px] text-[#475569] dark:text-[#94A3B8]">
+                  <p className="text-[11px] text-admin-text-secondary dark:text-admin-text-muted">
                     Hiện tại:{' '}
                     <b className="text-amber-600 dark:text-amber-400">{viewingUser.role}</b>
                   </p>

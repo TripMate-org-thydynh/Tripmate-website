@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Activity, CalendarDays, Camera, Compass, RefreshCw, Users, Wallet } from 'lucide-react';
+import { Activity, ArrowUpRight, CalendarDays, Camera, Compass, RefreshCw, Users, Wallet } from 'lucide-react';
+import Link from 'next/link';
 import { getStatsAction } from '@/app/actions';
 import ErrorState from '@/components/ErrorState';
 import { AdminButton } from '@/components/admin/AdminButton';
@@ -34,8 +35,8 @@ interface Stats {
 
 const metrics = [
   { field: 'totalUsers', label: 'Thành viên', Icon: Users },
-  { field: 'totalTrips', label: 'Chuyến đi', Icon: Compass },
   { field: 'activeUsers', label: 'Thành viên hoạt động', Icon: Activity },
+  { field: 'totalTrips', label: 'Chuyến đi', Icon: Compass },
   { field: 'totalExpenses', label: 'Khoản chi', Icon: Wallet },
   { field: 'totalMoments', label: 'Khoảnh khắc', Icon: Camera },
   { field: 'totalReservations', label: 'Đặt chỗ', Icon: CalendarDays },
@@ -87,59 +88,68 @@ export default function AdminDashboardPage() {
   }));
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader title="Tổng quan" description="Hoạt động của thành viên, chuyến đi và chi phí trên TripMate.">
-        <AdminButton variant="outline" onClick={fetchStats} loading={loading} icon={<RefreshCw size={16} aria-hidden="true" />}>Làm mới</AdminButton>
+    <div className="space-y-7 sm:space-y-8">
+      <AdminPageHeader title="Tổng quan" description="Theo dõi thành viên, chuyến đi và chi tiêu trên TripMate.">
+        <AdminButton variant="outline" size="md" onClick={fetchStats} loading={loading} icon={<RefreshCw size={16} aria-hidden="true" />}>Làm mới</AdminButton>
       </AdminPageHeader>
 
       {error && !stats ? <ErrorState message={error} onRetry={fetchStats} /> : null}
       {loading && !stats ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Đang tải số liệu" aria-busy="true">
-          {metrics.map(({ field }) => <AdminCard key={field} className="h-26 animate-pulse motion-reduce:animate-none">{null}</AdminCard>)}
+        <div className="grid gap-px bg-admin-border sm:grid-cols-2 xl:grid-cols-3" role="status" aria-label="Đang tải số liệu" aria-busy="true">
+          {metrics.map(({ field }) => (
+            <AdminCard key={field} className="space-y-3 motion-safe:animate-pulse">
+              <div className="h-3 w-24 bg-admin-surface-hover" />
+              <div className="h-7 w-14 bg-admin-surface-hover" />
+            </AdminCard>
+          ))}
         </div>
       ) : null}
 
       {stats && <>
         {error && <p role="status" className="text-sm text-[var(--admin-accent-ink)]">{error} Đang hiển thị dữ liệu của lần tải trước.</p>}
-        {stats.northStar && (
-          <section className="grid items-center gap-4 rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface-hover)] px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:px-6" aria-labelledby="active-groups">
-            <div className="min-w-0">
-              <h2 id="active-groups" className="text-base font-semibold">Nhóm hoạt động trong 7 ngày</h2>
-              <p className="mt-1 max-w-prose text-sm text-[var(--admin-text-secondary)]">{stats.northStar.definition}</p>
-            </div>
-            <p className="text-[clamp(1.9rem,5vw,2.7rem)] font-semibold leading-tight tabular-nums text-[var(--admin-accent-ink)]">
-              {numbers.format(stats.northStar.activeSquads7Days)}
-            </p>
+        <div className={stats.northStar ? 'grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(15rem,.36fr)]' : undefined}>
+          <section className="grid grid-cols-2 gap-px bg-admin-border lg:grid-cols-3" aria-label="Chỉ số vận hành">
+            {metrics.map(({ field, label, Icon }) => (
+              <AdminStatCard key={field} title={label} value={stats[field]} icon={Icon} variant="default" />
+            ))}
           </section>
-        )}
+          {stats.northStar && (
+            <section className="flex min-w-0 flex-col justify-between gap-4 bg-[var(--admin-accent-bg)] p-5 sm:p-6" aria-labelledby="active-groups">
+              <div>
+                <h2 id="active-groups" className="text-sm font-semibold text-[var(--admin-accent-ink)]">Nhóm hoạt động trong 7 ngày</h2>
+                <p className="mt-3 text-[clamp(2.4rem,6vw,3.65rem)] font-bold leading-none tracking-tight tabular-nums text-[var(--admin-accent-ink)]">
+                  {numbers.format(stats.northStar.activeSquads7Days)}
+                </p>
+                <p className="mt-3 max-w-[45ch] text-xs leading-relaxed text-admin-text-secondary">{stats.northStar.definition}</p>
+              </div>
+              <Link href="/admin/growth" className="flex w-fit items-center gap-1.5 text-xs font-semibold text-[var(--admin-accent-ink)] hover:underline">
+                Xem tăng trưởng <ArrowUpRight className="size-3.5" aria-hidden="true" />
+              </Link>
+            </section>
+          )}
+        </div>
 
-        <section className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,152px),1fr))]" aria-label="Chỉ số vận hành">
-          {metrics.map(({ field, label, Icon }) => (
-            <AdminStatCard key={field} title={label} value={stats[field]} icon={Icon} />
-          ))}
-        </section>
-
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+        <div className="grid gap-3 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
           <AdminCard>
-            <h2 className="text-base font-semibold">Hoạt động trong 30 ngày</h2>
-            <div className="mt-4">
+            <h2 className="text-base font-semibold tracking-tight">Hoạt động trong 30 ngày</h2>
+            <div className="mt-5">
               <AdminLineChart data={period} primaryColor="var(--admin-primary)" primaryLabel="Tương tác" valueSuffix=" lượt" />
             </div>
           </AdminCard>
           <AdminCard>
-            <h2 className="text-base font-semibold">Chi tiêu theo danh mục</h2>
-            <div className="mt-4">
+            <h2 className="text-base font-semibold tracking-tight">Chi tiêu theo danh mục</h2>
+            <div className="mt-5">
               <AdminDonutChart data={expenses} totalLabel="Tổng chi tiêu" valueSuffix=" ₫" size={158} />
             </div>
           </AdminCard>
         </div>
 
         <AdminCard>
-          <h2 className="text-base font-semibold">Hoạt động gần đây</h2>
+          <h2 className="text-base font-semibold tracking-tight">Hoạt động gần đây</h2>
           {stats.recentActivities.length === 0 ? (
-            <p className="mt-3 text-sm text-[var(--admin-text-secondary)]">Chưa có hoạt động nào.</p>
+            <p className="mt-3 py-3 text-sm text-admin-text-muted">Chưa có hoạt động nào.</p>
           ) : (
-            <ul className="mt-2 divide-y divide-[var(--admin-border)]">
+            <ul className="mt-2 divide-y divide-admin-border">
               {stats.recentActivities.map((entry) => (
                 <li key={entry.id} className="grid gap-2 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
                   <div className="min-w-0">
@@ -147,7 +157,7 @@ export default function AdminDashboardPage() {
                       <strong>{entry.user?.name ?? 'Thành viên'}</strong> {entry.description}
                       {entry.trip?.name && <> · <span className="text-[var(--admin-accent-ink)]">{entry.trip.name}</span></>}
                     </p>
-                    <time dateTime={entry.createdAt} className="mt-1 block text-xs text-[var(--admin-text-secondary)]">{time.format(new Date(entry.createdAt))}</time>
+                    <time dateTime={entry.createdAt} className="mt-1 block text-xs text-admin-text-secondary">{time.format(new Date(entry.createdAt))}</time>
                   </div>
                   <AdminBadge className="max-w-full justify-self-start break-all" variant="neutral" size="xs">{entry.type}</AdminBadge>
                 </li>

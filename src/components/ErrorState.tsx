@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AdminButton } from './admin/AdminButton';
 
 interface ErrorStateProps {
   title?: string;
@@ -18,29 +19,29 @@ export default function ErrorState({
 }: ErrorStateProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center gap-3 py-12 px-6 max-w-md mx-auto text-center ${className}`}
+      role="alert"
+      className={`flex flex-col items-start gap-3 bg-admin-surface px-5 py-8 sm:px-7 ${className}`}
     >
-      <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 flex items-center justify-center text-rose-600 dark:text-rose-400 mb-1">
-        <AlertCircle className="w-6 h-6" />
+      <div className="grid size-9 place-items-center bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300">
+        <AlertCircle className="size-5" aria-hidden="true" />
       </div>
-      <div className="flex flex-col items-center gap-1 text-center">
-        <h3 className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+      <div className="space-y-1">
+        <h2 className="text-sm font-semibold text-admin-text-primary">
           {title}
-        </h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm">
+        </h2>
+        <p className="max-w-prose text-sm leading-relaxed text-admin-text-secondary">
           {message}
         </p>
       </div>
       {onRetry && (
-        <button
+        <AdminButton
           type="button"
           onClick={onRetry}
-          className="mt-2 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-xs cursor-pointer"
-          aria-label="Thử tải lại dữ liệu"
+          variant="secondary"
+          icon={<RefreshCw className="size-3.5" aria-hidden="true" />}
         >
-          <RefreshCw className="w-3.5 h-3.5" />
           Thử lại
-        </button>
+        </AdminButton>
       )}
     </div>
   );

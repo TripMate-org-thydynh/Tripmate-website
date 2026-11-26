@@ -62,23 +62,23 @@ export function AdminModal({
 
       {/* Modal Dialog Card */}
       <div
-        className={`relative z-10 w-full ${sizeClasses} bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1E293B] rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-150`}
+        className={`relative z-10 w-full ${sizeClasses} bg-admin-surface border-admin-border shadow-xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-150`}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#E2E8F0] dark:border-[#1E293B] flex items-start justify-between gap-4 bg-slate-50/60 dark:bg-[#0D1424]/60 shrink-0">
+        <div className="px-6 py-4 border-b border-admin-border flex items-start justify-between gap-4 bg-admin-bg/60 shrink-0">
           <div>
-            <h3 className="text-sm font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
+            <h3 className="text-sm font-semibold text-admin-text-primary">
               {title}
             </h3>
             {description && (
-              <p className="text-xs text-[#475569] dark:text-[#94A3B8] mt-0.5">
+              <p className="text-xs text-admin-text-secondary dark:text-admin-text-muted mt-0.5">
                 {description}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAFC] hover:bg-[#F1F5F9] dark:hover:bg-[#172238] transition-colors cursor-pointer shrink-0"
+            className="p-1.5 text-admin-text-muted hover:text-admin-text-primary hover:bg-admin-surface-hover transition-colors cursor-pointer shrink-0"
             aria-label="Đóng hộp thoại"
           >
             <X className="w-4 h-4" />
@@ -86,13 +86,13 @@ export function AdminModal({
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-y-auto text-xs text-[#0F172A] dark:text-[#F8FAFC]">
+        <div className="p-6 overflow-y-auto text-xs text-admin-text-primary">
           {children}
         </div>
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-3.5 border-t border-[#E2E8F0] dark:border-[#1E293B] bg-slate-50/60 dark:bg-[#0D1424]/60 shrink-0 flex items-center justify-end gap-2.5">
+          <div className="px-6 py-3.5 border-t border-admin-border bg-admin-bg/60 shrink-0 flex items-center justify-end gap-2.5">
             {footer}
           </div>
         )}

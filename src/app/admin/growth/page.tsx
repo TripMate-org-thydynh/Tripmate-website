@@ -102,7 +102,7 @@ export default function AdminGrowthPage() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-24 rounded-xl bg-white dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#1E293B] animate-pulse p-4 shadow-xs"
+              className="h-24 bg-admin-surface border border-admin-border animate-pulse p-4 "
             />
           ))}
         </div>
@@ -170,7 +170,7 @@ export default function AdminGrowthPage() {
               <div>
                 <AdminCardHeader>
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-[#F59E0B]/10 text-[#F59E0B] flex items-center justify-center">
+                    <div className="w-7 h-7 bg-[#F59E0B]/10 text-[#F59E0B] flex items-center justify-center">
                       <Flame className="w-4 h-4" />
                     </div>
                     <div>
@@ -184,31 +184,31 @@ export default function AdminGrowthPage() {
 
                 <div className="flex flex-col gap-2">
                   {!data?.topDestinations || data.topDestinations.length === 0 ? (
-                    <p className="text-xs text-[#94A3B8] py-6 text-center">
+                    <p className="text-xs text-admin-text-muted py-6 text-center">
                       Chưa có dữ liệu điểm đến.
                     </p>
                   ) : (
                     data.topDestinations.map((item, idx) => (
                       <div
                         key={idx}
-                        className="p-2.5 rounded-lg border border-[#E2E8F0] dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#0D1424]/60 flex items-center justify-between"
+                        className="p-2.5 border border-admin-border bg-admin-bg/50 dark:bg-admin-bg/60 flex items-center justify-between"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <span
-                            className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-[11px] shrink-0 ${
+                            className={`w-5 h-5 flex items-center justify-center font-bold text-[11px] shrink-0 ${
                               idx === 0
                                 ? 'bg-[#F59E0B]/20 text-[#F59E0B]'
                                 : idx === 1
-                                ? 'bg-slate-200 text-[#475569] dark:bg-[#1E293B] dark:text-[#F8FAFC]'
+                                ? 'bg-admin-surface-hover text-admin-text-secondary dark:bg-admin-surface-hover dark:text-admin-text-primary'
                                 : idx === 2
                                 ? 'bg-[#F59E0B]/10 text-[#F59E0B]'
-                                : 'bg-slate-100 text-[#475569] dark:bg-[#0D1424] dark:text-[#94A3B8]'
+                                : 'bg-admin-surface-hover text-admin-text-secondary dark:bg-admin-bg dark:text-admin-text-muted'
                             }`}
                           >
                             {idx + 1}
                           </span>
-                          <span className="text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC] truncate flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
+                          <span className="text-xs font-medium text-admin-text-primary truncate flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-admin-text-muted shrink-0" />
                             {item.destination}
                           </span>
                         </div>
@@ -222,11 +222,11 @@ export default function AdminGrowthPage() {
               </div>
 
               {/* AI Planning Callout */}
-              <div className="mt-5 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5">
+              <div className="mt-5 p-3 bg-amber-500/10 border-amber-500/30 flex items-start gap-2.5">
                 <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <div className="text-xs text-[#0F172A] dark:text-[#F8FAFC]">
+                <div className="text-xs text-admin-text-primary">
                   <span className="font-semibold block text-amber-700 dark:text-amber-300">Gợi ý AI Planning</span>
-                  <span className="text-[11px] text-[#475569] dark:text-[#94A3B8] leading-normal">
+                  <span className="text-[11px] text-admin-text-secondary dark:text-admin-text-muted leading-normal">
                     Đà Lạt và Phú Quốc chiếm tỷ lệ tạo lịch trình tự động cao nhất (85%).
                   </span>
                 </div>

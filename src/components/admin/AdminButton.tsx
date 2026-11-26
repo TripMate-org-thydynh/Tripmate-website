@@ -25,32 +25,33 @@ export function AdminButton({
   ...props
 }: AdminButtonProps) {
   const baseClasses =
-    'inline-flex min-w-0 max-w-full items-center justify-center break-words rounded-lg text-center font-medium leading-snug transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--admin-primary)] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none';
+    'inline-flex min-w-0 max-w-full items-center justify-center break-words text-center font-semibold leading-snug transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-primary disabled:opacity-50 disabled:cursor-not-allowed';
 
   const sizeClasses = {
-    xs: 'text-xs px-2.5 py-1 gap-1.5 min-h-7',
-    sm: 'text-xs px-3 py-1.5 gap-2 min-h-8',
-    md: 'text-sm px-4 py-2 gap-2 min-h-9',
+    xs: 'text-xs px-2.5 py-1 gap-1.5 min-h-8',
+    sm: 'text-xs px-3 py-1.5 gap-2 min-h-9',
+    md: 'text-sm px-4 py-2 gap-2 min-h-10',
     lg: 'text-sm px-5 py-2.5 gap-2.5 min-h-11 font-semibold',
   }[size];
 
   const variantClasses = {
     primary:
-      'bg-[var(--admin-primary)] hover:bg-[var(--admin-primary-hover)] text-[var(--admin-action-text)] font-semibold border border-transparent',
+      'bg-admin-primary hover:bg-admin-primary-hover text-[var(--admin-action-text)]',
     secondary:
-      'bg-[var(--admin-accent-bg)] hover:bg-[var(--admin-surface-hover)] text-[var(--admin-accent-ink)] border border-[var(--admin-border)]',
+      'bg-[var(--admin-accent-bg)] hover:bg-admin-surface-hover text-[var(--admin-accent-ink)]',
     outline:
-      'bg-[var(--admin-surface)] hover:bg-[var(--admin-surface-hover)] text-[var(--admin-text-primary)] border border-[var(--admin-border)]',
+      'bg-admin-surface hover:bg-admin-surface-hover text-admin-text-primary',
     ghost:
-      'bg-transparent hover:bg-[var(--admin-surface-hover)] text-[var(--admin-text-secondary)]',
+      'bg-transparent hover:bg-admin-surface-hover text-admin-text-secondary',
     danger:
-      'bg-[#EF4444] hover:bg-[#DC2626] text-white shadow-xs border border-[#EF4444] dark:bg-[#EF4444] dark:hover:bg-[#DC2626] dark:border-[#EF4444]',
+      'bg-red-700 hover:bg-red-800 text-white',
   }[variant];
 
   return (
     <button
       className={`${baseClasses} ${sizeClasses} ${variantClasses} ${className}`}
       disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
     >
       {loading ? (
