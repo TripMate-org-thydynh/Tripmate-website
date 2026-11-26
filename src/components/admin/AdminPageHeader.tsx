@@ -34,24 +34,24 @@ export function AdminPageHeader({
 
   return (
     <div
-      className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 pb-1 ${className}`}
+      className={`flex flex-wrap items-start justify-between gap-3.5 border-b border-[var(--admin-border)] pb-4 ${className}`}
     >
-      <div>
-        <div className="flex items-center gap-2.5">
-          <h1 className="text-xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">
+      <div className="min-w-0 flex-1 basis-60">
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="min-w-0 text-[clamp(1.5rem,3vw,2.125rem)] font-semibold leading-tight text-[var(--admin-text-primary)] tracking-tight">
             {title}
           </h1>
           {renderedBadge && <div className="shrink-0">{renderedBadge}</div>}
         </div>
         {description && (
-          <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5 max-w-2xl leading-relaxed">
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--admin-text-secondary)]">
             {description}
           </p>
         )}
       </div>
 
       {renderedActions && (
-        <div className="flex items-center gap-2 shrink-0 self-stretch sm:self-auto justify-end flex-wrap">
+        <div className="flex min-w-0 max-w-full flex-wrap items-center justify-end gap-2 self-start">
           {renderedActions}
         </div>
       )}

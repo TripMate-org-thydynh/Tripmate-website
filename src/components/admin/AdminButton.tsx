@@ -25,24 +25,24 @@ export function AdminButton({
   ...props
 }: AdminButtonProps) {
   const baseClasses =
-    'inline-flex items-center justify-center font-medium transition-all duration-150 rounded-lg cursor-pointer select-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.98]';
+    'inline-flex min-w-0 max-w-full items-center justify-center break-words rounded-lg text-center font-medium leading-snug transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--admin-primary)] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none';
 
   const sizeClasses = {
-    xs: 'text-xs px-2.5 py-1 gap-1.5 h-7',
-    sm: 'text-xs px-3 py-1.5 gap-2 h-8',
-    md: 'text-sm px-4 py-2 gap-2 h-9',
-    lg: 'text-sm px-5 py-2.5 gap-2.5 h-11 font-semibold',
+    xs: 'text-xs px-2.5 py-1 gap-1.5 min-h-7',
+    sm: 'text-xs px-3 py-1.5 gap-2 min-h-8',
+    md: 'text-sm px-4 py-2 gap-2 min-h-9',
+    lg: 'text-sm px-5 py-2.5 gap-2.5 min-h-11 font-semibold',
   }[size];
 
   const variantClasses = {
     primary:
-      'bg-[#FFD84D] hover:bg-[#FACC15] text-[#141210] font-semibold shadow-xs border border-amber-400/60 dark:bg-[#FFD84D] dark:hover:bg-[#FACC15] dark:text-[#141210] dark:border-amber-400/40',
+      'bg-[var(--admin-primary)] hover:bg-[var(--admin-primary-hover)] text-[var(--admin-action-text)] font-semibold border border-transparent',
     secondary:
-      'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 dark:bg-[#172238] dark:hover:bg-[#1E293B] dark:text-[#F8FAFC] dark:border-[#1E293B] shadow-xs',
+      'bg-[var(--admin-accent-bg)] hover:bg-[var(--admin-surface-hover)] text-[var(--admin-accent-ink)] border border-[var(--admin-border)]',
     outline:
-      'bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 dark:bg-[#111827] dark:hover:bg-[#172238] dark:text-[#F8FAFC] dark:border-[#1E293B] shadow-xs',
+      'bg-[var(--admin-surface)] hover:bg-[var(--admin-surface-hover)] text-[var(--admin-text-primary)] border border-[var(--admin-border)]',
     ghost:
-      'bg-transparent hover:bg-slate-100 text-slate-600 hover:text-slate-900 dark:hover:bg-[#172238] dark:text-[#94A3B8] dark:hover:text-[#F8FAFC]',
+      'bg-transparent hover:bg-[var(--admin-surface-hover)] text-[var(--admin-text-secondary)]',
     danger:
       'bg-[#EF4444] hover:bg-[#DC2626] text-white shadow-xs border border-[#EF4444] dark:bg-[#EF4444] dark:hover:bg-[#DC2626] dark:border-[#EF4444]',
   }[variant];
