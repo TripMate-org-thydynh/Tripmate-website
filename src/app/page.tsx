@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowDown, ArrowRight, ChevronDown, MapPin, Menu } from 'lucide-react';
 import { TripJourney } from '@/components/landing/TripJourney';
+import { TravelMotion } from '@/components/landing/TravelMotion';
 import { TripMateMark } from '@/components/TripMateMark';
 import ThemeToggle from '@/components/ThemeToggle';
 import './landing.css';
@@ -31,6 +32,8 @@ const days = [
   { day: 'Ngày 3', title: 'Cà phê trước khi về', stops: ['08:30 · Hẹn cà phê trong phố', '11:00 · Trả phòng'] },
 ];
 
+const heroRoute = 'M-65 480C123 485 65 311 202 316c114 4 87 127 209 134 160 9 101-164 234-182 94-13 187 67 228-28 24-54-30-97 17-142';
+
 const questions = [
   { question: 'Có thể xem TripMate trước khi tải app không?', answer: 'Có. Mở bản xem thử trên trình duyệt để làm quen với giao diện và cách tổ chức chuyến đi.' },
   { question: 'TripMate chia tiền cho cả nhóm như thế nào?', answer: 'Mỗi khoản ghi rõ người đã thanh toán và những ai cùng chia. Cả nhóm có thể xem số tiền còn cần thanh toán.' },
@@ -40,6 +43,7 @@ const questions = [
 export default function LandingPage() {
   return (
     <div className="tripmate-landing">
+      <TravelMotion />
       <a className="travel-skip" href="#landing-main">Đến nội dung chính</a>
       <header className="travel-header">
         <div className="travel-wrap travel-header-inner">
@@ -64,7 +68,7 @@ export default function LandingPage() {
       </header>
 
       <main id="landing-main" tabIndex={-1}>
-        <section className="travel-hero" aria-labelledby="travel-title">
+        <section className="travel-hero" aria-labelledby="travel-title" data-travel-motion="hero">
           <div className="travel-wrap travel-hero-inner">
             <div className="travel-hero-copy">
               <h1 id="travel-title"><span>Cùng hội</span><span>lên đường.</span></h1>
@@ -74,8 +78,10 @@ export default function LandingPage() {
             <div className="travel-hero-scene">
               <div className="travel-hero-contours" aria-hidden="true" />
               <svg className="travel-hero-route" viewBox="0 0 890 520" fill="none" aria-hidden="true">
-                <path d="M-65 480C123 485 65 311 202 316c114 4 87 127 209 134 160 9 101-164 234-182 94-13 187 67 228-28 24-54-30-97 17-142" pathLength="1" />
+                <path className="travel-route-guide" d={heroRoute} />
+                <path className="travel-route-ink" d={heroRoute} pathLength="1" />
               </svg>
+              <div className="travel-cast-shadow" aria-hidden="true" />
               <Image className="travel-squad" src="/tripmate/brand/ill_squad.svg" alt="Bốn người bạn cùng chụp ảnh trong chuyến đi" width={513} height={720} preload unoptimized />
             </div>
             <div className="travel-hero-links">
@@ -87,10 +93,10 @@ export default function LandingPage() {
 
         <TripJourney />
 
-        <section className="travel-wrap travel-story" id="story" aria-labelledby="story-title">
+        <section className="travel-story" id="story" aria-labelledby="story-title" data-travel-motion="">
           <figure className="travel-photo">
             <div className="travel-photo-frame">
-              <Image src="/tripmate/da-lat/pine-forest.jpg" alt="Nắng chiếu qua những hàng thông ở Đà Lạt" fill sizes="(max-width: 760px) 92vw, 46vw" />
+              <Image src="/tripmate/da-lat/pine-forest.jpg" alt="Nắng chiếu qua những hàng thông ở Đà Lạt" fill sizes="(max-width: 810px) 100vw, 72vw" />
             </div>
             <figcaption><span>Đà Lạt, Lâm Đồng</span><a href="https://www.pexels.com/photo/scenic-pine-tree-forest-in-dalat-vietnam-35731564/">Ảnh Quang Vuong</a></figcaption>
           </figure>
@@ -115,29 +121,33 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="travel-faq-band" id="faq" aria-labelledby="faq-title">
+        <section className="travel-faq-band" id="faq" aria-labelledby="faq-title" data-travel-motion="">
           <div className="travel-wrap travel-faq">
-            <div className="travel-faq-intro">
-              <h2 id="faq-title">Bạn muốn biết thêm?</h2>
-              <Image src="/tripmate/brand/ill_travelers.svg" alt="" width={923} height={659} unoptimized />
+            <div>
+              <h2 id="faq-title">Trước khi lên đường</h2>
+              <div className="travel-questions">
+                {questions.map(({ question, answer }, index) => (
+                  <details key={question} name="tripmate-faq" open={index === 0}>
+                    <summary>{question} <ChevronDown aria-hidden="true" size={18} /></summary>
+                    <p>{answer}</p>
+                  </details>
+                ))}
+              </div>
             </div>
-            <div className="travel-questions">
-              {questions.map(({ question, answer }) => (
-                <details key={question} name="tripmate-faq">
-                  <summary>{question} <ChevronDown aria-hidden="true" size={18} /></summary>
-                  <p>{answer}</p>
-                </details>
-              ))}
+            <div className="travel-faq-art">
+              <Image src="/tripmate/brand/ill_travelers.svg" alt="" width={923} height={659} unoptimized />
             </div>
           </div>
         </section>
 
-        <section className="travel-wrap travel-bottom" aria-labelledby="next-trip-title">
-          <div>
-            <h2 id="next-trip-title">Chuyến sau đi đâu?</h2>
-            <Link className="travel-button travel-button-primary" href="/preview">Thử TripMate <ArrowRight aria-hidden="true" size={18} /></Link>
+        <section className="travel-bottom" aria-labelledby="next-trip-title" data-travel-motion="">
+          <div className="travel-wrap travel-bottom-inner">
+            <div>
+              <h2 id="next-trip-title">Chuyến sau đi đâu?</h2>
+              <Link className="travel-button travel-button-primary" href="/preview">Thử TripMate <ArrowRight aria-hidden="true" size={18} /></Link>
+            </div>
+            <Image src="/tripmate/brand/ill_road.svg" width={888} height={623} alt="" unoptimized />
           </div>
-          <Image src="/tripmate/brand/ill_road.svg" width={888} height={623} alt="" unoptimized />
         </section>
       </main>
 

@@ -55,7 +55,7 @@ export function TripJourney() {
 
         <div className="travel-journey-grid">
           <div className="travel-journey-stage">
-            <div className="travel-demo travel-demo-plan" aria-hidden="true">
+            <div className="travel-demo travel-demo-plan" aria-hidden="true" data-travel-motion="">
               <div className="travel-demo-ticket">
                 <div className="travel-demo-title"><CalendarDays size={18} /> Lịch trình nhóm</div>
                 <strong>Cuối tuần ở Đà Lạt</strong>
@@ -67,7 +67,7 @@ export function TripJourney() {
               </div>
               <Image src="/tripmate/brand/ill_travelers.svg" alt="" width={923} height={659} unoptimized />
             </div>
-            <div className="travel-demo travel-demo-cost" aria-hidden="true">
+            <div className="travel-demo travel-demo-cost" aria-hidden="true" data-travel-motion="">
               <div className="travel-demo-ticket">
                 <div className="travel-demo-title"><Wallet size={18} /> Chi phí nhóm</div>
                 <strong>1.280.000 ₫</strong>
@@ -78,7 +78,7 @@ export function TripJourney() {
                 <div className="travel-demo-total"><span>Mỗi người</span><b>320.000 ₫</b></div>
               </div>
             </div>
-            <div className="travel-demo travel-demo-album" aria-hidden="true">
+            <div className="travel-demo travel-demo-album" aria-hidden="true" data-travel-motion="">
               <div className="travel-demo-ticket">
                 <div className="travel-demo-title"><Camera size={18} /> Album chuyến đi</div>
                 <strong>Một sáng ở Đà Lạt</strong>
